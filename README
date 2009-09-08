@@ -26,9 +26,6 @@ things like reduce your dependence on proprietary CSS extensions like
 -moz-border-radius; others push CSS beyond the spec and pave the way
 for future iterations of the language.
 
-See http://eCSStender.org/eCSStensions/ for a list of approved
-eCSStensions.
-
 == The distribution
 
 Besides the eCSStender files in src, there's a complete
