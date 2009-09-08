@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>eCSStender Example: @page</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta name="author" content="" />
+    <meta name="MSSmartTagsPreventParsing" content="true" />
+    <meta name="ROBOTS" content="ALL" />
+    <meta name="Copyright" content="Copyright (c) 2008. All rights reserved." />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="Rating" content="General" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/screen.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="../src/eCSStender.js"></script>
+    <script type="text/javascript">
+      // <![CDATA[
+      eCSStender.onComplete(function(){
+        var
+        $content = $('#content'),
+        $list  = $('<dl></dl>'),
+        $name  = $('<dt></dt>'),
+        $props = $('<dd><ul></ul></dd>'),
+        $prop  = $('<li></li>'),
+        $font, $properties;
+        for ( var page in eCSStender.pages )
+        {
+          if ( eCSStender.isInheritedProperty( eCSStender.pages, page ) ) { continue; }
+          $list.append( $name.clone().text( page ) );
+          for ( var prop in eCSStender.pages[page] )
+          {
+            if ( eCSStender.isInheritedProperty( eCSStender.pages[page], prop ) ) { continue; }
+            $list.append( $props.clone()
+                                .append( $prop.clone()
+                                              .text( prop + ': ' + eCSStender.pages[page][prop] ) ) );
+          }
+        }
+        $content.append($list);
+      });
+      // ]]>
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>CSS Pages</h1>
+      <p>Author-defined pages (using <code>@page</code>) that are exposed as objects in the hash exposed as <code>eCSStender.pages</code>.</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+== eCSStender
+
+The web is constantly changing and yet we’ve been using CSS in pretty
+much the same way for nearly a decade.
+
+eCSStender changes all of that.
+
+For more information, see http://eCSStender.org
+
+== What's new in this release?
+
+See the CHANGELOG file for information on what's new.
+
+== Installation/Usage
+
+Put eCSStender.js in a directory on your website, e.g. /js.
+
+Now, you can include the scripts by adding the following 
+tags to your HTML pages:
+
+ <script src="/js/eCSStender.js" type="text/javascript"></script>
+
+eCSStender does nothing on it's own, but it facilitates the use of
+eCSStensions developed by the community. Some eCSStensions do simple
+things like reduce your dependence on proprietary CSS extensions like
+-moz-border-radius; others push CSS beyond the spec and pave the way
+for future iterations of the language.
+
+See http://eCSStender.org/eCSStensions/ for a list of approved
+eCSStensions.
+
+== The distribution
+
+Besides the eCSStender files in src, there's a complete
+test tree included which holds assorted tests for eCSStender.
+
+If you need examples on how to implement things, we suggest opening 
+tests/index.html (in your browser) and browsing the examples 
+provided.
+
+== License
+
+eCSStender is licensed under the terms of the MIT License, see 
+the included MIT-LICENSE file.

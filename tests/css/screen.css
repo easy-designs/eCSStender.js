@@ -1,0 +1,61 @@
+/*----------------------------------------------------------------------------------------
+
+Big
+Block of comments
+
+----------------------------------------------------------------------------------------*/
+@import 'imported.css';
+
+@font-face {
+  font-family: 'Comfortaa';
+  font-weight: normal;
+  src: url('../../examples/fonts/Comfortaa_Regular');
+}
+@font-face {
+  font-family: 'Comfortaa';
+  font-weight: bold;
+  src: url('../../examples/fonts/Comfortaa_Bold');
+}
+
+@page {
+  margin: 3cm;
+}
+@page :right {
+  margin: 5cm;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #fff;
+  padding: 10px 0 0 10px;
+} /* comment */
+h1 {
+  font-family: Comfortaa, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#content {
+  width: 60%;
+  float: left;
+  position: relative;
+}
+#sidebar {
+  background: #ccc;
+  border-radius: 10px 5px 20px 10px / 0.5;
+  margin: 0 10px;
+  padding: 10px 20px;
+  width: 30%;
+  float: right;
+  position: relative;
+  -easy-extended-property: foo;
+}
+tr:nth-child(even) {
+  background-color: #ccc;
+}
+tr:nth-child(odd) {
+  background-color: #666;
+}
+
+@media handheld {
+  p {
+    font-weight: bold;
+  }
+}

@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>eCSStender Example: transform: rotate()</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta name="author" content="" />
+    <meta name="MSSmartTagsPreventParsing" content="true" />
+    <meta name="ROBOTS" content="ALL" />
+    <meta name="Copyright" content="Copyright (c) 2008. All rights reserved." />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="Rating" content="General" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/screen.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="../src/eCSStender.js"></script>
+    <script type="text/javascript">
+      // <![CDATA[
+      eCSStender.register(
+        { 'fragment': 'transform',
+          'filter': {
+            'value': /rotate\(-?\d+?\)/
+          },
+          'test':     function()
+          {
+            var rotate = 'matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)'; // rotate(45deg)
+            return ( ! eCSStender.isSupported( 'property', 'transform: ' + rotate ) &&
+                     ( eCSStender.isSupported( 'property', '-moz-transform: ' + rotate ) ||
+                       eCSStender.isSupported( 'property', '-webkit-transform: ' + rotate ) ||
+                       eCSStender.isSupported( 'property', '-khtml-transform: ' + rotate ) ||
+                       eCSStender.isSupported( 'property',
+                                               "filter: progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand')" ) ) );
+          }
+        },
+        false,
+        function( selector, properties, medium ){
+          var style_block = selector + ' { ';
+          
+          var rotate = 'matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)'; // rotate(45deg)
+          var prefix = ( eCSStender.isSupported( 'property', '-moz-transform: ' + rotate ) ||
+                         eCSStender.isSupported( 'property', '-webkit-transform: ' + rotate ) ||
+                         eCSStender.isSupported( 'property', '-khtml-transform: ' + rotate ) );
+          var MS = eCSStender.isSupported( 'property', "filter: progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand')" );
+          
+          // Microsoft uses Matrix filters
+          if ( MS )
+          {
+            style_block += '';
+            // create the transform origin function
+            function addToMatrix( el, additions )
+            {
+              var
+              params = el.style.filter.replace( /.*?Microsoft\.Matrix\((.*?)\)/, '$1' ).split(','),
+              param, i,
+              str = 'progid:DXImageTransform.Microsoft.Matrix(';
+              if ( el.style.filter != '' )
+              {
+                i = params.length;
+                while ( i-- )
+                {
+                  param = params[i].split('=');
+                  if ( typeof( additions[param[0]] ) != 'undefined' &&
+                       additions[params[i][0]] != false )
+                  {
+                    str += getParamString( param[0], additions[param[0]] );
+                    additions[param[0]] = false;
+                  }
+                  else
+                  {
+                    str += getParamString( param[0], param[1] );
+                  }
+                }
+              }
+              for ( param in additions )
+              {
+                if ( ! eCSStender.isInheritedProperty( additions, param ) )
+                {
+                  str += getParamString( param, additions[param] );
+                }
+              }
+              str = str.substring( 0, str.length-1 ) + ')';
+              el.style.filter   = str;
+              el.style.msfilter = str;
+            }
+            function getParamString( property, value )
+            {
+              var
+              type = typeof( value ),
+              str  = property + '=';
+              if ( type.toLowerCase() == 'number' )
+              {
+                str += value;
+              }
+              else
+              {
+                str += "'" + value + "'";
+              }
+              return str + ',';
+            }
+            if ( typeof( eCSStender.methods['setOrigin'] ) == 'undefined' )
+            {
+              eCSStender.addMethod( 'setOrigin', function( el, x, y ){
+                // set the filter
+                addToMatrix( el, {
+                  'Dx': x,
+                  'Dy': y 
+                });
+              });
+              // create the rotation function
+              eCSStender.addMethod( 'rotate', function( el, degrees ){
+                $el = $( el );
+                var original_height = $el.height();
+                var original_width  = $el.width();
+                var radians  = degrees * ( Math.PI * 2 / 360 );
+                var costheta = Math.cos( radians );
+                var sintheta = Math.sin( radians );
+                // set the filter
+                addToMatrix( el, {
+                  'M11': costheta,
+                  'M12': -sintheta,
+                  'M21': sintheta,
+                  'M22': costheta,
+                  'SizingMethod': 'auto expand'
+                });
+                var vertical_offset = original_height - $el.height();
+                var horizontal_offset = $el.width() - original_width;
+                if ( $el.css('position') == 'static' )
+                {
+                  $el.css({
+                    'position': 'relative',
+                    'top':      vertical_offset + 'px',
+                    'left':     horizontal_offset + 'px'
+                  });
+                }
+                else
+                {
+                  var
+                  top  = $el.css('top'),
+                  left = $el.css('left');
+                  $el.css({
+                    'top':  ( vertical_offset + parseInt( top != 'auto' ? top : 0 ) ) + 'px',
+                    'left': ( horizontal_offset + parseInt( left != 'auto' ? left : 0 ) ) + 'px'
+                  });
+                }
+              });
+            }
+
+          }
+          
+          // capture the value
+          var degrees = parseInt( properties['transform'].replace( /rotate\((-?\d+?)\)/, '$1' ) );
+          for ( var prop in properties )
+          {
+            // Mozilla, Webkit or Konquerer
+            if ( prefix )
+            {
+              if ( prop == 'transform' )
+              {
+                style_block += '-moz-transform: rotate(' + degrees + 'deg); ' +
+                               '-webkit-transform: rotate(' + degrees + 'deg); ' +
+                               '-khtml-transform: rotate(' + degrees + 'deg); ';
+              }
+              else
+              {
+                style_block += '-moz-' + prop + ': ' + properties[prop] + '; ' +
+                               '-webkit-' + prop + ': ' + properties[prop] + '; ' +
+                               '-khtml-' + prop + ': ' + properties[prop] + '; ';
+              }
+            }
+            // Microsoft
+            else if ( MS )
+            {
+              switch ( prop )
+              {
+                case 'transform':
+                  $( selector ).each(function(){
+                    eCSStender.methods.rotate( this, degrees );
+                  });
+                  break;
+                case 'transform-origin':
+                  $( selector ).each(function(){
+                    var $this = $( this );
+                    var height = $this.height();
+                    var width  = $this.width();
+                    var coords = properties[prop].split(' ');
+                    // by default 50% 50%
+                    var x;
+                    // keywords
+                    if ( coords[0] == 'top' ||
+                         parseInt( coords[0] ) == 0 ||
+                         coords[1] == 'top' )
+                    {
+                      x = 0;
+                    }
+                    else if ( coords[0] == 'bottom' ||
+                              coords[1] == 'bottom' )
+                    {
+                      x = width;
+                    }
+                    // percentage
+                    else if ( coords[0].match(/\d+?%/) )
+                    {
+                      x = width * ( 100 / parseInt( coords[0] ) );
+                    }
+                    // pixels
+                    else if ( coords[0].match(/\d+?px/) )
+                    {
+                      x = parseInt( coords[0] );
+                    }
+                    // default (50%)
+                    else
+                    {
+                      x = width / 2;
+                    }
+                    var y;
+                    // keywords
+                    if ( coords[0] == 'left' ||
+                         coords[1] == 'left' ||
+                         parseInt( coords[1] ) == 0 )
+                    {
+                      y = 0;
+                    }
+                    else if ( coords[0] == 'right' ||
+                              coords[1] == 'right' )
+                    {
+                      y = height;
+                    }
+                    // percentage
+                    else if ( coords[1].match(/\d+?%/) )
+                    {
+                      y = height * ( 100 / parseInt( coords[1] ) );
+                    }
+                    // pixels
+                    else if ( coords[1].match(/\d+?px/) )
+                    {
+                      y = parseInt( coords[1] );
+                    }
+                    // default (50%)
+                    else
+                    {
+                      y = height / 2;
+                    }
+                    eCSStender.methods.setOrigin( this, x, y );
+                  });
+                  break;
+              }
+              
+            }
+          }
+          style_block += '} ';
+          eCSStender.embedCSS( style_block, medium );
+        }
+      );
+      // ]]>
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <p class="test">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <table>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+      </table>      
+      <p>Lorem ipsum dolor sit amet, <abbr title="Hyper TextMarkup Language">HTML</abbr> consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+    </div>
+    <div id="sidebar">
+    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+    </div>
+  </body>
+</html>

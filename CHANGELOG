@@ -1,0 +1,142 @@
+*v1.0* (2009-09-08)
+
+* added support for local cache when server (not file) based
+* added public method eCSStender::disableCache to disable caching
+* overhauled the caching mechanisms to be faster and more broad
+* added new public method eCSStender::ignore() which accepts a string filename or array of string filenames to ignore when parsing stylesheets (allows speeding up by excluding simple stylesheets)
+* added public method eCSStender::onComplete() which accepts functions to be run when eCSStender finishes its work (for extensions that require access to everything after the fact)
+* eCSStender::setFilter() renamed eCSStender::addMethod() to avoid confusion with "filters" as a means of weeding out results of a search
+* eCSStender.filters renamed eCSStender.methods to avoid confusion with "filters" as a means of weeding out results of a search
+* updated & added to unit tests & examples
+* added JS code for QUnit to the package
+* moved project from private repository to Github
+
+--
+*v0.10* (2009-06-08)
+
+* overhaul of numerous internals to speed things up
+* opened up selector-based lookups to finding by Function, either as a single or in an array
+* added a new method (eCSStender::lookup) to enable extension to re-query the CSS to extract additional information form the stylesheet. It takes arguments similar to those of eCSStender::register and returns an array of matches with a full complement of details. See the source for more information
+* continued implementing the CSS3 selectors module, including a fix for IE6's issues with compound class selectors and a re-factoring of the nth-child extension to allow for some browsers' failure to comprehend whitespace not to require inline style additions.
+* added/updated test cases
+
+--
+*v0.9* (2009-06-05)
+
+* overhaul of internal eCSStend() method to speed it up
+* opened up selector-based lookups to finding by RegExp
+* adjusted eCSStender::register() to accept an array of selector lookups, each item of which can be a selector string (including compound selector strings) or RegExp.
+* began work on implementing CSS3 modular extensions (./extensions/css3-modules), starting with selectors (./extensions/css3-modules/selectors) which leverage Sizzle (http://sizzlejs.com/)
+
+--
+*v0.8.1* (2009-06-04)
+
+* implemented __support_cache for speeding up repeated calls to isSupported()
+
+--
+
+*v0.8* (2009-05-24)
+
+* fixed typos and such on the examples
+* added new public method: eCSStender::applyWeightedStyle()
+* updated nth-child example to use eCSStender::applyWeightedStyle()
+* added specificity to the list of arguments returned to an extension
+* updated unit tests
+* cleaned up unused files in ./examples
+
+--
+
+*v0.7.2* (2009-05-22)
+
+* fix to eCSStender::isSupported()
+
+--
+
+*v0.7.1* (2009-05-20)
+
+* moved contents of ./tests to ./examples to make room for actual unit testing code
+* added unit tests in ./tests
+* moved to referencing external jQuery.js in examples
+
+--
+
+*v0.7* (2009-05-15)
+
+* added support for eCSStender to maintain CSS filter functions in eCSStender.filters (for Microsoft filter support); public method eCSStender::setFilter() will set or override eCSStender's maintained list of filters
+* adjusted the findImportedStyleSheets() method to better support IE6
+* extracted the code to add a new stylesheet to the stack into a new private method: addStyleSheet()
+* added a private path determination method to cut down on issues with regard to capturing nested stylesheets: determinePath()
+* added support for lookups by an array of properties
+* added support for filtering the results of a lookup by property or property value; new private method filtersMatched() and an example implemented in the transform test (see below)
+* adjusted the handling of the __xhr property to better deal with IE6
+* added a private method called zero_out() to assist in auto-converting all instances of "0px" to "0" in properties (to ensure consistency when comparing native storage or properties)
+* adjusted eCSStender::addRules() for better cross-browser compatibility
+* fixed a bug in eCSStender::isSupported() where IE was reporting that it knew what to do with advanced properties like “transform” (it didn't)
+* added a new test: ./tests/transform.html that implements CSS rotation in IE5.5+, Mozilla 3.5, and Safari 4
+
+--
+
+*v0.6.2* (2009-05-08)
+
+* minor tweak to @page to get IE6 to support "all" pages
+* added Comfortaa (http://www.fontsquirrel.com/fonts/Comfortaa) font family in ./tests/fonts
+* updated ./tests/css/screen.css to make use of Comfortaa
+* tweaked ./tests/font-face.html and ./tests/page.html to use setTimeout() instead of using jQuery's fadeTo() for the delay to keep IE6 from mangling the fonts
+
+--
+
+*v0.6.1* (2009-04-19)
+
+* minor bug fix to @media support
+* updated object and docs to appropriate version (still had it as 0.5)
+
+--
+
+*v0.6* (2009-04-19)
+
+* added support for @media groups
+* added support for and exposure of @font-face (as eCSStender.fonts)
+* added @font-face test
+* added support for and exposure of @page (as eCSStender.pages)
+* added @page test
+* isolated and improved the property-extraction method
+* fixed a minor oversight in the border-radius example (did not insert -khtml- properties)
+
+--
+
+*v0.5* (2009-04-17)
+
+* Adjusted how eCSStender is created to avoid contaminating the window object
+* Tweaked the XHR construction
+* Added isInheritedProperty function to test for tainted Object
+* Fixed a memory leak in IE
+* Exposed eCSStender::trim() and eCSStender::isInheritedProperty()
+* added support for lookup by property fragment
+* improved border-radius sample extension
+
+--
+
+*v0.4* (2009-03-29)
+
+* Added fixes to for...in loops so we can play nice when someone extends Object (e.g. the Prototype library)
+
+--
+
+*v0.3* (2009-03-28)
+
+* Added support for testing selectors
+* Added documentation to exposed methods
+
+--
+
+*v0.2* (2009-03-03)
+
+* Added support for test cases on a per-extension basis
+* Initial check-in of script
+
+--
+
+*v0.1* (Nov 2005 - Jan 2009)
+
+* First pass at general configuration and extensibility
+* Non-version experiments and concept development stemming from gFSS (first demoed in Feb 2007 at Web Directions North)

@@ -1,0 +1,13 @@
+body {
+  background: #f00;
+}
+#content {
+  width: 60%;
+  float: left;
+  position: relative;
+}
+#sidebar {
+  width: 30%;
+  float: right;
+  position: relative;
+}

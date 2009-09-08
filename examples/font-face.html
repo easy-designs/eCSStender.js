@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>eCSStender Example: @font-face</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta name="author" content="" />
+    <meta name="MSSmartTagsPreventParsing" content="true" />
+    <meta name="ROBOTS" content="ALL" />
+    <meta name="Copyright" content="Copyright (c) 2008. All rights reserved." />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="Rating" content="General" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/screen.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="../src/eCSStender.js"></script>
+    <script type="text/javascript">
+      // <![CDATA[
+      eCSStender.onComplete(function(){
+        var
+        $content = $('#content'),
+        $list  = $('<dl></dl>'),
+        $name  = $('<dt></dt>'),
+        $props = $('<dd><ul></ul></dd>'),
+        $prop  = $('<li></li>'),
+        $font, $properties;
+        for ( var i=0, iLen=eCSStender.fonts.length; i<iLen; i++ )
+        {
+          $list.append( $name.clone().text( eCSStender.fonts[i]['font-family'] ) );
+          for ( var prop in eCSStender.fonts[i] )
+          {
+            if ( eCSStender.isInheritedProperty( eCSStender.fonts[i], prop ) ||
+                 prop == 'font-family' ) { continue; }
+            $list.append( $props.clone()
+                                .append( $prop.clone()
+                                              .text( prop + ': ' + eCSStender.fonts[i][prop] ) ) );
+          }
+        }
+        $content.append($list);
+      });
+      // ]]>
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>Web Fonts</h1>
+      <p>Author-defined fonts (using <code>@font-face</code>) that are exposed in an array via <code>eCSStender.fonts</code>.</p>
+    </div>
+  </body>
+</html>

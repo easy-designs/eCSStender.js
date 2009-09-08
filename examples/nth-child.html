@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>eCSStender Example: nth-child</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta name="author" content="" />
+    <meta name="MSSmartTagsPreventParsing" content="true" />
+    <meta name="ROBOTS" content="ALL" />
+    <meta name="Copyright" content="Copyright (c) 2008. All rights reserved." />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="Rating" content="General" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/screen.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="../src/eCSStender.js"></script>
+    <script type="text/javascript">
+      // <![CDATA[
+      // This script makes use of the jQuery library
+      eCSStender.register(
+        { 'selector': ':nth-child(even), :nth-child(odd)',
+          'test':     function(){
+            // the markup
+            var div = document.createElement('div');
+            var p   = document.createElement('p');
+            div.appendChild( p );
+            // the test
+            return ( ! eCSStender.isSupported( 'selector', 'div p:nth-child(odd)', div, p ) );
+          }
+        },
+        '*',
+        function( selector, properties, medium, specificity ){
+          $( selector ).each(function(){
+            eCSStender.applyWeightedStyle( this, properties, specificity );
+          });
+        }
+      );
+      // ]]>
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <p class="test">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <table>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+        <tr>
+          <th>Header</th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+      </table>      
+      <p>Lorem ipsum dolor sit amet, <abbr title="Hyper TextMarkup Language">HTML</abbr> consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+    </div>
+    <div id="sidebar">
+    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+    </div>
+  </body>
+</html>
