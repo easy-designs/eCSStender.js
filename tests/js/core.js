@@ -14,6 +14,7 @@ $(document).ready(function(){
   });
   
   // ignoring some stuff
+  eCSStender.ignore('testsuite.css');
   eCSStender.ignore('ignored-1.css');
   eCSStender.ignore(['ignored-2.css']);
   
