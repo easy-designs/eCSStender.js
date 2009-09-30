@@ -1737,49 +1737,54 @@ Note:           If you change or improve on this script, please let us know by
 
   /*-------------------------------------*
    * DOM Loaded Trigger                  *
-   * Based on the work of Jesse Skinner, *
-   * Dean Edwards, Matthias Miller,      *
-   * John Resig, and Dan Webb            *
+   * Based on jQuery's                   *
    *-------------------------------------*/
   (function(){
     var
-    __load_timer = FALSE,
-    __old_onload = window.onload,
-    DCL = 'DOMContentLoaded';
-
-    // for Mozilla/Opera9
-    if ( document.addEventListener )
+    d = document,
+    DCL = 'DOMContentLoaded',
+    ORC = 'onreadystatechange',
+    __old_onload = window.onload;
+    
+    // for Mozilla/Safari/Opera9
+  	if ( document.addEventListener )
     {
       document.addEventListener( DCL, function(){
         document.removeEventListener( DCL, arguments.callee, FALSE );
         initialize();
       }, FALSE );
     }
-    // for Internet Explorer
-    /*@cc_on @*/
-    /*@if (@_win32)
-      document.write("<script id=__ie_onload defer src=//0><\/scr"+"ipt>");
-      script = document.getElementById("__ie_onload");
-      script.onreadystatechange = function() {
-        if (this.readyState == "complete"){ initialize(); } // call the onload handler
-      };
-    /*@end @*/
-    // for Safari
-    if ( /WebKit/i.test( navigator.userAgent ) ) // sniff
-    {
-      __load_timer = setInterval( function(){
-        if ( /loaded|complete/.test( document.readyState ) )
-        {
-          clearInterval( __load_timer );
-          initialize();
-        }
-      }, 10 );
-    }
-    // for other browsers set the window.onload, but also execute the old window.onload
-    window.onload = function(){
-      initialize();
-      if ( __old_onload ){ old_onload(); }
-    };
+    // If IE event model is used
+  	else if ( document.attachEvent )
+  	{
+  		// ensure firing before onload, maybe late but safe also for iframes
+  		document.attachEvent( ORC, function(){
+  			if ( document.readyState === "complete" ) {
+  				document.detachEvent( ORC, arguments.callee );
+  				initialize();
+  			}
+  		});
+
+  		// If IE and not an iframe, continually check to see if the document is ready
+  		if ( document.documentElement.doScroll &&
+  		     window == window.top )
+  		{
+  		  (function(){
+  			  try {
+      			// If IE is used, use the trick by Diego Perini
+      			// http://javascript.nwbox.com/IEContentLoaded/
+      			document.documentElement.doScroll("left");
+      		}
+      		catch( error )
+      		{
+      			setTimeout( arguments.callee, 0 );
+      			return;
+      		}
+          // and execute any waiting functions
+  			  initialize();
+  		  })();
+  	  }
+  	}
   })();
   
 })();
