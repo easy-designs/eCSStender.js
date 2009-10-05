@@ -2,7 +2,7 @@
 Function:       eCSStender()
 Author:         Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date:  2006-12-03
-Version:        1.0
+Version:        1.0.1
 Homepage:       http://eCSStender.org
 License:        MIT License (see homepage)
 Note:           If you change or improve on this script, please let us know by
@@ -105,7 +105,7 @@ Note:           If you change or improve on this script, please let us know by
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.0',
+    version:   '1.0.1',
     fonts:     [],
     pages:     {},
     methods:   {},
@@ -611,6 +611,7 @@ Note:           If you change or improve on this script, please let us know by
   }
   function gatherProperties( properties )
   {
+    if ( ! is( properties, STRING ) ){ return {}; }
     properties = properties.split(';');
     var props = {}, p, pLen, arr, property;
     for ( p=0, pLen=properties.length; p<pLen; p++ )
