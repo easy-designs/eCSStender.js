@@ -1,7 +1,5 @@
-eCSStender.register(
-  {'selector': 'h1'},
-  '*',
-  function( selector, properties, media ){
+eCSStender.onComplete(function(){
+
     module('Core Methods');
 
     test( 'eCSStender::lookup', function(){

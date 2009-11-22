@@ -44,7 +44,7 @@ if (!window.console || !window.console.firebug) {
 											};
 										})(logFx[i]);
 		} else {
-			window.console[logFx[i]] = function() {};
+			window.console[logFx[i]] = function(){};
 		}
 	}
 	if (window.opera) {
@@ -56,7 +56,7 @@ if (!window.console || !window.console.firebug) {
 										if (!arguments[0]) {
 											opera.postError('Assertion failed: '+arguments[1]);
 										}
-									}
+									};
 		// not a good exchange for the firebug version, as this is dependant of
 		// the used counter name and displays a log message for every execution
 		window.console['count'] = function(arg) {

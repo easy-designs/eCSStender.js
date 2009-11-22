@@ -61,11 +61,12 @@ Note:           If you change or improve on this script, please let us know by
   __ignored_props = [ SELECTOR, SPECIFICITY ],
   __location      = LOCATION.replace( /^\w+:\/\/\/?(.*?)\/.*/, '$1' ),
   __local         = ( LOCATION.indexOf('http') !== 0 ),
+  __delayed       = {}, // delayed stylesheets to write
   __on_complete   = [],
   
   // for embedding stylesheets
   __head         = FALSE,
-  __style        = FALSE,
+  __style        = document.createElement( 'style' ),
   __embedded_css = [],
   
   // caching
@@ -96,6 +97,8 @@ Note:           If you change or improve on this script, please let us know by
     t: /@font-face\s*?{(.*?)\s*?}/ig,
     p: /@page\s*?(:\w*?){0,1}{\s*?(.*?)\s*?}/ig,
     m: /@media\s*(.*?)\s*{(.*?})}/ig,
+    // extended @ rules
+    a: /@([\w-]+)(.*){(.*)}/ig,
     // for splitting properties from values
     s: /:(?!\/\/)/,
     // for generating safe keys from selectors
@@ -105,7 +108,7 @@ Note:           If you change or improve on this script, please let us know by
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.0.1',
+    version:   '1.0.2',
     fonts:     [],
     pages:     {},
     methods:   {},
@@ -127,9 +130,6 @@ Note:           If you change or improve on this script, please let us know by
     var started = now();
     // need the head
     __head = document.getElementsByTagName( 'head' )[0];
-    // need reusable style element
-    __style = document.createElement( 'style' );
-    __style.setAttribute( 'type', 'text/css' );
     // innards
     readBrowserCache();
     getActiveStylesheets();
@@ -772,7 +772,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     if ( ! is( media, ARRAY ) )
     {
-      media = media.split(__re.c);
+      media = ( media + '' ).split(__re.c);
     }
     for ( var m=0, mLen=media.length; m<mLen; m++ )
     {
@@ -926,6 +926,22 @@ Note:           If you change or improve on this script, please let us know by
     };
     eCSStender.fonts.push = __eCSStensions.push = __stylesheets.push = __embedded_css.push = __on_complete.push = push;
   }
+  
+  /*-------------------------------------*
+   * Delayed Writing
+   *-------------------------------------*/
+  function writeStyleSheets()
+  {
+    var id, style;
+    for ( id in __delayed )
+    {
+      if ( isInheritedProperty( __delayed, id ) ){ continue; }
+      style = document.getElementById( id );
+      addRules( style, __delayed[id] );
+      // style.disabled = FALSE;
+    }
+  }
+  __on_complete.push( writeStyleSheets );
   
   /*-------------------------------------*
    * Caching
@@ -1459,20 +1475,23 @@ Note:           If you change or improve on this script, please let us know by
    *
    * @param str styles - the styles to embed
    * @param str media  - the media to apply the stylesheet to (optional)
+   * @param bool delay - whether or not to delay the writing of the stylesheet (default = true)
    * 
    * @return obj - the STYLE element
    */
-  eCSStender.embedCSS = function( styles, media )
+  eCSStender.embedCSS = function( styles, media, delay )
   {
     // determine the medium
     media = media || ALL;
+    // determine whether to delay the write or not
+    delay = ( delay != UNDEFINED ) ? delay : TRUE;
     // determine the id
     var id = 'eCSStension-' + media, style;
     // find or create the embedded stylesheet
     if ( ! in_object( media, __embedded_css ) )
     {
       // make the new style element
-      style = newStyleElement( media, id );
+      style = newStyleElement( media, id, delay );
       // store the medium
       __embedded_css.push( media );
     }
@@ -1481,8 +1500,18 @@ Note:           If you change or improve on this script, please let us know by
       style = document.getElementById( id );
     }
     // add the rules to the sheet
-    addRules( style, styles );   
-    // return the id 
+    if ( style != NULL )
+    {
+      if ( ! delay )
+      {
+        addRules( style, styles );
+      }
+      else
+      {
+        __delayed[id] += styles;
+      }
+    }
+    // return the style element
     return style;
   }
 
@@ -1492,10 +1521,11 @@ Note:           If you change or improve on this script, please let us know by
    *
    * @param str media  - the media to apply the stylesheet to
    * @param str id     - the id to give the stylesheet (optional)
+   * @param bool delay - whether or not to delay the writing of the stylesheet (default = true)
    * 
    * @return obj - the STYLE element
    */
-  function newStyleElement( media, id )
+  function newStyleElement( media, id, delay )
   {
     // clone the model style element
     var style = __style.cloneNode( TRUE );
@@ -1504,7 +1534,13 @@ Note:           If you change or improve on this script, please let us know by
     style.setAttribute( MEDIA, media );
     id = id || 'temp-' + Math.round( Math.random() * 2 + 1 );
     style.setAttribute( 'id', id );
-    // append to the head
+    // determine whether to delay the write or not
+    delay = ( delay != UNDEFINED ) ? delay : TRUE;
+    if ( delay )
+    {
+      __delayed[id] = '';
+      //style.disabled = TRUE;
+    }
     __head.appendChild( style );
     // return the element reference
     return style;
@@ -1518,17 +1554,21 @@ Note:           If you change or improve on this script, please let us know by
    * @param obj el     - the stylesheet
    * @param str styles - the style rules to add
    */
-  function addRules( el, styles )
+  __style.setAttribute( 'type', 'text/css' );
+  if ( __style.sheet != UNDEFINED &&
+       CSSStyleSheet != UNDEFINED &&
+       __style.sheet instanceof CSSStyleSheet )
   {
-    if ( el.sheet != UNDEFINED &&
-         CSSStyleSheet != UNDEFINED &&
-         el.sheet instanceof CSSStyleSheet )
+    if ( __style.sheet.insertRule instanceof FUNCTION )
     {
-      if ( el.sheet.insertRule instanceof FUNCTION )
+      addRules = function( el, styles )
       {
         el.sheet.insertRule( styles, el.sheet.cssRules.length );
       }
-      else
+    }
+    else
+    {
+      addRules = function( el, styles )
       {
         var blocks = styles.split('}'), b, bLen;
         blocks.pop();
@@ -1539,11 +1579,17 @@ Note:           If you change or improve on this script, please let us know by
         }
       }
     }
-    else if ( el.styleSheet != UNDEFINED )
-    { 
-      el.styleSheet.cssText = styles;
+  }
+  else if ( __style.styleSheet != UNDEFINED )
+  { 
+    addRules = function( el, styles )
+    {
+      el.styleSheet.cssText += styles;
     }
-    else
+  }
+  else
+  {
+    addRules = function( el, styles )
     { 
       el.appendChild( document.createTextNode( styles ) ); 
     }
@@ -1591,7 +1637,7 @@ Note:           If you change or improve on this script, please let us know by
         {
           document.expando = FALSE;
         }
-        if ( !addInlineStyle( el, property, value ) )
+        if ( ! addInlineStyle( el, property, value ) )
         {
           settable = FALSE;
         }
@@ -1615,7 +1661,7 @@ Note:           If you change or improve on this script, please let us know by
       {
         // append the test markup and the test style element
         body.appendChild( html );
-        style = newStyleElement( 'screen' );
+        style = newStyleElement( 'screen', false, false );
         // if the browser doesn't support the selector, it should error out
         try {
           addRules( style, what + " { visibility: hidden; }" );

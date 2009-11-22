@@ -1,23 +1,25 @@
+// ignoring some stuff
+eCSStender.ignore('testsuite.css');
+eCSStender.ignore('ignored-1.css');
+eCSStender.ignore(['ignored-2.css']);
+
 $(document).ready(function(){
+
+  module('');
   
   test( 'eCSStender', function(){
     ok( typeof(eCSStender)!='undefined', 'eCSStender object exists' );
   });
   
-  eCSStender.onComplete(function(){
-    module('Core Methods');
-    
-    test( 'eCSStender.onComplete', function(){
-      ok( typeof(eCSStender.onComplete)=='function', 'eCSStender::onComplete is the correct type' );
-      ok( eCSStender.exec_time > 0, 'onComplete function ran after eCSStender was finished running' );
-    });
+});
+
+eCSStender.onComplete(function(){
+  module('Core Methods');
+  
+  test( 'eCSStender.onComplete', function(){
+    ok( typeof(eCSStender.onComplete)=='function', 'eCSStender::onComplete is the correct type' );
+    ok( eCSStender.exec_time > 0, 'onComplete function ran after eCSStender was finished running' );
   });
-  
-  // ignoring some stuff
-  eCSStender.ignore('testsuite.css');
-  eCSStender.ignore('ignored-1.css');
-  eCSStender.ignore(['ignored-2.css']);
-  
 });
 
 eCSStender.onComplete(function(){
@@ -122,8 +124,19 @@ eCSStender.onComplete(function(){
     });
     
     test( 'eCSStender::ignore', function(){
+      var matches;
       ok( typeof(eCSStender.ignore)=='function', 'method exists' );
-      var matches = eCSStender.lookup({'selector':'#foo'},'*');
+      matches = eCSStender.lookup({'selector':'#foo'},'*');
+      for ( var i=0, iLen=matches.length; i<iLen; i++ ){
+        var
+        str = matches[i].selector + '{ ';
+        for ( var key in matches[i].properties )
+        {
+          str += key + ': ' + matches[i].properties[key] + '; ';
+        }
+        str += ' }';
+        alert(str);
+      }
       ok( matches.length===0, 'string css file ignored' );
       matches = eCSStender.lookup({'selector':'#bar'},'*');
       ok( matches.length===0, 'array of css files ignored' );
