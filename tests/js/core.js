@@ -26,15 +26,34 @@ eCSStender.onComplete(function(){
     module('Core Properties');
 
     test( 'eCSStender.fonts', function(){
-      ok( typeof(eCSStender.fonts)=='object', 'property is the correct type' );
+      ok( eCSStender.fonts instanceof Array, 'eCSStender.fonts is the correct type' );
       ok( eCSStender.fonts.length==2, 'eCSStender.fonts contains 2 fonts, as expected' );
       ok( eCSStender.fonts[0]['font-weight']=='normal', 'eCSStender.fonts[0]["font-weight"] is the expected value' );
     });
 
     test( 'eCSStender.pages', function(){
-      ok( typeof(eCSStender.pages)=='object', 'property is the correct type' );
+      ok( typeof(eCSStender.pages)=='object', 'eCSStender.pages is the correct type' );
       ok( typeof(eCSStender.pages['right'])=='object', 'eCSStender.pages["right"] is the correct type' );
-      ok( eCSStender.pages['right']['margin']=='5cm', 'eCSStender.pages["right"]["margin"] is the expected value' );
+      ok( typeof(eCSStender.pages['right']['border'])!='undefined', 'eCSStender.pages["right"]["border"] is defined' );
+      ok( eCSStender.pages['right']['margin']=='6cm', 'eCSStender.pages["right"]["margin"] is the expected value' );
+    });
+
+    test( 'eCSStender.at', function(){
+      ok( typeof(eCSStender.at)=='object', 'at is the correct type' );
+      ok( typeof(eCSStender.at['-hyphenated-extended-at-with-keys'])=='object',
+          'eCSStender.pages["-hyphenated-extended-at-with-keys"] is the correct type' );
+      var count = 0, key;
+      for ( key in eCSStender.at['-hyphenated-extended-at-with-keys'] )
+      {
+        if ( eCSStender.isInheritedProperty( eCSStender.at['-hyphenated-extended-at-with-keys'], key ) ) { continue; }
+        count++;
+      }
+      ok( count==3, 'eCSStender.pages["-hyphenated-extended-at-with-keys"] has the correct count' );
+      ok( typeof(eCSStender.at['-hyphenated-extended-at-with-keys']['key-3']['property-4'])!='undefined',
+          'CSStender.at["-hyphenated-extended-at-with-keys"]["key-3"]["property-4"] is defined' );
+      ok( eCSStender.at['-hyphenated-extended-at-with-keys']['key-3']['property-3'] == 'value-5',
+          'eCSStender.at["-hyphenated-extended-at-with-keys"]["key-3"]["property-3"] is the expected value' );
+      ok( eCSStender.at['unhyphenated-extended-at'] instanceof Array, 'eCSStender.pages["unhyphenated-extended-at"] is the correct type' );
     });
 
     test( 'eCSStender.methods', function(){
