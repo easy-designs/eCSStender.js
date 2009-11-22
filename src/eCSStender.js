@@ -98,7 +98,7 @@ Note:           If you change or improve on this script, please let us know by
     p: /@page\s*?(:\w*?){0,1}{\s*?(.*?)\s*?}/ig,
     m: /@media\s*(.*?)\s*{(.*?})}/ig,
     // extended @ rules
-    a: /@([\w-]+)(.*){(.*)}/ig,
+    a: /@([\w-]+)(.*?){([^}]*)}/ig,
     // for splitting properties from values
     s: /:(?!\/\/)/,
     // for generating safe keys from selectors
@@ -111,6 +111,7 @@ Note:           If you change or improve on this script, please let us know by
     version:   '1.0.2',
     fonts:     [],
     pages:     {},
+    at:        {},
     methods:   {},
     cache:     FALSE,
     exec_time: 0
@@ -163,13 +164,8 @@ Note:           If you change or improve on this script, please let us know by
       createMediaContainers( media );
       // get the stylesheet contents via XHR as we can't safely procure them from cssRules
       path = determinePath( __stylesheets[s] );
-      css = clean( path !== NULL ? get( path ) : extract( __stylesheets[s] ) );
-      // extract @font-face
-      css = extractFonts( css );
-      // extract @page
-      css = extractPages( css );
-      // handle @media
-      css = handleMediaGroups( css );
+      css  = clean( path !== NULL ? get( path ) : extract( __stylesheets[s] ) );
+      css  = extractAtBlocks( css );
       // handle remaining rules
       extractStyleBlocks( media, css );
     }
@@ -517,6 +513,19 @@ Note:           If you change or improve on this script, please let us know by
     // default = all
     return ALL;
   }
+  function extractAtBlocks( css )
+  {
+    // extract @font-face
+    css = extractFonts( css );
+    // extract @page
+    css = extractPages( css );
+    // handle @media
+    css = handleMediaGroups( css );
+    // extract other @ rules
+    css = extractOtherAtRules( css );
+    // return the string
+    return css;
+  }
   function extractFonts( css )
   {
     var match;
@@ -528,13 +537,26 @@ Note:           If you change or improve on this script, please let us know by
   }
   function extractPages( css )
   {
-    var match, page;
+    var match, page, props;
     while ( ( match = __re.p.exec( css ) ) != NULL )
     {
       page = ( match[1] != UNDEFINED &&
                match[1] != '' ) ? match[1].replace(':','')
                                 : ALL;
-      eCSStender.pages[page] = gatherProperties( match[2] );
+      props = gatherProperties( match[2] );
+      if ( eCSStender.pages[page] == UNDEFINED )
+      {
+        eCSStender.pages[page] = props;
+      }
+      else
+      {
+        for ( prop in props )
+        {
+          if ( isInheritedProperty( props, prop ) ) { continue; }
+          eCSStender.pages[page][prop] = props[prop];
+        }
+      }
+      
     }
     return css.replace( __re.p, '' );
   }
@@ -547,6 +569,46 @@ Note:           If you change or improve on this script, please let us know by
       id++;
     }
     return css;
+  }
+  function extractOtherAtRules( css )
+  {
+    var match, group, keys, k, props, prop;
+    while ( ( match = __re.a.exec( css ) ) != NULL )
+    {
+      group = match[1];
+      keys  = trim( match[2] );
+      keys  = ( keys == '' ) ? FALSE : keys.split(__re.c);
+      props = gatherProperties( match[3] );
+      if ( eCSStender.at[group] == UNDEFINED )
+      {
+        eCSStender.at[group] = ! keys ? addPush( [] ) : {};
+      }
+      if ( ! keys )
+      {
+        eCSStender.at[group].push( props );
+      }
+      else
+      {
+        k = keys.length-1;
+        while ( k > -1 )
+        {
+          if ( eCSStender.at[group][keys[k]] == UNDEFINED )
+          {
+            eCSStender.at[group][keys[k]] = props;
+          }
+          else
+          {
+            for ( prop in props )
+            {
+              if ( isInheritedProperty( props, prop ) ) { continue; }
+              eCSStender.at[group][keys[k]][prop] = props[prop];
+            }
+          }
+          k--;
+        }
+      }
+    }
+    return css.replace( __re.a, '' );
   }
   function collapseAtMedia( css, match, id )
   {
@@ -917,6 +979,11 @@ Note:           If you change or improve on this script, please let us know by
     }
     return ( ! connection ) ? NULL : connection;
   }
+  // push handling
+  function addPush( arr )
+  {
+    return arr;
+  }
   if ( Array.prototype.push == NULL )
   {
     var push = function( obj )
@@ -925,6 +992,14 @@ Note:           If you change or improve on this script, please let us know by
       return this.length;
     };
     eCSStender.fonts.push = __eCSStensions.push = __stylesheets.push = __embedded_css.push = __on_complete.push = push;
+    addPush = function( arr )
+    {
+      if ( typeof( arr ) == ARRAY )
+      {
+        arr.push = push;
+      }
+      return arr;
+    }
   }
   
   /*-------------------------------------*

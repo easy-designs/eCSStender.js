@@ -29,6 +29,25 @@ Block of comments
 @page :right {
   margin: 5cm;
 }
+@page :right {
+  margin: 6cm;
+}
+
+@-extended-property-example-1 key-1, key-2 {
+  property-1: value-1;
+  property-2: value-2;
+}
+@-extended-property-example-1 key-3 {
+  property-3: value-3;
+  property-4: value-4;
+}
+@-extended-property-example-1 key-3 {
+  property-3: value-5;
+}
+@-extended-property-example-2 {
+  property-1: value-1;
+  property-2: value-2;
+}
 
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
