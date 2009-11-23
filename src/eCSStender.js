@@ -2,7 +2,7 @@
 Function:       eCSStender()
 Author:         Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date:  2006-12-03
-Version:        1.0.1
+Version:        1.0.3
 Homepage:       http://eCSStender.org
 License:        MIT License (see homepage)
 Note:           If you change or improve on this script, please let us know by
@@ -23,7 +23,10 @@ Note:           If you change or improve on this script, please let us know by
   ARRAY    = Array,
   FUNCTION = Function,
   REGEXP   = RegExp,
-  LOCATION = window.location.href,
+  DOCUMENT = document,
+  WINDOW   = window,
+  LOCATION = WINDOW.location.href,
+  EMPTY_FN = function(){},
   
   // Common Strings
   ECSSTENDER  = 'eCSStender',
@@ -44,6 +47,17 @@ Note:           If you change or improve on this script, please let us know by
   PROCESSED   = 'processed',
   FINGERPRINT = 'fingerprint',
   PIPES       = '||||',
+  EMPTY       = '',
+  SPACE       = ' ',
+  SLASH       = '/',
+  COLON       = ':',
+  SEMICOLON   = ';',
+  HYPHEN      = '-',
+  
+  // Regex Bits
+  ANYTHING        = '.*?',
+  HYPHEN_ANYTHING = '-.*',
+  CAPTURE         = '$1',
   
   // placeholders
   PH_ATMEDIA = '!' + ECSSTENDER + '-media-placeholder!',
@@ -59,14 +73,14 @@ Note:           If you change or improve on this script, please let us know by
   __initialized   = FALSE,
   __ignored_css   = [],
   __ignored_props = [ SELECTOR, SPECIFICITY ],
-  __location      = LOCATION.replace( /^\w+:\/\/\/?(.*?)\/.*/, '$1' ),
-  __local         = ( LOCATION.indexOf('http') !== 0 ),
+  __location      = LOCATION.replace( /^\w+:\/\/\/?(.*?)\/.*/, CAPTURE ),
+  __local         = ( LOCATION.indexOf( 'http' ) !== 0 ),
   __delayed       = {}, // delayed stylesheets to write
   __on_complete   = [],
   
   // for embedding stylesheets
   __head         = FALSE,
-  __style        = document.createElement( 'style' ),
+  __style        = DOCUMENT.createElement( 'style' ),
   __embedded_css = [],
   
   // caching
@@ -81,9 +95,9 @@ Note:           If you change or improve on this script, please let us know by
   },
   __headers = {},
   __cache_object,
-  readFromBrowserCache = function(){},
-  writeToBrowserCache = function(){},
-  clearBrowserCache = function(){},
+  readFromBrowserCache = EMPTY_FN,
+  writeToBrowserCache  = EMPTY_FN,
+  clearBrowserCache    = EMPTY_FN,
   
   // useful RegExps
   __re = {
@@ -108,7 +122,7 @@ Note:           If you change or improve on this script, please let us know by
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.0.2',
+    version:   '1.0.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -118,7 +132,7 @@ Note:           If you change or improve on this script, please let us know by
   };
   
   // window object
-  window.eCSStender = eCSStender;
+  WINDOW.eCSStender = eCSStender;
 
   /*------------------------------------*
    * Private Methods                    *
@@ -130,7 +144,7 @@ Note:           If you change or improve on this script, please let us know by
     // performance logging
     var started = now();
     // need the head
-    __head = document.getElementsByTagName( 'head' )[0];
+    __head = DOCUMENT.getElementsByTagName( 'head' )[0];
     // innards
     readBrowserCache();
     getActiveStylesheets();
@@ -146,7 +160,7 @@ Note:           If you change or improve on this script, please let us know by
   }
   function getActiveStylesheets()
   {
-    var stylesheets = document.styleSheets, s, sLen;
+    var stylesheets = DOCUMENT.styleSheets, s, sLen;
     for ( s=0, sLen=stylesheets.length; s<sLen; s++ )
     {
       // add the stylesheet
@@ -285,8 +299,8 @@ Note:           If you change or improve on this script, please let us know by
             else if ( e_find_by == FRAGMENT ||
                       e_find_by == PREFIX )
             {
-              lookup = ( e_find_by == FRAGMENT ) ? '.*?' + e_lookup + '.*?'
-                                                   : '-' + e_lookup + '-.*';
+              lookup = ( e_find_by == FRAGMENT ) ? ANYTHING + e_lookup + ANYTHING
+                                                 : HYPHEN + e_lookup + HYPHEN_ANYTHING;
               lookup = new RegExp( lookup );
               for ( property in styles[selector] )
               {
@@ -367,7 +381,7 @@ Note:           If you change or improve on this script, please let us know by
       for ( i=0, iLen=blocks.length; i<iLen; i++ )
       {
         // imports must come first, so when we don't find one, return
-        if ( blocks[i].type != '3' ){ return; }
+        if ( blocks[i].type != 3 ){ return; }
   
         // add the stylesheet
         addStyleSheet( blocks[i].styleSheet );
@@ -375,7 +389,7 @@ Note:           If you change or improve on this script, please let us know by
       // no need to XHR stylesheets that only import other stylesheets
       if ( i === iLen )
       {
-        __ignored_css.push( stylesheet.href.replace( __re.f, '$1' ) );
+        __ignored_css.push( stylesheet.href.replace( __re.f, CAPTURE ) );
       }
     }
   }
@@ -384,11 +398,11 @@ Note:           If you change or improve on this script, please let us know by
     var href = stylesheet.href;
     // skip if disabled
     if ( stylesheet.disabled ||
-         ( href !== NULL &&
+         ( href &&
              // or foreign
            ( determinePath( stylesheet ).indexOf( __location ) == -1 ||
              // or ignored
-             in_object( href.replace( __re.f, '$1' ), __ignored_css ) ) ) ){ return; }
+             in_object( href.replace( __re.f, CAPTURE ), __ignored_css ) ) ) ){ return; }
     // does it have imports?
     findImportedStylesheets( stylesheet );
     // push the current stylesheet to the collection
@@ -419,34 +433,37 @@ Note:           If you change or improve on this script, please let us know by
   {
     var s = 0, matches;
     // replace all child and adjascent sibling selectors
-    selector = selector.replace( /\s*\+\s*|\s*\>\s*/, ' ' );
+    selector = selector.replace( /\s*\+\s*|\s*\>\s*/, SPACE );
     // adjust :not() to simplify calculations (since it counts toward specificity, as do its contents)
     selector = selector.replace( /(:not)\((.*)\)/, '$1 $2' );
     // match id selectors (weight: 100)
     matches = selector.match( /#/ );
     if ( matches != NULL ) s += ( matches.length * 100 );
-    selector = selector.replace( /#[\w-_]+/, '' ); // remove (to keep the regexs simple)
+    selector = selector.replace( /#[\w-_]+/, EMPTY ); // remove (to keep the regexs simple)
     // match class, pseudo-class, and attribute selectors (weight: 10)
     matches = selector.match( /::|:|\.|\[.*?\]/ );
     if ( matches != NULL ) s += ( matches.length * 10 );
-    selector = selector.replace( /(?:::|:|\.)[\w-_()]+|\[.*?\]/, '' ); // remove
+    selector = selector.replace( /(?:::|:|\.)[\w-_()]+|\[.*?\]/, EMPTY ); // remove
     // match element selectors (weight: 1) - they should be all that's left
-    matches = trim( selector ) != '' ? selector.split(' ') : [];
+    matches = trim( selector ) != EMPTY ? selector.split( SPACE ) : [];
     s += matches.length;
     return s;
   }
   function determinePath( stylesheet )
   {
     var
-    css_path = stylesheet.href, curr_path, file_name, parent = NULL, parent_path = prefix = '';
+    css_path = stylesheet.href, curr_path, path_last_slash, file_name, parent = NULL, parent_path = prefix = EMPTY;
+    // handle empty instead of NULL
+    if ( ! css_path ) { css_path = NULL; }
     // we only want paths that
-    if ( css_path != NULL &&                         // are not NULL
-         css_path.indexOf('/') != 0 &&               // don't start with a slash
+    if ( css_path != NULL &&                 // are not NULL
+         css_path.indexOf(SLASH) != 0 &&       // don't start with a slash
          ( css_path.match(__re.u) == NULL || // that are not fully-qualified files
            css_path.match(__re.u) < 1 ) )
     {
-      curr_path = LOCATION.substring( 0, LOCATION.lastIndexOf('/') );
-      file_name = css_path.substring( css_path.lastIndexOf('/') + 1 );
+      curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
+      path_last_slash = css_path.lastIndexOf( SLASH );
+      file_name       = css_path.substring( path_last_slash + 1 );
       // check for an owner
       if ( stylesheet.parentStyleSheet == NULL )
       {
@@ -464,15 +481,15 @@ Note:           If you change or improve on this script, please let us know by
       // no parent, use the css path itself
       if ( parent == NULL )
       {
-        prefix = curr_path + '/' + css_path.substring( 0, css_path.lastIndexOf('/') );
+        prefix = curr_path + SLASH + css_path.substring( 0, path_last_slash );
       }
       // get the owner's path
       else
       {
         parent_path = determinePath( parent );
-        prefix      = parent_path.substring( 0, parent_path.lastIndexOf('/') );
+        prefix      = parent_path.substring( 0, parent_path.lastIndexOf( SLASH ) );
       }
-      css_path = prefix + '/' + file_name;
+      css_path = prefix + SLASH + file_name;
     }
     return css_path;
   }
@@ -488,7 +505,7 @@ Note:           If you change or improve on this script, please let us know by
       if ( owner != NULL )
       {
         // media assignment in the import
-        if ( owner.media.mediaText != '' )
+        if ( owner.media.mediaText != EMPTY )
         {
           return owner.media.mediaText;
         }
@@ -499,14 +516,14 @@ Note:           If you change or improve on this script, please let us know by
         }
       }
       // media is defined
-      if ( media.mediaText != '' )
+      if ( media.mediaText != EMPTY )
       {
         return media.mediaText;
       }
     }
     // old school
     else if ( is( media, STRING ) &&
-              media != '')
+              media != EMPTY)
     {
       return media;
     }
@@ -533,7 +550,7 @@ Note:           If you change or improve on this script, please let us know by
     {
       eCSStender.fonts.push( gatherProperties( match[1] ) );
     }
-    return css.replace( __re.t, '' );
+    return css.replace( __re.t, EMPTY );
   }
   function extractPages( css )
   {
@@ -541,8 +558,8 @@ Note:           If you change or improve on this script, please let us know by
     while ( ( match = __re.p.exec( css ) ) != NULL )
     {
       page = ( match[1] != UNDEFINED &&
-               match[1] != '' ) ? match[1].replace(':','')
-                                : ALL;
+               match[1] != EMPTY ) ? match[1].replace( COLON, EMPTY )
+                                   : ALL;
       props = gatherProperties( match[2] );
       if ( eCSStender.pages[page] == UNDEFINED )
       {
@@ -558,7 +575,7 @@ Note:           If you change or improve on this script, please let us know by
       }
       
     }
-    return css.replace( __re.p, '' );
+    return css.replace( __re.p, EMPTY );
   }
   function handleMediaGroups( css )
   {
@@ -577,7 +594,7 @@ Note:           If you change or improve on this script, please let us know by
     {
       group = match[1];
       keys  = trim( match[2] );
-      keys  = ( keys == '' ) ? FALSE : keys.split(__re.c);
+      keys  = ( keys == EMPTY ) ? FALSE : keys.split( __re.c );
       props = gatherProperties( match[3] );
       if ( eCSStender.at[group] == UNDEFINED )
       {
@@ -608,7 +625,7 @@ Note:           If you change or improve on this script, please let us know by
         }
       }
     }
-    return css.replace( __re.a, '' );
+    return css.replace( __re.a, EMPTY );
   }
   function collapseAtMedia( css, match, id )
   {
@@ -674,13 +691,13 @@ Note:           If you change or improve on this script, please let us know by
   function gatherProperties( properties )
   {
     if ( ! is( properties, STRING ) ){ return {}; }
-    properties = properties.split(';');
+    properties = properties.split(SEMICOLON);
     var props = {}, p, pLen, arr, property;
     for ( p=0, pLen=properties.length; p<pLen; p++ )
     {
       property = trim( properties[p] );
       // skip empties
-      if ( property == '' ){ continue; }
+      if ( property == EMPTY ){ continue; }
       arr = property.split(__re.s);
       props[trim(arr[0])] = trim( arr[1] );
     }
@@ -737,12 +754,12 @@ Note:           If you change or improve on this script, please let us know by
       // retrieve fragment matches
       else if ( fragment != UNDEFINED )
       {
-        properties.push( new RegExp( '.*?' + fragment + '.*?' ) );
+        properties.push( new RegExp( ANYTHING + fragment + ANYTHING ) );
       }
       // retrieve prefix matches
       else if ( prefix != UNDEFINED )
       {
-        properties.push( new RegExp( '-' + prefix + '-.*' ) );
+        properties.push( new RegExp( HYPHEN + prefix + HYPHEN_ANYTHING ) );
       }
     }
     return properties;
@@ -834,7 +851,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     if ( ! is( media, ARRAY ) )
     {
-      media = ( media + '' ).split(__re.c);
+      media = ( media + EMPTY ).split( __re.c );
     }
     for ( var m=0, mLen=media.length; m<mLen; m++ )
     {
@@ -852,7 +869,7 @@ Note:           If you change or improve on this script, please let us know by
              ( is( test, FUNCTION ) &&
                test.call( selector ) === TRUE ) ||
              ( is( test, STRING ) &&
-               selector.indexOf( trim( test.replace( useless, '' ) ) ) != -1 ) );
+               selector.indexOf( trim( test.replace( useless, EMPTY ) ) ) != -1 ) );
   }
   function filtersMatched( properties, filters )
   {
@@ -881,10 +898,10 @@ Note:           If you change or improve on this script, please let us know by
   }
   function clean( css )
   {
-    css = css.replace( /\s*(?:\<\!--|--\>)\s*/g, '' ) // strip HTML comments
-             .replace( /\/\*(?:.|\s)*?\*\//g, '' )    // strip CSS comments
-             .replace( /\s*([,{}:;])\s*/g, '$1' )     // remove returns and indenting whitespace
-             .replace( /@import.*?;/g, '' );          // axe imports
+    css = css.replace( /\s*(?:\<\!--|--\>)\s*/g, EMPTY ) // strip HTML comments
+             .replace( /\/\*(?:.|\s)*?\*\//g, EMPTY )    // strip CSS comments
+             .replace( /\s*([,{}:;])\s*/g, CAPTURE )     // remove returns and indenting whitespace
+             .replace( /@import.*?;/g, EMPTY );          // axe imports
     return css;
   }
   function in_object( needle, haystack )
@@ -906,7 +923,7 @@ Note:           If you change or improve on this script, please let us know by
     {
       r = obj instanceof test;
     }
-    catch( e )
+    catch ( e )
     {
       r = ( typeof( test ) == STRING &&
             typeof( obj ) == test );
@@ -920,7 +937,7 @@ Note:           If you change or improve on this script, please let us know by
   function get( uri )
   {
     if ( uri == NULL ||
-         in_object( uri.replace( __re.f, '$1' ), __ignored_css ) ){ return ''; }
+         in_object( uri.replace( __re.f, CAPTURE ), __ignored_css ) ){ return EMPTY; }
     if ( __xhr == NULL ){ __xhr = new XHR(); }
     __xhr.open( 'GET', uri, FALSE );
     __xhr.send( NULL );
@@ -929,13 +946,28 @@ Note:           If you change or improve on this script, please let us know by
   }
   function extract( stylesheet )
   {
-    return stylesheet.ownerNode.innerHTML;
+    var r;
+    try {
+      r = stylesheet.ownerNode.innerHTML;
+    }
+    catch ( e )
+    {
+      r = stylesheet.owningElement.innerHTML;
+      // IE6's CSS needs major cleaning (lame)
+      r = r.replace( /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig, low );
+    }
+    return r;
   }
-  function camelize( str ){
+  function low( w )
+  {
+    return is( w, STRING ) ? w.toLowerCase() : w;
+  }
+  function camelize( str )
+  {
     var
-    bits = str.split('-'), len  = bits.length, new_str, i = 1;
+    bits = str.split(HYPHEN), len  = bits.length, new_str, i = 1;
     if ( len == 1 ) { return bits[0]; } 
-    if ( str.charAt(0) == '-' ) {
+    if ( str.charAt(0) == HYPHEN ) {
       new_str = bits[0].charAt(0).toUpperCase() + bits[0].substring(1);
     } else {
       new_str = bits[0];
@@ -950,7 +982,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     if ( is( str, STRING ) )
     {
-      str = str.replace( /(\s0)px/g, '$1' );
+      str = str.replace( /(\s0)px/g, CAPTURE );
     }
     return str;
   }
@@ -1011,7 +1043,7 @@ Note:           If you change or improve on this script, please let us know by
     for ( id in __delayed )
     {
       if ( isInheritedProperty( __delayed, id ) ){ continue; }
-      style = document.getElementById( id );
+      style = DOCUMENT.getElementById( id );
       addRules( style, __delayed[id] );
       // style.disabled = FALSE;
     }
@@ -1024,40 +1056,40 @@ Note:           If you change or improve on this script, please let us know by
   function enableCache()
   {
     // HTML5 and/or Mozilla
-    if ( window.localStorage != UNDEFINED )
+    if ( WINDOW.localStorage != UNDEFINED )
     {
-      __cache_object = window.localStorage;
+      __cache_object = WINDOW.localStorage;
       clearBrowserCache = function()
       {
         __cache_object.clear();
       };
       readFromBrowserCache = function( cache, key )
       {
-        return __cache_object.getItem( cache + '-' + key );
+        return __cache_object.getItem( cache + HYPHEN + key );
       };
       writeToBrowserCache = function( cache, key, value )
       {
-        __cache_object.setItem( cache + '-' + key, value );
+        __cache_object.setItem( cache + HYPHEN + key, value );
       };
     }
     // IE (old school)
     else
     {
-      var div = document.createElement('div');
+      var div = DOCUMENT.createElement('div');
       div.style.behavior = 'url(#default#userData)';
-      document.body.appendChild(div);
+      DOCUMENT.body.appendChild(div);
       if ( div.XMLDocument != UNDEFINED )
       {
         __cache_object = div;
         readFromBrowserCache = function( group, key )
         {
           __cache_object.load( ECSSTENDER );
-          return __cache_object.getAttribute( group + '-' + key );
+          return __cache_object.getAttribute( group + HYPHEN + key );
         };
         writeToBrowserCache = function( group, key, value )
         {
           __cache_object.load(ECSSTENDER);
-          __cache_object.setAttribute( group + '-' + key, value );
+          __cache_object.setAttribute( group + HYPHEN + key, value );
           __cache_object.save(ECSSTENDER);
         };
       }
@@ -1131,11 +1163,11 @@ Note:           If you change or improve on this script, please let us know by
   }
   function styleObjToString( obj )
   {
-    var str = '', key;
+    var str = EMPTY, key;
     for ( key in obj )
     {
       if ( isInheritedProperty( obj, key ) ){ continue; }
-      str += key + ':' + obj[key] + ';'
+      str += key + COLON + obj[key] + SEMICOLON
     }
     return str;
   }
@@ -1154,7 +1186,7 @@ Note:           If you change or improve on this script, please let us know by
     str = str.replace(/\r\n/g,'\n');
     var 
     keystr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-    i, iLen = str.length, newstr = '', c1, c2, c3, e1, e2, e3, e4;
+    i, iLen = str.length, newstr = EMPTY, c1, c2, c3, e1, e2, e3, e4;
     for ( i=0; i<iLen; i++ )
     {
       c1 = str.charCodeAt(i);
@@ -1175,7 +1207,7 @@ Note:           If you change or improve on this script, please let us know by
     	}
 		}
 		str = newstr;
-		newstr = '';
+		newstr = EMPTY;
 		// base64
 		i = 0;
 		iLen = str.length;
@@ -1263,7 +1295,7 @@ Note:           If you change or improve on this script, please let us know by
    */
   eCSStender.register = function( keys, properties, callback )
   {
-    var eCSStension = {}, lookups, l, temp, t, props=[], key, id='';
+    var eCSStension = {}, lookups, l, temp, t, props=[], key, id=EMPTY;
     // set the lookup type
     if ( keys[SELECTOR] != UNDEFINED )
     {
@@ -1320,7 +1352,7 @@ Note:           If you change or improve on this script, please let us know by
       for ( key in eCSStension )
       {
         if ( isInheritedProperty( eCSStension, key ) ){ continue; }
-        id += key + ':' + eCSStension[key].toString() + ';';
+        id += key + COLON + eCSStension[key].toString() + SEMICOLON;
       }
       id = fingerprint(id+'::'+__e_count);
     }
@@ -1476,8 +1508,8 @@ Note:           If you change or improve on this script, please let us know by
                   l_prefix != UNDEFINED )
         {
           found = FALSE;
-          test = ( l_fragment != UNDEFINED ) ? '.*?' + l_fragment + '.*?'
-                                             : '-' + l_prefix + '-.*';
+          test = ( l_fragment != UNDEFINED ) ? ANYTHING + l_fragment + ANYTHING
+                                             : HYPHEN + l_prefix + HYPHEN_ANYTHING;
           test = new RegExp( test );
           for ( property in block )
           {
@@ -1572,7 +1604,7 @@ Note:           If you change or improve on this script, please let us know by
     }
     else
     {
-      style = document.getElementById( id );
+      style = DOCUMENT.getElementById( id );
     }
     // add the rules to the sheet
     if ( style != NULL )
@@ -1613,7 +1645,7 @@ Note:           If you change or improve on this script, please let us know by
     delay = ( delay != UNDEFINED ) ? delay : TRUE;
     if ( delay )
     {
-      __delayed[id] = '';
+      __delayed[id] = EMPTY;
       //style.disabled = TRUE;
     }
     __head.appendChild( style );
@@ -1666,7 +1698,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     addRules = function( el, styles )
     { 
-      el.appendChild( document.createTextNode( styles ) ); 
+      el.appendChild( DOCUMENT.createTextNode( styles ) ); 
     }
   }
   eCSStender.addRules = addRules;
@@ -1685,11 +1717,11 @@ Note:           If you change or improve on this script, please let us know by
   eCSStender.isSupported = function( type, what, html, el )
   {
     var result,
-    body = document.body,
-    expando = document.expando,
+    body = DOCUMENT.body,
+    expando = DOCUMENT.expando,
     // property test vars
     property, value, expando = TRUE, settable = TRUE,
-    compute = window.getComputedStyle,
+    compute = WINDOW.getComputedStyle,
     // selector test vars
     style;
     if ( ( result = readFromLocalCache( type, what ) ) != UNDEFINED )
@@ -1702,15 +1734,15 @@ Note:           If you change or improve on this script, please let us know by
       if ( type == PROPERTY )
       {
         // test element
-        el = document.createElement('div');
+        el = DOCUMENT.createElement('div');
         body.appendChild( el );
         what = what.split(__re.s);
         property  = what[0];
         value     = trim( what[1] );
-        what = what.join(':');
+        what = what.join(COLON);
         if ( expando != UNDEFINED )
         {
-          document.expando = FALSE;
+          DOCUMENT.expando = FALSE;
         }
         if ( ! addInlineStyle( el, property, value ) )
         {
@@ -1718,7 +1750,7 @@ Note:           If you change or improve on this script, please let us know by
         }
         if ( expando != UNDEFINED )
         {
-          document.expando = expando;
+          DOCUMENT.expando = expando;
         }
         if ( settable == TRUE &&
              ( el.currentStyle &&
@@ -1829,7 +1861,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     if ( is( str, STRING ) )
     {
-      return str.replace( /^\s+|\s+$/g, '' );
+      return str.replace( /^\s+|\s+$/g, EMPTY );
     }
     return str;
   }
@@ -1863,39 +1895,38 @@ Note:           If you change or improve on this script, please let us know by
    *-------------------------------------*/
   (function(){
     var
-    d = document,
     DCL = 'DOMContentLoaded',
     ORC = 'onreadystatechange',
-    __old_onload = window.onload;
+    __old_onload = WINDOW.onload;
     
     // for Mozilla/Safari/Opera9
-  	if ( document.addEventListener )
+  	if ( DOCUMENT.addEventListener )
     {
-      document.addEventListener( DCL, function(){
-        document.removeEventListener( DCL, arguments.callee, FALSE );
+      DOCUMENT.addEventListener( DCL, function(){
+        DOCUMENT.removeEventListener( DCL, arguments.callee, FALSE );
         initialize();
       }, FALSE );
     }
     // If IE event model is used
-  	else if ( document.attachEvent )
+  	else if ( DOCUMENT.attachEvent )
   	{
   		// ensure firing before onload, maybe late but safe also for iframes
-  		document.attachEvent( ORC, function(){
-  			if ( document.readyState === "complete" ) {
-  				document.detachEvent( ORC, arguments.callee );
+  		DOCUMENT.attachEvent( ORC, function(){
+  			if ( DOCUMENT.readyState === "complete" ) {
+  				DOCUMENT.detachEvent( ORC, arguments.callee );
   				initialize();
   			}
   		});
 
   		// If IE and not an iframe, continually check to see if the document is ready
-  		if ( document.documentElement.doScroll &&
-  		     window == window.top )
+  		if ( DOCUMENT.documentElement.doScroll &&
+  		     WINDOW == WINDOW.top )
   		{
   		  (function(){
   			  try {
       			// If IE is used, use the trick by Diego Perini
       			// http://javascript.nwbox.com/IEContentLoaded/
-      			document.documentElement.doScroll("left");
+      			DOCUMENT.documentElement.doScroll("left");
       		}
       		catch( error )
       		{
