@@ -53,6 +53,7 @@ Note:           If you change or improve on this script, please let us know by
   COLON       = ':',
   SEMICOLON   = ';',
   HYPHEN      = '-',
+  DIV         = 'div',
   
   // Regex Bits
   ANYTHING        = '.*?',
@@ -78,9 +79,13 @@ Note:           If you change or improve on this script, please let us know by
   __delayed       = {}, // delayed stylesheets to write
   __on_complete   = [],
   
+  // expando handling (for IE)
+  __expando     = DOCUMENT.expando,
+  toggleExpando = EMPTY_FN,
+  
   // for embedding stylesheets
   __head         = FALSE,
-  __style        = DOCUMENT.createElement( 'style' ),
+  __style        = newElement( 'style' ),
   __embedded_css = [],
   
   // caching
@@ -139,7 +144,8 @@ Note:           If you change or improve on this script, please let us know by
    *------------------------------------*/
   function initialize()
   {
-    if ( __initialized == TRUE ){ return; }
+    // keep us from going off more than 1x
+    if ( __initialized ){ return; }
     __initialized = TRUE;
     // performance logging
     var started = now();
@@ -196,7 +202,7 @@ Note:           If you change or improve on this script, please let us know by
       if ( isInheritedProperty( __modified, key ) ||
            __modified[key] == NULL ){ continue; }
       j++;
-      if ( cached[key] == UNDEFINED ||
+      if ( ! defined( cached[key] ) ||
            cached[key] != __modified[key] )
       {
         eCSStender.cache = FALSE;
@@ -215,9 +221,9 @@ Note:           If you change or improve on this script, please let us know by
       if ( isInheritedProperty( __eCSStensions, e ) ) { continue; }
       extension_test = __eCSStensions[e][TEST];
       // verify test (if any)
-      if ( extension_test == UNDEFINED ||
+      if ( ! defined( extension_test ) ||
            ( is( extension_test, FUNCTION ) &&
-             extension_test() == TRUE ) )
+             extension_test() ) )
       {
         // if no test or test is passed, push to the temp array
         temp[e] = __eCSStensions[e];
@@ -259,7 +265,7 @@ Note:           If you change or improve on this script, please let us know by
             if ( isInheritedProperty( __eCSStensions, e ) ) { continue; }
             e_media = __eCSStensions[e][MEDIA];
             // verify any media restrictions
-            if ( e_media != UNDEFINED &&
+            if ( defined( e_media ) &&
                  e_media != ALL )
             {
               e_media = e_media.split(__re.c);
@@ -288,7 +294,7 @@ Note:           If you change or improve on this script, please let us know by
             {
               for ( l=0; l<lLen; l++ )
               {
-                if ( styles[selector][e_lookup[l]] != UNDEFINED )
+                if ( defined( styles[selector][e_lookup[l]] ) )
                 {
                   trackCallback( e, medium, selector );
                   continue eLoop;
@@ -334,10 +340,10 @@ Note:           If you change or improve on this script, please let us know by
       extension   = __eCSStensions[e[0]];
       style_rule  = __style_objects[e[1]][e[2]];
       selector_id = e[1] + PIPES + e[2];
-      if ( extension == UNDEFINED ||
+      if ( ! defined( extension ) ||
            in_object( selector_id, extension[PROCESSED] ) ) { continue; }
       // apply any filters
-      if ( extension[FILTER] != UNDEFINED )
+      if ( defined( extension[FILTER] ) )
       {
         if ( ! filtersMatched( style_rule, extension[FILTER] ) ){
           continue;
@@ -365,7 +371,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     var blocks, imports, i, iLen;
     // IE
-    if ( stylesheet.imports != UNDEFINED )
+    if ( defined( stylesheet.imports ) )
     {
       imports = stylesheet.imports;
       for ( i=0, iLen=imports.length; i<iLen; i++ )
@@ -467,8 +473,8 @@ Note:           If you change or improve on this script, please let us know by
       // check for an owner
       if ( stylesheet.parentStyleSheet == NULL )
       {
-        if ( stylesheet.ownerNode != UNDEFINED &&
-             CSSImportRule != UNDEFINED &&
+        if ( defined( stylesheet.ownerNode ) &&
+             defined( CSSImportRule ) &&
              is( stylesheet.ownerRule, CSSImportRule ) )
         {
           parent = stylesheet.ownerRule.parentStyleSheet;
@@ -557,11 +563,11 @@ Note:           If you change or improve on this script, please let us know by
     var match, page, props;
     while ( ( match = __re.p.exec( css ) ) != NULL )
     {
-      page = ( match[1] != UNDEFINED &&
+      page = ( defined( match[1] ) &&
                match[1] != EMPTY ) ? match[1].replace( COLON, EMPTY )
                                    : ALL;
       props = gatherProperties( match[2] );
-      if ( eCSStender.pages[page] == UNDEFINED )
+      if ( ! defined( eCSStender.pages[page] ) )
       {
         eCSStender.pages[page] = props;
       }
@@ -596,7 +602,7 @@ Note:           If you change or improve on this script, please let us know by
       keys  = trim( match[2] );
       keys  = ( keys == EMPTY ) ? FALSE : keys.split( __re.c );
       props = gatherProperties( match[3] );
-      if ( eCSStender.at[group] == UNDEFINED )
+      if ( ! defined( eCSStender.at[group] ) )
       {
         eCSStender.at[group] = ! keys ? addPush( [] ) : {};
       }
@@ -609,7 +615,7 @@ Note:           If you change or improve on this script, please let us know by
         k = keys.length-1;
         while ( k > -1 )
         {
-          if ( eCSStender.at[group][keys[k]] == UNDEFINED )
+          if ( ! defined( eCSStender.at[group][keys[k]] ) )
           {
             eCSStender.at[group][keys[k]] = props;
           }
@@ -674,7 +680,7 @@ Note:           If you change or improve on this script, please let us know by
           {
             if ( isInheritedProperty( media, m ) ) { continue; }
             medium = media[m];
-            if ( __style_objects[medium][selector] == UNDEFINED )
+            if ( ! defined( __style_objects[medium][selector] ) )
             {
               __style_objects[medium][selector] = {};
             }
@@ -707,7 +713,7 @@ Note:           If you change or improve on this script, please let us know by
   {
     var properties = [], property, fragment, prefix, i, iLen;
     // properties is set
-    if ( requested_properties !== FALSE )
+    if ( ! is_false( requested_properties ) )
     {
       // user doesn't want everything
       if ( requested_properties != '*' )
@@ -737,7 +743,7 @@ Note:           If you change or improve on this script, please let us know by
       property = lookup[PROPERTY];
       fragment = lookup[FRAGMENT];
       prefix   = lookup[PREFIX];
-      if ( property != UNDEFINED )
+      if ( defined( property ) )
       {
         if ( is( property, STRING ) )
         {
@@ -752,12 +758,12 @@ Note:           If you change or improve on this script, please let us know by
         }
       }
       // retrieve fragment matches
-      else if ( fragment != UNDEFINED )
+      else if ( defined( fragment ) )
       {
         properties.push( new RegExp( ANYTHING + fragment + ANYTHING ) );
       }
       // retrieve prefix matches
-      else if ( prefix != UNDEFINED )
+      else if ( defined( prefix ) )
       {
         properties.push( new RegExp( HYPHEN + prefix + HYPHEN_ANYTHING ) );
       }
@@ -787,7 +793,7 @@ Note:           If you change or improve on this script, please let us know by
           }
         }
         else if ( is( requested_property, STRING ) &&
-                  style_rule[requested_property] != UNDEFINED )
+                  defined( style_rule[requested_property] ) )
         {
           properties[requested_property] = style_rule[requested_property];
         }
@@ -855,7 +861,7 @@ Note:           If you change or improve on this script, please let us know by
     }
     for ( var m=0, mLen=media.length; m<mLen; m++ )
     {
-      if ( __style_objects[media[m]] == UNDEFINED )
+      if ( ! defined( __style_objects[media[m]] ) )
       {
         __style_objects[media[m]] = {};
       }
@@ -929,6 +935,14 @@ Note:           If you change or improve on this script, please let us know by
             typeof( obj ) == test );
     }
     return r;
+  }
+  function is_false( a )
+  {
+    return a === FALSE;
+  }
+  function defined( a )
+  {
+    return a != UNDEFINED;
   }
   function charAt( str )
   {
@@ -1011,6 +1025,10 @@ Note:           If you change or improve on this script, please let us know by
     }
     return ( ! connection ) ? NULL : connection;
   }
+  function newElement( el )
+  {
+    return DOCUMENT.createElement( el );
+  }
   // push handling
   function addPush( arr )
   {
@@ -1031,6 +1049,24 @@ Note:           If you change or improve on this script, please let us know by
         arr.push = push;
       }
       return arr;
+    }
+  }
+  // expando handling
+  if ( defined( __expando ) )
+  {
+    toggleExpando = function()
+    {
+      if ( ! defined( DOCUMENT.old_expando ) ||
+           DOCUMENT.old_expando == NULL )
+      {
+        DOCUMENT.old_expando = DOCUMENT.expando;
+        DOCUMENT.expando = FALSE;
+      }
+      else
+      {
+        DOCUMENT.expando = DOCUMENT.old_expando;
+        DOCUMENT.old_expando = NULL;
+      }
     }
   }
   
@@ -1056,7 +1092,7 @@ Note:           If you change or improve on this script, please let us know by
   function enableCache()
   {
     // HTML5 and/or Mozilla
-    if ( WINDOW.localStorage != UNDEFINED )
+    if ( defined( WINDOW.localStorage ) )
     {
       __cache_object = WINDOW.localStorage;
       clearBrowserCache = function()
@@ -1075,10 +1111,10 @@ Note:           If you change or improve on this script, please let us know by
     // IE (old school)
     else
     {
-      var div = DOCUMENT.createElement('div');
+      var div = newElement(DIV);
       div.style.behavior = 'url(#default#userData)';
       DOCUMENT.body.appendChild(div);
-      if ( div.XMLDocument != UNDEFINED )
+      if ( defined( div.XMLDocument ) )
       {
         __cache_object = div;
         readFromBrowserCache = function( group, key )
@@ -1103,9 +1139,9 @@ Note:           If you change or improve on this script, please let us know by
     for ( cache_group in __local_cache )
     {
       if ( isInheritedProperty( __local_cache, cache_group ) ||
-           cache_group == UNDEFINED ){ continue; }
+           ! defined( cache_group ) ){ continue; }
       count = readFromBrowserCache( ECSSTENDER, cache_group + '-count' );
-      if ( count != UNDEFINED )
+      if ( defined( count ) )
       {
         if ( cache_group == EXTENSION )
         {
@@ -1139,12 +1175,12 @@ Note:           If you change or improve on this script, please let us know by
     for ( cache_group in __local_cache )
     {
       if ( isInheritedProperty( __local_cache, cache_group ) ||
-           cache_group == UNDEFINED ){ continue; }
+           ! defined( cache_group ) ){ continue; }
       count = 0;
       for ( key in __local_cache[cache_group] )
       {
         if ( isInheritedProperty( __local_cache[cache_group], key ) ||
-             cache_group == UNDEFINED ){ continue; }
+             ! defined( cache_group ) ){ continue; }
         if ( cache_group == EXTENSION )
         {
           extension = __local_cache[cache_group][key];
@@ -1237,8 +1273,8 @@ Note:           If you change or improve on this script, please let us know by
   }
   function writeToLocalCache( group, key, value, encode )
   {
-    encode = ( encode == UNDEFINED ) ? TRUE : encode;
-    if ( encode !== FALSE ){
+    encode = ! defined( encode ) ? TRUE : encode;
+    if ( ! is_false( encode ) ){
       key = fingerprint(key);
     }
     __local_cache[group][key] = value;
@@ -1249,12 +1285,12 @@ Note:           If you change or improve on this script, please let us know by
   }
   function readFromLocalCache( group, key, encode )
   {
-    encode = ( encode == UNDEFINED ) ? TRUE : encode;
-    if ( encode !== FALSE ){
+    encode = ! defined( encode ) ? TRUE : encode;
+    if ( ! is_false( encode ) ){
       key = fingerprint(key);
     }
     var value = __local_cache[group][key];
-    return ( value != UNDEFINED ) ? value : UNDEFINED;
+    return ! defined( value ) ? UNDEFINED : value;
   }
 
   /*-------------------------------------*
@@ -1297,22 +1333,22 @@ Note:           If you change or improve on this script, please let us know by
   {
     var eCSStension = {}, lookups, l, temp, t, props=[], key, id=EMPTY;
     // set the lookup type
-    if ( keys[SELECTOR] != UNDEFINED )
+    if ( defined( keys[SELECTOR] ) )
     {
       eCSStension[FIND_BY] = SELECTOR;
       eCSStension[LOOKUP]  = keys[SELECTOR];
     }
-    else if ( keys[PROPERTY] != UNDEFINED )
+    else if ( defined( keys[PROPERTY] ) )
     {
       eCSStension[FIND_BY] = PROPERTY;
       eCSStension[LOOKUP]  = keys[PROPERTY];
     }
-    else if ( keys[FRAGMENT] != UNDEFINED )
+    else if ( defined( keys[FRAGMENT] ) )
     {
       eCSStension[FIND_BY] = FRAGMENT;
       eCSStension[LOOKUP]  = keys[FRAGMENT];
     }
-    else if ( keys[PREFIX] != UNDEFINED )
+    else if ( defined( keys[PREFIX] ) )
     {
       eCSStension[FIND_BY] = PREFIX;
       eCSStension[LOOKUP]  = keys[PREFIX];
@@ -1326,19 +1362,19 @@ Note:           If you change or improve on this script, please let us know by
     }
 
     // filter?
-    if ( keys[FILTER] != UNDEFINED )
+    if ( defined( keys[FILTER] ) )
     {
       eCSStension[FILTER] = keys[FILTER];
     }
   
     // media restriction?
-    if ( keys[MEDIA] != UNDEFINED )
+    if ( defined( keys[MEDIA] ) )
     {
       eCSStension[MEDIA] = keys[MEDIA];
     }
   
     // test first?
-    if ( keys[TEST] != UNDEFINED )
+    if ( defined( keys[TEST] ) )
     {
       eCSStension[TEST] = keys[TEST];
     }
@@ -1347,7 +1383,7 @@ Note:           If you change or improve on this script, please let us know by
     eCSStension[PROPERTIES] = determineProperties( keys, properties );
     
     // create the fingerprint
-    if ( keys[FINGERPRINT] == UNDEFINED )
+    if ( ! defined( keys[FINGERPRINT] ) )
     {
       for ( key in eCSStension )
       {
@@ -1420,7 +1456,7 @@ Note:           If you change or improve on this script, please let us know by
     s, sLen, selector, found,
     i, iLen, test, matches = [];
     // figure out specificity params
-    if ( l_specificity != UNDEFINED )
+    if ( defined( l_specificity ) )
     {
       if ( is( l_specificity, NUMBER ) )
       {
@@ -1434,11 +1470,11 @@ Note:           If you change or improve on this script, please let us know by
       }
     }
     // make the selector setup consistent
-    if ( l_selector != UNDEFINED )
+    if ( defined( l_selector ) )
     {
       l_selector = arrayify( l_selector );
     }
-    else if ( l_property != UNDEFINED )
+    else if ( defined( l_property ) )
     {
       l_property = arrayify( l_property );
     }
@@ -1451,7 +1487,7 @@ Note:           If you change or improve on this script, please let us know by
       if ( isInheritedProperty( __style_objects, medium ) ){ continue; }
       
       // verify any media restrictions
-      if ( l_media != UNDEFINED &&
+      if ( defined( l_media ) &&
            l_media != ALL )
       {
         e_media = l_media.split(__re.c);
@@ -1470,7 +1506,7 @@ Note:           If you change or improve on this script, please let us know by
         // check the selector
         selector = sorted_styles[s][SELECTOR];
         block    = styles[selector];
-        if ( l_selector != UNDEFINED )
+        if ( defined( l_selector ) )
         {
           found = FALSE;
           for ( i=0, iLen=l_selector.length; i<iLen; i++ )
@@ -1481,34 +1517,34 @@ Note:           If you change or improve on this script, please let us know by
               break;
             }
           }
-          if ( found === FALSE )
+          if ( is_false( found ) )
           {
             continue;
           }
         }
         // check properties
-        else if ( l_property != UNDEFINED )
+        else if ( defined( l_property ) )
         {
           found = FALSE;
           for ( i=0, iLen=l_property.length; i<iLen; i++ )
           {
-            if ( block[l_property[i]] != UNDEFINED )
+            if ( defined( block[l_property[i]] ) )
             {
               found = TRUE;
               break;
             }
           }
-          if ( found === FALSE )
+          if ( is_false( found ) )
           {
             continue;
           }
         }
         // check fragments, and/or prefixes
-        else if ( l_fragment != UNDEFINED ||
-                  l_prefix != UNDEFINED )
+        else if ( defined( l_fragment ) ||
+                  defined( l_prefix ) )
         {
           found = FALSE;
-          test = ( l_fragment != UNDEFINED ) ? ANYTHING + l_fragment + ANYTHING
+          test = ( defined( l_fragment ) ) ? ANYTHING + l_fragment + ANYTHING
                                              : HYPHEN + l_prefix + HYPHEN_ANYTHING;
           test = new RegExp( test );
           for ( property in block )
@@ -1521,13 +1557,13 @@ Note:           If you change or improve on this script, please let us know by
               break;
             }
           }
-          if ( found === FALSE )
+          if ( is_false( found ) )
           {
             continue;
           }
         }
         // check the specificity
-        if ( l_specificity != UNDEFINED )
+        if ( defined( l_specificity ) )
         {
           if ( block[SPECIFICITY] < min ||
                block[SPECIFICITY] > max )
@@ -1559,7 +1595,7 @@ Note:           If you change or improve on this script, please let us know by
    */
   eCSStender.addMethod = function( name, the_function )
   {
-    if ( eCSStender.methods[name] == UNDEFINED )
+    if ( ! defined( eCSStender.methods[name] ) )
     {
       eCSStender.methods[name] = the_function;
     }
@@ -1591,7 +1627,7 @@ Note:           If you change or improve on this script, please let us know by
     // determine the medium
     media = media || ALL;
     // determine whether to delay the write or not
-    delay = ( delay != UNDEFINED ) ? delay : TRUE;
+    delay = defined( delay ) ? delay : TRUE;
     // determine the id
     var id = 'eCSStension-' + media, style;
     // find or create the embedded stylesheet
@@ -1642,7 +1678,7 @@ Note:           If you change or improve on this script, please let us know by
     id = id || 'temp-' + Math.round( Math.random() * 2 + 1 );
     style.setAttribute( 'id', id );
     // determine whether to delay the write or not
-    delay = ( delay != UNDEFINED ) ? delay : TRUE;
+    delay = defined( delay ) ? delay : TRUE;
     if ( delay )
     {
       __delayed[id] = EMPTY;
@@ -1662,8 +1698,8 @@ Note:           If you change or improve on this script, please let us know by
    * @param str styles - the style rules to add
    */
   __style.setAttribute( 'type', 'text/css' );
-  if ( __style.sheet != UNDEFINED &&
-       CSSStyleSheet != UNDEFINED &&
+  if ( defined( __style.sheet ) &&
+       defined( CSSStyleSheet ) &&
        __style.sheet instanceof CSSStyleSheet )
   {
     if ( __style.sheet.insertRule instanceof FUNCTION )
@@ -1687,7 +1723,7 @@ Note:           If you change or improve on this script, please let us know by
       }
     }
   }
-  else if ( __style.styleSheet != UNDEFINED )
+  else if ( defined( __style.styleSheet ) )
   { 
     addRules = function( el, styles )
     {
@@ -1718,13 +1754,12 @@ Note:           If you change or improve on this script, please let us know by
   {
     var result,
     body = DOCUMENT.body,
-    expando = DOCUMENT.expando,
     // property test vars
     property, value, expando = TRUE, settable = TRUE,
     compute = WINDOW.getComputedStyle,
     // selector test vars
     style;
-    if ( ( result = readFromLocalCache( type, what ) ) != UNDEFINED )
+    if ( defined( result = readFromLocalCache( type, what ) ) )
     {
       return result;
     }
@@ -1734,25 +1769,19 @@ Note:           If you change or improve on this script, please let us know by
       if ( type == PROPERTY )
       {
         // test element
-        el = DOCUMENT.createElement('div');
+        el = newElement(DIV);
         body.appendChild( el );
         what = what.split(__re.s);
         property  = what[0];
         value     = trim( what[1] );
         what = what.join(COLON);
-        if ( expando != UNDEFINED )
-        {
-          DOCUMENT.expando = FALSE;
-        }
+        toggleExpando();
         if ( ! addInlineStyle( el, property, value ) )
         {
           settable = FALSE;
         }
-        if ( expando != UNDEFINED )
-        {
-          DOCUMENT.expando = expando;
-        }
-        if ( settable == TRUE &&
+        toggleExpando();
+        if ( settable &&
              ( el.currentStyle &&
                zero_out( el.currentStyle[camelize( property )] ) == value ) ||
              ( compute &&
@@ -1801,7 +1830,7 @@ Note:           If you change or improve on this script, please let us know by
    */
   eCSStender.applyWeightedStyle = function( el, properties, specificity )
   {
-    if ( el.inlineStyles == UNDEFINED )
+    if ( ! defined( el.inlineStyles ) )
     {
       el.inlineStyles = {};
     }
@@ -1809,7 +1838,7 @@ Note:           If you change or improve on this script, please let us know by
     for ( prop in properties )
     {
       if ( ! isInheritedProperty( properties, prop ) &&
-           ( styles[prop] == UNDEFINED ||
+           ( ! defined( styles[prop] ) ||
              styles[prop] <= specificity ) )
       {
         addInlineStyle( el, prop, properties[prop] );

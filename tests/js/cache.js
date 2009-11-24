@@ -6,35 +6,45 @@ $(document).ready(function(){
     ok( typeof(eCSStender.disableCache)=='function', 'method exists' );
   });
   
-  var UNDEFINED, storage_method, local;
+  var
+  UNDEFINED,
+  storage_method,
+  local = ( window.location.href.indexOf('http') !== 0 );
   test( 'Storage Type', function(){
     
     // determine the storage method
-    storage_method = (function(){
-      var method = false, cache;
-      if ( window.localStorage )
-      {
-        method = 'localStorage';
-      }
-      else
-      {
-        cache = document.createElement('div');
-        cache.style.behavior = 'url(#default#userData)';
-        document.body.appendChild(cache);
-        if ( cache.XMLDocument != UNDEFINED )
-        {
-          method = 'UserData Cache';
-        }
-      }
-      return method;
-    })();
-    if ( storage_method !== false )
+    if ( local )
     {
-      ok( true, 'Caching is Available' );
+      ok( true, 'eCSStender cannot use the cache (script is being run locally)' );
     }
     else
     {
-      ok( true, 'Caching is not supported' );
+      storage_method = (function(){
+        var method = false, cache;
+        if ( window.localStorage )
+        {
+          method = 'localStorage';
+        }
+        else
+        {
+          cache = document.createElement('div');
+          cache.style.behavior = 'url(#default#userData)';
+          document.body.appendChild(cache);
+          if ( cache.XMLDocument != UNDEFINED )
+          {
+            method = 'UserData Cache';
+          }
+        }
+        return method;
+      })();
+      if ( storage_method !== false )
+      {
+        ok( true, 'Caching is Available: ' + storage_method );
+      }
+      else
+      {
+        ok( true, 'Caching is not supported' );
+      }
     }
     
   });
@@ -42,8 +52,7 @@ $(document).ready(function(){
   test( 'Storage Use', function(){
     
     // determine if we are (or should be) using a cache
-    var local = ( window.location.href.indexOf('http') !== 0 );
-    if ( storage_method !== false && local && ! eCSStender.cache )
+    if ( local )
     {
       ok( true, 'eCSStender cannot use the cache (script is being run locally)' );
     }
