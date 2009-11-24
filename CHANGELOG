@@ -1,3 +1,18 @@
+*v1.0.3* (2009-11-24)
+* Added support for delayed writing (to reduce DOM manipulation time) - optional boolean third param on embedCSS() and newStyleElement() now allow delayed writing to the document (true by default, use false to disable)
+* Added support for custom @ rules
+* Added the tests for extended at rules
+* Adjusted extract to work with old IE versions and their horribly disfiguring of embedded CSS (fixes Greg Lucas' bug)
+* Double-checked the examples for functionality under delayed-write
+* More optimization for file size and performance
+  - Externalized more strings and object references
+  - Streamlined the addRules method to allow for bulk writing
+  - Aliased recurring checks
+* adjusted the pages test to check that overloading is working properly
+* Updated title of combined example
+* Fixed some bugs in the tests
+* Updated the cache test to bail if being run locally (to avoid throwing a Security Error in Firefox)
+
 *v1.0* (2009-09-08)
 
 * added support for local cache when server (not file) based
