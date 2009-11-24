@@ -1,12 +1,10 @@
 /*------------------------------------------------------------------------------
-Function:       eCSStender()
-Author:         Aaron Gustafson (aaron at easy-designs dot net)
-Creation Date:  2006-12-03
-Version:        1.0.3
-Homepage:       http://eCSStender.org
-License:        MIT License (see homepage)
-Note:           If you change or improve on this script, please let us know by
-                emailing the author (above) with a link to your demo page.
+Function:      eCSStender()
+Author:        Aaron Gustafson (aaron at easy-designs dot net)
+Creation Date: 2006-12-03
+Version:       1.0.3
+Homepage:      http://eCSStender.org
+License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
 
 (function(){
@@ -49,11 +47,15 @@ Note:           If you change or improve on this script, please let us know by
   PIPES       = '||||',
   EMPTY       = '',
   SPACE       = ' ',
+  STAR        = '*',
   SLASH       = '/',
   COLON       = ':',
   SEMICOLON   = ';',
   HYPHEN      = '-',
+  OPEN_CURLY  = '{',
+  CLOSE_CURLY = '}',
   DIV         = 'div',
+  HIDDEN      = 'hidden',
   
   // Regex Bits
   ANYTHING        = '.*?',
@@ -87,8 +89,10 @@ Note:           If you change or improve on this script, please let us know by
   __head         = FALSE,
   __style        = newElement( 'style' ),
   __embedded_css = [],
+  addRules       = EMPTY_FN,
   
   // caching
+  COUNT         = '-count',
   __modified    = {},
   __no_cache    = FALSE,
   __cached_out  = FALSE,
@@ -199,35 +203,39 @@ Note:           If you change or improve on this script, please let us know by
     for ( key in __modified )
     {
       i++;
-      if ( isInheritedProperty( __modified, key ) ||
-           __modified[key] == NULL ){ continue; }
-      j++;
-      if ( ! defined( cached[key] ) ||
-           cached[key] != __modified[key] )
+      if ( ! isInheritedProperty( __modified, key ) &&
+           __modified[key] != NULL )
       {
-        eCSStender.cache = FALSE;
+        j++;
+        if ( ! defined( cached[key] ) ||
+             cached[key] != __modified[key] )
+        {
+          eCSStender.cache = FALSE;
+        }
+        // update the cache
+        __local_cache.xhr[key] = __modified[key];
       }
-      // update the cache
-      __local_cache.xhr[key] = __modified[key];
     }
     if ( i>j ){ eCSStender.cache = FALSE; }
   }
   function runTests()
   {
     if ( eCSStender.cache ){ return; }
-    var temp = {}, e, count=0, test;
+    var temp = {}, e, count=0, extension_test;
     for ( e in __eCSStensions )
     {
-      if ( isInheritedProperty( __eCSStensions, e ) ) { continue; }
-      extension_test = __eCSStensions[e][TEST];
-      // verify test (if any)
-      if ( ! defined( extension_test ) ||
-           ( is( extension_test, FUNCTION ) &&
-             extension_test() ) )
+      if ( ! isInheritedProperty( __eCSStensions, e ) )
       {
-        // if no test or test is passed, push to the temp array
-        temp[e] = __eCSStensions[e];
-        count++;
+        extension_test = __eCSStensions[e][TEST];
+        // verify test (if any)
+        if ( ! defined( extension_test ) ||
+             ( is( extension_test, FUNCTION ) &&
+               extension_test() ) )
+        {
+          // if no test or test is passed, push to the temp array
+          temp[e] = __eCSStensions[e];
+          count++;
+        }
       }
     }
     // reset the __eCSStensions array
@@ -250,79 +258,83 @@ Note:           If you change or improve on this script, please let us know by
       for ( medium in __style_objects )
       {
         // safety for users who are using Prototype or any code that extends Object
-        if ( isInheritedProperty( __style_objects, medium ) ) { continue; }
-        // start the processing in earnest      
-        styles = __style_objects[medium];
-        sorted_styles = getSortedArray( styles );
-        for ( s=0, sLen=sorted_styles.length; s<sLen; s++ )
+        if ( ! isInheritedProperty( __style_objects, medium ) )
         {
-          selector = sorted_styles[s][SELECTOR];
-          // loop the extensions
-          eLoop:
-          for ( e in __eCSStensions )
+          // start the processing in earnest      
+          styles = __style_objects[medium];
+          sorted_styles = getSortedArray( styles );
+          for ( s=0, sLen=sorted_styles.length; s<sLen; s++ )
           {
-            // safety for users who are using Prototype or any code that extends Object
-            if ( isInheritedProperty( __eCSStensions, e ) ) { continue; }
-            e_media = __eCSStensions[e][MEDIA];
-            // verify any media restrictions
-            if ( defined( e_media ) &&
-                 e_media != ALL )
+            selector = sorted_styles[s][SELECTOR];
+            // loop the extensions
+            eLoop:
+            for ( e in __eCSStensions )
             {
-              e_media = e_media.split(__re.c);
-              if ( medium != ALL &&
-                   ! in_object( medium, e_media ) ){
-                continue;
-              }
-            }
-            e_find_by = __eCSStensions[e][FIND_BY];
-            e_lookup  = __eCSStensions[e][LOOKUP];
-            lLen = e_lookup.length;
-            // eCSStension is triggered by a selector 
-            if ( e_find_by == SELECTOR )
-            {
-              for ( l=0; l<lLen; l++ )
+              // safety for users who are using Prototype or any code that extends Object
+              if ( ! isInheritedProperty( __eCSStensions, e ) )
               {
-                if ( selectorMatches( selector, e_lookup[l] ) )
+                e_media = __eCSStensions[e][MEDIA];
+                // verify any media restrictions
+                if ( defined( e_media ) &&
+                     e_media != ALL )
                 {
-                  trackCallback( e, medium, selector );
-                  continue eLoop;
+                  e_media = e_media.split(__re.c);
+                  if ( medium != ALL &&
+                       ! in_object( medium, e_media ) ){
+                    continue;
+                  }
                 }
-              }
-            }
-            // eCSStension uses a property
-            else if ( e_find_by == PROPERTY )
-            {
-              for ( l=0; l<lLen; l++ )
-              {
-                if ( defined( styles[selector][e_lookup[l]] ) )
+                e_find_by = __eCSStensions[e][FIND_BY];
+                e_lookup  = __eCSStensions[e][LOOKUP];
+                lLen = e_lookup.length;
+                // eCSStension is triggered by a selector 
+                if ( e_find_by == SELECTOR )
                 {
-                  trackCallback( e, medium, selector );
-                  continue eLoop;
+                  for ( l=0; l<lLen; l++ )
+                  {
+                    if ( selectorMatches( selector, e_lookup[l] ) )
+                    {
+                      trackCallback( e, medium, selector );
+                      continue eLoop;
+                    }
+                  }
                 }
-              }
-            }
-            // eCSStension uses a fragment or prefix
-            else if ( e_find_by == FRAGMENT ||
-                      e_find_by == PREFIX )
-            {
-              lookup = ( e_find_by == FRAGMENT ) ? ANYTHING + e_lookup + ANYTHING
-                                                 : HYPHEN + e_lookup + HYPHEN_ANYTHING;
-              lookup = new RegExp( lookup );
-              for ( property in styles[selector] )
-              {
-                if ( ! isInheritedProperty( styles, selector ) && // fix for tainted Object
-                     ! in_object( property, __ignored_props ) &&
-                     property.match( lookup ) )
+                // eCSStension uses a property
+                else if ( e_find_by == PROPERTY )
                 {
-                  trackCallback( e, medium, selector );
-                  continue eLoop;
+                  for ( l=0; l<lLen; l++ )
+                  {
+                    if ( defined( styles[selector][e_lookup[l]] ) )
+                    {
+                      trackCallback( e, medium, selector );
+                      continue eLoop;
+                    }
+                  }
                 }
-              }
-            } // end if eCSStension uses a fragment or prefix
-          } // end eCSStensions loop
-        } // end styles loop
+                // eCSStension uses a fragment or prefix
+                else if ( e_find_by == FRAGMENT ||
+                          e_find_by == PREFIX )
+                {
+                  lookup = ( e_find_by == FRAGMENT ) ? ANYTHING + e_lookup + ANYTHING
+                                                     : HYPHEN + e_lookup + HYPHEN_ANYTHING;
+                  lookup = newRegExp( lookup );
+                  for ( property in styles[selector] )
+                  {
+                    if ( ! isInheritedProperty( styles, selector ) && // fix for tainted Object
+                         ! in_object( property, __ignored_props ) &&
+                         property.match( lookup ) )
+                    {
+                      trackCallback( e, medium, selector );
+                      continue eLoop;
+                    }
+                  }
+                } // end if eCSStension uses a fragment or prefix
+              }  // end extended object test
+            } // end eCSStensions loop
+          } // end styles loop
+        } // end extended object test
       } // end medium loop
-    }
+    } // end if no cache
   }
   // log callbacks
   function trackCallback( fingerprint, medium, selector )
@@ -420,12 +432,14 @@ Note:           If you change or improve on this script, please let us know by
     for ( selector in styles )
     {
       // fix for tainated Object
-      if ( isInheritedProperty( styles, selector ) ) { continue; }
-      // continue
-      temp = styles[selector];
-      temp[SELECTOR]    = selector;
-      temp[SPECIFICITY] = getSpecificity( selector );
-      arr.push( temp );
+      if ( ! isInheritedProperty( styles, selector ) )
+      {
+        // continue
+        temp = styles[selector];
+        temp[SELECTOR]    = selector;
+        temp[SPECIFICITY] = getSpecificity( selector );
+        arr.push( temp );
+      }
     }
     arr.sort( sortBySpecificity );
     return arr;
@@ -503,7 +517,8 @@ Note:           If you change or improve on this script, please let us know by
   {
     var
     media = stylesheet.media,
-    owner = stylesheet.ownerRule;
+    owner = stylesheet.ownerRule,
+    mediaText = FALSE;
     // W3C compliant
     if ( ! is( media, STRING ) )
     {
@@ -511,30 +526,27 @@ Note:           If you change or improve on this script, please let us know by
       if ( owner != NULL )
       {
         // media assignment in the import
-        if ( owner.media.mediaText != EMPTY )
+        mediaText = owner.media.mediaText;
+        if ( ! mediaText )
         {
-          return owner.media.mediaText;
-        }
-        // no media assignment... inherit
-        else
-        {
-          return determineMedia( owner.parentStyleSheet );
+          // no media assignment... inherit
+          mediaText = determineMedia( owner.parentStyleSheet );
         }
       }
       // media is defined
-      if ( media.mediaText != EMPTY )
+      else
       {
-        return media.mediaText;
+        mediaText = media.mediaText;
       }
     }
     // old school
     else if ( is( media, STRING ) &&
-              media != EMPTY)
+              media )
     {
-      return media;
+      mediaText = media;
     }
     // default = all
-    return ALL;
+    return mediaText ? mediaText : ALL;
   }
   function extractAtBlocks( css )
   {
@@ -575,8 +587,10 @@ Note:           If you change or improve on this script, please let us know by
       {
         for ( prop in props )
         {
-          if ( isInheritedProperty( props, prop ) ) { continue; }
-          eCSStender.pages[page][prop] = props[prop];
+          if ( ! isInheritedProperty( props, prop ) )
+          {
+            eCSStender.pages[page][prop] = props[prop];
+          }
         }
       }
       
@@ -623,8 +637,10 @@ Note:           If you change or improve on this script, please let us know by
           {
             for ( prop in props )
             {
-              if ( isInheritedProperty( props, prop ) ) { continue; }
-              eCSStender.at[group][keys[k]][prop] = props[prop];
+              if ( ! isInheritedProperty( props, prop ) )
+              {
+                eCSStender.at[group][keys[k]][prop] = props[prop];
+              }
             }
           }
           k--;
@@ -642,7 +658,7 @@ Note:           If you change or improve on this script, please let us know by
       media: media,
       styles: styles
     };
-    return css.replace( match[0], PH_ATMEDIA + '{id:' + id + '}' );
+    return css.replace( match[0], PH_ATMEDIA + '{id:' + id + CLOSE_CURLY );
   }
   function expandAtMedia( id )
   {
@@ -653,13 +669,13 @@ Note:           If you change or improve on this script, please let us know by
   function extractStyleBlocks( media, css )
   {
     // parse it into blocks & remove the last item (which is empty)
-    var blocks = css.split('}'), b, bLen, props, prop, selector, m, medium, arr, a, aLen;
+    var blocks = css.split(CLOSE_CURLY), b, bLen, props, prop, selector, m, medium, arr, a, aLen;
     blocks.pop();
     // loop
     for ( b=0, bLen=blocks.length; b<bLen; b++ )
     {
       // separate the selector and the properties
-      blocks[b] = blocks[b].split('{');
+      blocks[b] = blocks[b].split(OPEN_CURLY);
       // gather the properties
       props = gatherProperties( blocks[b][1] );
       // build the selectors (which are part of the master object)
@@ -678,16 +694,20 @@ Note:           If you change or improve on this script, please let us know by
           selector = trim( arr[a] );
           for ( m in media )
           {
-            if ( isInheritedProperty( media, m ) ) { continue; }
-            medium = media[m];
-            if ( ! defined( __style_objects[medium][selector] ) )
+            if ( ! isInheritedProperty( media, m ) )
             {
-              __style_objects[medium][selector] = {};
-            }
-            for ( prop in props )
-            {
-              if ( isInheritedProperty( props, prop ) ) { continue; }
-              __style_objects[medium][selector][prop] = props[prop];
+              medium = media[m];
+              if ( ! defined( __style_objects[medium][selector] ) )
+              {
+                __style_objects[medium][selector] = {};
+              }
+              for ( prop in props )
+              {
+                if ( ! isInheritedProperty( props, prop ) )
+                {
+                  __style_objects[medium][selector][prop] = props[prop];
+                }
+              }
             }
           }
         }
@@ -716,7 +736,7 @@ Note:           If you change or improve on this script, please let us know by
     if ( ! is_false( requested_properties ) )
     {
       // user doesn't want everything
-      if ( requested_properties != '*' )
+      if ( requested_properties != STAR )
       {
         // gather requested properties
         if ( is( requested_properties, STRING ) )
@@ -737,7 +757,7 @@ Note:           If you change or improve on this script, please let us know by
       }
     }
     // now for the remainder
-    if ( requested_properties != '*' )
+    if ( requested_properties != STAR )
     {
       // retrieve properties that were explicitly looked up
       property = lookup[PROPERTY];
@@ -760,12 +780,12 @@ Note:           If you change or improve on this script, please let us know by
       // retrieve fragment matches
       else if ( defined( fragment ) )
       {
-        properties.push( new RegExp( ANYTHING + fragment + ANYTHING ) );
+        properties.push( newRegExp( ANYTHING + fragment + ANYTHING ) );
       }
       // retrieve prefix matches
       else if ( defined( prefix ) )
       {
-        properties.push( new RegExp( HYPHEN + prefix + HYPHEN_ANYTHING ) );
+        properties.push( newRegExp( HYPHEN + prefix + HYPHEN_ANYTHING ) );
       }
     }
     return properties;
@@ -882,20 +902,24 @@ Note:           If you change or improve on this script, please let us know by
     var count, required_count, prop, filter;
     for ( prop in properties )
     {
-      if ( isInheritedProperty( properties, prop ) ||
-           in_object( prop, __ignored_props ) ){ continue; }
-      count = required_count = 0;
-      for ( filter in filters )
+      if ( ! isInheritedProperty( properties, prop ) &&
+           ! in_object( prop, __ignored_props ) )
       {
-        if ( isInheritedProperty( filters, filter ) ){ continue; }
-        required_count++;
-        if ( filter == PROPERTY )
+        count = required_count = 0;
+        for ( filter in filters )
         {
-          if ( prop.match( filters[filter] ) ){ count++; }
-        }
-        else if ( filter == 'value' )
-        {
-          if ( properties[prop].match( filters[filter] ) ){ count++; }
+          if ( ! isInheritedProperty( filters, filter ) )
+          {
+            required_count++;
+            if ( filter == PROPERTY )
+            {
+              if ( prop.match( filters[filter] ) ){ count++; }
+            }
+            else if ( filter == 'value' )
+            {
+              if ( properties[prop].match( filters[filter] ) ){ count++; }
+            }
+          }
         }
       }
       if ( count == required_count ){ return TRUE; }
@@ -1029,6 +1053,10 @@ Note:           If you change or improve on this script, please let us know by
   {
     return DOCUMENT.createElement( el );
   }
+  function newRegExp( rxp )
+  {
+    return new RegExp( rxp );
+  }
   // push handling
   function addPush( arr )
   {
@@ -1078,10 +1106,12 @@ Note:           If you change or improve on this script, please let us know by
     var id, style;
     for ( id in __delayed )
     {
-      if ( isInheritedProperty( __delayed, id ) ){ continue; }
-      style = DOCUMENT.getElementById( id );
-      addRules( style, __delayed[id] );
-      // style.disabled = FALSE;
+      if ( ! isInheritedProperty( __delayed, id ) )
+      {
+        style = DOCUMENT.getElementById( id );
+        addRules( style, __delayed[id] );
+        // style.disabled = FALSE;
+      }
     }
   }
   __on_complete.push( writeStyleSheets );
@@ -1138,32 +1168,34 @@ Note:           If you change or improve on this script, please let us know by
     var cache_group, item, count;
     for ( cache_group in __local_cache )
     {
-      if ( isInheritedProperty( __local_cache, cache_group ) ||
-           ! defined( cache_group ) ){ continue; }
-      count = readFromBrowserCache( ECSSTENDER, cache_group + '-count' );
-      if ( defined( count ) )
+      if ( ! isInheritedProperty( __local_cache, cache_group ) &&
+           defined( cache_group ) )
       {
-        if ( cache_group == EXTENSION )
+        count = readFromBrowserCache( ECSSTENDER, cache_group + COUNT );
+        if ( defined( count ) )
         {
-          __t_count = count;
-          if ( count < 1 ){ eCSStender.cache = FALSE; }
-        }
-        while ( count >= 0 )
-        {
-          item = readFromBrowserCache( cache_group, count );
-          if ( item != NULL )
+          if ( cache_group == EXTENSION )
           {
-            if ( cache_group == EXTENSION )
-            {
-              __local_cache[cache_group][EXTENSION+count] = item;
-            }
-            else
-            {
-              item = item.split(PIPES);
-              __local_cache[cache_group][item[0]] = item[1];
-            }
+            __t_count = count;
+            if ( count < 1 ){ eCSStender.cache = FALSE; }
           }
-          count--;
+          while ( count >= 0 )
+          {
+            item = readFromBrowserCache( cache_group, count );
+            if ( item != NULL )
+            {
+              if ( cache_group == EXTENSION )
+              {
+                __local_cache[cache_group][EXTENSION+count] = item;
+              }
+              else
+              {
+                item = item.split(PIPES);
+                __local_cache[cache_group][item[0]] = item[1];
+              }
+            }
+            count--;
+          }
         }
       }
     }
@@ -1174,26 +1206,30 @@ Note:           If you change or improve on this script, please let us know by
     var cache_group, key, count, extension;
     for ( cache_group in __local_cache )
     {
-      if ( isInheritedProperty( __local_cache, cache_group ) ||
-           ! defined( cache_group ) ){ continue; }
-      count = 0;
-      for ( key in __local_cache[cache_group] )
+      if ( ! isInheritedProperty( __local_cache, cache_group ) &&
+           defined( cache_group ) )
       {
-        if ( isInheritedProperty( __local_cache[cache_group], key ) ||
-             ! defined( cache_group ) ){ continue; }
-        if ( cache_group == EXTENSION )
+        count = 0;
+        for ( key in __local_cache[cache_group] )
         {
-          extension = __local_cache[cache_group][key];
-          extension[PROCESSED] = [];
-          writeToBrowserCache( cache_group, count, extension );
+          if ( ! isInheritedProperty( __local_cache[cache_group], key ) &&
+               defined( cache_group ) )
+          {
+            if ( cache_group == EXTENSION )
+            {
+              extension = __local_cache[cache_group][key];
+              extension[PROCESSED] = [];
+              writeToBrowserCache( cache_group, count, extension );
+            }
+            else 
+            {
+              writeToBrowserCache( cache_group, count, key + PIPES + __local_cache[cache_group][key] );
+            }
+            count++;
+          }
         }
-        else 
-        {
-          writeToBrowserCache( cache_group, count, key + PIPES + __local_cache[cache_group][key] );
-        }
-        count++;
+        writeToBrowserCache( ECSSTENDER, cache_group + COUNT, count );
       }
-      writeToBrowserCache( ECSSTENDER, cache_group + '-count', count );
     }
     __cached_out = TRUE;
   }
@@ -1202,8 +1238,10 @@ Note:           If you change or improve on this script, please let us know by
     var str = EMPTY, key;
     for ( key in obj )
     {
-      if ( isInheritedProperty( obj, key ) ){ continue; }
-      str += key + COLON + obj[key] + SEMICOLON
+      if ( ! isInheritedProperty( obj, key ) )
+      {
+        str += key + COLON + obj[key] + SEMICOLON
+      }
     }
     return str;
   }
@@ -1387,8 +1425,10 @@ Note:           If you change or improve on this script, please let us know by
     {
       for ( key in eCSStension )
       {
-        if ( isInheritedProperty( eCSStension, key ) ){ continue; }
-        id += key + COLON + eCSStension[key].toString() + SEMICOLON;
+        if ( ! isInheritedProperty( eCSStension, key ) )
+        {
+          id += key + COLON + eCSStension[key].toString() + SEMICOLON;
+        }
       }
       id = fingerprint(id+'::'+__e_count);
     }
@@ -1484,101 +1524,102 @@ Note:           If you change or improve on this script, please let us know by
     for ( medium in __style_objects )
     {
       // safety for users who are using Prototype or any code that extends Object
-      if ( isInheritedProperty( __style_objects, medium ) ){ continue; }
-      
-      // verify any media restrictions
-      if ( defined( l_media ) &&
-           l_media != ALL )
+      if ( ! isInheritedProperty( __style_objects, medium ) )
       {
-        e_media = l_media.split(__re.c);
-        if ( medium != ALL &&
-             ! in_object( medium, e_media ) )
+        // verify any media restrictions
+        if ( defined( l_media ) &&
+             l_media != ALL )
         {
-          continue;
-        }
-      }
-      // start the processing in earnest      
-      styles        = __style_objects[medium];
-      sorted_styles = getSortedArray( styles );
-      sLoop:
-      for ( s=0, sLen=sorted_styles.length; s<sLen; s++ )
-      {
-        // check the selector
-        selector = sorted_styles[s][SELECTOR];
-        block    = styles[selector];
-        if ( defined( l_selector ) )
-        {
-          found = FALSE;
-          for ( i=0, iLen=l_selector.length; i<iLen; i++ )
-          {
-            if ( selectorMatches( selector, l_selector[i] ) )
-            {
-              found = TRUE;
-              break;
-            }
-          }
-          if ( is_false( found ) )
+          e_media = l_media.split(__re.c);
+          if ( medium != ALL &&
+               ! in_object( medium, e_media ) )
           {
             continue;
           }
         }
-        // check properties
-        else if ( defined( l_property ) )
+        // start the processing in earnest      
+        styles        = __style_objects[medium];
+        sorted_styles = getSortedArray( styles );
+        sLoop:
+        for ( s=0, sLen=sorted_styles.length; s<sLen; s++ )
         {
-          found = FALSE;
-          for ( i=0, iLen=l_property.length; i<iLen; i++ )
+          // check the selector
+          selector = sorted_styles[s][SELECTOR];
+          block    = styles[selector];
+          if ( defined( l_selector ) )
           {
-            if ( defined( block[l_property[i]] ) )
+            found = FALSE;
+            for ( i=0, iLen=l_selector.length; i<iLen; i++ )
             {
-              found = TRUE;
-              break;
+              if ( selectorMatches( selector, l_selector[i] ) )
+              {
+                found = TRUE;
+                break;
+              }
+            }
+            if ( is_false( found ) )
+            {
+              continue;
             }
           }
-          if ( is_false( found ) )
+          // check properties
+          else if ( defined( l_property ) )
           {
-            continue;
+            found = FALSE;
+            for ( i=0, iLen=l_property.length; i<iLen; i++ )
+            {
+              if ( defined( block[l_property[i]] ) )
+              {
+                found = TRUE;
+                break;
+              }
+            }
+            if ( is_false( found ) )
+            {
+              continue;
+            }
           }
-        }
-        // check fragments, and/or prefixes
-        else if ( defined( l_fragment ) ||
-                  defined( l_prefix ) )
-        {
-          found = FALSE;
-          test = ( defined( l_fragment ) ) ? ANYTHING + l_fragment + ANYTHING
+          // check fragments, and/or prefixes
+          else if ( defined( l_fragment ) ||
+                    defined( l_prefix ) )
+          {
+            found = FALSE;
+            test = ( defined( l_fragment ) ) ? ANYTHING + l_fragment + ANYTHING
                                              : HYPHEN + l_prefix + HYPHEN_ANYTHING;
-          test = new RegExp( test );
-          for ( property in block )
-          {
-            if ( ! isInheritedProperty( styles, selector ) && // fix for tainted Object
-                 ! in_object( property, __ignored_props ) &&
-                 property.match( test ) )
+            test = newRegExp( test );
+            for ( property in block )
             {
-              found = TRUE;
-              break;
+              if ( ! isInheritedProperty( styles, selector ) && // fix for tainted Object
+                   ! in_object( property, __ignored_props ) &&
+                   property.match( test ) )
+              {
+                found = TRUE;
+                break;
+              }
+            }
+            if ( is_false( found ) )
+            {
+              continue;
             }
           }
-          if ( is_false( found ) )
+          // check the specificity
+          if ( defined( l_specificity ) )
           {
-            continue;
+            if ( block[SPECIFICITY] < min ||
+                 block[SPECIFICITY] > max )
+            {
+              continue;
+            }
           }
-        }
-        // check the specificity
-        if ( defined( l_specificity ) )
-        {
-          if ( block[SPECIFICITY] < min ||
-               block[SPECIFICITY] > max )
-          {
-            continue;
-          }
-        }
-        // if you made it this far, you passed the tests
-        matches.push({
-          medium:      medium,
-          properties:  extractProperties( medium, selector, props ),
-          selector:    selector,
-          specificity: block[SPECIFICITY]
-        });
-      } // end styles loop
+          // if you made it this far, you passed the tests
+          matches.push({
+            medium:      medium,
+            properties:  extractProperties( medium, selector, props ),
+            selector:    selector,
+            specificity: block[SPECIFICITY]
+          });
+        } // end styles loop
+      }
     } // end medium loop
     
     // back what we found
@@ -1698,32 +1739,7 @@ Note:           If you change or improve on this script, please let us know by
    * @param str styles - the style rules to add
    */
   __style.setAttribute( 'type', 'text/css' );
-  if ( defined( __style.sheet ) &&
-       defined( CSSStyleSheet ) &&
-       __style.sheet instanceof CSSStyleSheet )
-  {
-    if ( __style.sheet.insertRule instanceof FUNCTION )
-    {
-      addRules = function( el, styles )
-      {
-        el.sheet.insertRule( styles, el.sheet.cssRules.length );
-      }
-    }
-    else
-    {
-      addRules = function( el, styles )
-      {
-        var blocks = styles.split('}'), b, bLen;
-        blocks.pop();
-        for ( b=0, bLen=blocks.length; b<bLen; b++ )
-        {
-          blocks[b] = blocks[b].split('{');
-          el.sheet.addRule( trim( blocks[b][0] ), trim( blocks[b][1] ) );
-        }
-      }
-    }
-  }
-  else if ( defined( __style.styleSheet ) )
+  if ( defined( __style.styleSheet ) )
   { 
     addRules = function( el, styles )
     {
@@ -1755,7 +1771,7 @@ Note:           If you change or improve on this script, please let us know by
     var result,
     body = DOCUMENT.body,
     // property test vars
-    property, value, expando = TRUE, settable = TRUE,
+    property, value, settable = TRUE,
     compute = WINDOW.getComputedStyle,
     // selector test vars
     style;
@@ -1797,15 +1813,15 @@ Note:           If you change or improve on this script, please let us know by
       {
         // append the test markup and the test style element
         body.appendChild( html );
-        style = newStyleElement( 'screen', false, false );
+        style = newStyleElement( 'screen', FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
           addRules( style, what + " { visibility: hidden; }" );
           // if it succeeds, we don't want to run the eCSStension
           if ( ( el.currentStyle &&
-                 el.currentStyle['visibility'] == 'hidden' ) ||
+                 el.currentStyle['visibility'] == HIDDEN ) ||
                ( compute &&
-                 compute( el, NULL ).getPropertyValue( 'visibility' ) == 'hidden' ) )
+                 compute( el, NULL ).getPropertyValue( 'visibility' ) == HIDDEN ) )
           {
             result = TRUE;
           }
@@ -1926,7 +1942,8 @@ Note:           If you change or improve on this script, please let us know by
     var
     DCL = 'DOMContentLoaded',
     ORC = 'onreadystatechange',
-    __old_onload = WINDOW.onload;
+    __old_onload = WINDOW.onload,
+    doScroll = DOCUMENT.documentElement.doScroll;
     
     // for Mozilla/Safari/Opera9
   	if ( DOCUMENT.addEventListener )
@@ -1941,21 +1958,21 @@ Note:           If you change or improve on this script, please let us know by
   	{
   		// ensure firing before onload, maybe late but safe also for iframes
   		DOCUMENT.attachEvent( ORC, function(){
-  			if ( DOCUMENT.readyState === "complete" ) {
+  			if ( DOCUMENT.readyState === 'complete' ) {
   				DOCUMENT.detachEvent( ORC, arguments.callee );
   				initialize();
   			}
   		});
 
   		// If IE and not an iframe, continually check to see if the document is ready
-  		if ( DOCUMENT.documentElement.doScroll &&
+  		if ( doScroll &&
   		     WINDOW == WINDOW.top )
   		{
   		  (function(){
   			  try {
       			// If IE is used, use the trick by Diego Perini
       			// http://javascript.nwbox.com/IEContentLoaded/
-      			DOCUMENT.documentElement.doScroll("left");
+      			doScroll('left');
       		}
       		catch( error )
       		{
