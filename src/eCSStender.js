@@ -472,20 +472,24 @@ License:       MIT License (see homepage)
   function determinePath( stylesheet )
   {
     var
-    css_path = stylesheet.href, curr_path, path_last_slash, file_name, parent = NULL, parent_path = prefix = EMPTY;
-    // handle empty instead of NULL
+    actual_path = stylesheet.actual_path,
+    css_path = actual_path || stylesheet.href,
+    parent = stylesheet.parentStyleSheet,
+    curr_path, path_last_slash, file_name,
+    parent_path = prefix = EMPTY;
     if ( ! css_path ) { css_path = NULL; }
-    // we only want paths that
-    if ( css_path != NULL &&                 // are not NULL
-         css_path.indexOf(SLASH) != 0 &&       // don't start with a slash
-         ( css_path.match(__re.u) == NULL || // that are not fully-qualified files
-           css_path.match(__re.u) < 1 ) )
+    // we only want sheets
+    if ( ! actual_path &&
+         ( parent != NULL ||                     // with a parent or a URL that
+           ( css_path != NULL &&                 // is not NULL
+             css_path.indexOf( SLASH ) != 0 &&   // doesn't start with a slash
+             ! css_path.match( __re.u ) ) ) )    // isn't a full URL
     {
       curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
       path_last_slash = css_path.lastIndexOf( SLASH );
       file_name       = css_path.substring( path_last_slash + 1 );
       // check for an owner
-      if ( stylesheet.parentStyleSheet == NULL )
+      if ( parent == NULL )
       {
         if ( defined( stylesheet.ownerNode ) &&
              defined( CSSImportRule ) &&
@@ -494,11 +498,7 @@ License:       MIT License (see homepage)
           parent = stylesheet.ownerRule.parentStyleSheet;
         }
       }
-      else
-      {
-        parent = stylesheet.parentStyleSheet;
-      }
-      // no parent, use the css path itself
+      // still no parent, use the css path itself
       if ( parent == NULL )
       {
         prefix = curr_path + SLASH + css_path.substring( 0, path_last_slash );
@@ -511,6 +511,7 @@ License:       MIT License (see homepage)
       }
       css_path = prefix + SLASH + file_name;
     }
+    stylesheet.actual_path = css_path;
     return css_path;
   }
   function determineMedia( stylesheet )
