@@ -1,3 +1,7 @@
+*v1.1.1* (2009-11-24)
+* Updating the examples to explicitly state what browsers should be supported in each
+* Fixed an issue with determinePath in IE8 (IE seems to assume imported CSS files should have an href = the path to the page + the filename, even if the file doing the importing is in a different folder)
+
 *v1.1* (2009-11-24)
 * Added support for delayed writing (to reduce DOM manipulation time) - optional boolean third param on embedCSS() and newStyleElement() now allow delayed writing to the document (true by default, use false to disable)
 * Added support for custom @ rules
