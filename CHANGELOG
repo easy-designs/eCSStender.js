@@ -1,4 +1,10 @@
-*v1.1.1* (2009-11-24)
+*v1.1.2* (2009-11-30)
+* Fixing the bug in IE8 introduced a bug in IE6 (different means of handling paths apparently)
+* added check for __no_cache to stop verifyCache()
+* added disableCache() call to the test page and examples (to keep the cache from interfering with results)
+* This build and examples have been tested in IE6-8, Firefox 1.5-3.5, Safari 3+ (and Webkit nightly), Chrome, Opera, and Shiira.
+
+*v1.1.1* (2009-11-29)
 * Updating the examples to explicitly state what browsers should be supported in each
 * Fixed an issue with determinePath in IE8 (IE seems to assume imported CSS files should have an href = the path to the page + the filename, even if the file doing the importing is in a different folder)
 

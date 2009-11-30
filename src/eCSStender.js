@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.1.1
+Version:       1.1.2
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -131,7 +131,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.1.1',
+    version:   '1.1.2',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -196,7 +196,7 @@ License:       MIT License (see homepage)
   }
   function validateCache()
   {
-    if ( __local ){ return; }
+    if ( __no_cache || __local ){ return; }
     // check the xhr headers against what we read from the cache
     var key, cached = __local_cache.xhr, i=j=0;
     eCSStender.cache = TRUE;
@@ -480,11 +480,11 @@ License:       MIT License (see homepage)
     if ( ! css_path ) { css_path = NULL; }
     // we only want sheets
     if ( ! actual_path &&
-         ( parent != NULL ||                     // with a parent or a URL that
-           ( css_path != NULL &&                 // is not NULL
-             css_path.indexOf( SLASH ) != 0 &&   // doesn't start with a slash
-             ! css_path.match( __re.u ) ) ) )    // isn't a full URL
+         ( parent != NULL ||                         // with a parent or
+           ( css_path != NULL &&                     // that has a path and
+             css_path.match( __re.u ) === NULL ) ) ) // isn't a full URL
     {
+      if ( css_path.indexOf( SLASH ) === 0 ) { css_path = css_path.substring( 1 ); }
       curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
       path_last_slash = css_path.lastIndexOf( SLASH );
       file_name       = css_path.substring( path_last_slash + 1 );
