@@ -3,15 +3,13 @@ eCSStender.ignore('testsuite.css');
 eCSStender.ignore('ignored-1.css');
 eCSStender.ignore(['ignored-2.css']);
 
-// keeps the tests from having issues because of caching
-eCSStender.disableCache();
-
 $(document).ready(function(){
 
   module('');
   
   test( 'eCSStender', function(){
     ok( typeof(eCSStender)!='undefined', 'eCSStender object exists' );
+    ok( true, 'eCSStender version being tested: ' + eCSStender.version );
   });
   
 });
