@@ -1,3 +1,6 @@
+*v1.1.3* (2010-04-04)
+* Fixing a bug in IE's caching  mechanism
+
 *v1.1.2* (2009-11-30)
 * Fixing the bug in IE8 introduced a bug in IE6 (different means of handling paths apparently)
 * added check for __no_cache to stop verifyCache()

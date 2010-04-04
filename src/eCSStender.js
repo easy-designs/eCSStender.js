@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.1.2
+Version:       1.1.3
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -109,29 +109,27 @@ License:       MIT License (see homepage)
   clearBrowserCache    = EMPTY_FN,
   
   // useful RegExps
-  __re = {
-    // for breaking on commas
-    c: /\s*,\s*/,
-    // for getting file names
-    f: /.*\/(.*?\..*?)(?:\?.*)?$/,
-    // for determining if it's a fully-executed path
-    u: /\w+?\:\/\//,
-    // for finding @font-face, @page & @media
-    t: /@font-face\s*?{(.*?)\s*?}/ig,
-    p: /@page\s*?(:\w*?){0,1}{\s*?(.*?)\s*?}/ig,
-    m: /@media\s*(.*?)\s*{(.*?})}/ig,
-    // extended @ rules
-    a: /@([\w-]+)(.*?){([^}]*)}/ig,
-    // for splitting properties from values
-    s: /:(?!\/\/)/,
-    // for generating safe keys from selectors
-    k: /[:()]/g
-  },
+  // for breaking on commas
+  REGEXP_COMMA  = /\s*,\s*/,
+  // for getting file names
+  REGEXP_FILE   = /.*\/(.*?\..*?)(?:\?.*)?$/,
+  // for determining if it's a fully-executed path
+  REGEXP_URL    = /\w+?\:\/\//,
+  // for finding @font-face, @page & @media
+  REGEXP_FONTS  = /@font-face\s*?{(.*?)\s*?}/ig,
+  REGEXP_PAGES  = /@page\s*?(:\w*?){0,1}{\s*?(.*?)\s*?}/ig,
+  REGEXP_MEDIA  = /@media\s*(.*?)\s*{(.*?})}/ig,
+  // extended @ rules
+  REGEXP_ATRULE = /@([\w-]+)(.*?){([^}]*)}/ig,
+  // for splitting properties from values
+  REGEXP_P_V    = /:(?!\/\/)/,
+  // for generating safe keys from selectors
+  REGEXP_KEYS   = /[:()]/g,
   
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.1.2',
+    version:   '1.1.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -184,7 +182,7 @@ License:       MIT License (see homepage)
     {
       // determine the media type
       media = determineMedia( __stylesheets[s] );
-      media = media.split(__re.c);
+      media = media.split(REGEXP_COMMA);
       createMediaContainers( media );
       // get the stylesheet contents via XHR as we can't safely procure them from cssRules
       path = determinePath( __stylesheets[s] );
@@ -278,7 +276,7 @@ License:       MIT License (see homepage)
                 if ( defined( e_media ) &&
                      e_media != ALL )
                 {
-                  e_media = e_media.split(__re.c);
+                  e_media = e_media.split(REGEXP_COMMA);
                   if ( medium != ALL &&
                        ! in_object( medium, e_media ) ){
                     continue;
@@ -407,7 +405,7 @@ License:       MIT License (see homepage)
       // no need to XHR stylesheets that only import other stylesheets
       if ( i === iLen )
       {
-        __ignored_css.push( stylesheet.href.replace( __re.f, CAPTURE ) );
+        __ignored_css.push( stylesheet.href.replace( REGEXP_FILE, CAPTURE ) );
       }
     }
   }
@@ -420,7 +418,7 @@ License:       MIT License (see homepage)
              // or foreign
            ( determinePath( stylesheet ).indexOf( __location ) == -1 ||
              // or ignored
-             in_object( href.replace( __re.f, CAPTURE ), __ignored_css ) ) ) ){ return; }
+             in_object( href.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) ) ) ){ return; }
     // does it have imports?
     findImportedStylesheets( stylesheet );
     // push the current stylesheet to the collection
@@ -482,7 +480,7 @@ License:       MIT License (see homepage)
     if ( ! actual_path &&
          ( parent != NULL ||                         // with a parent or
            ( css_path != NULL &&                     // that has a path and
-             css_path.match( __re.u ) === NULL ) ) ) // isn't a full URL
+             css_path.match( REGEXP_URL ) === NULL ) ) ) // isn't a full URL
     {
       if ( css_path.indexOf( SLASH ) === 0 ) { css_path = css_path.substring( 1 ); }
       curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
@@ -565,16 +563,16 @@ License:       MIT License (see homepage)
   function extractFonts( css )
   {
     var match;
-    while ( ( match = __re.t.exec( css ) ) != NULL )
+    while ( ( match = REGEXP_FONTS.exec( css ) ) != NULL )
     {
       eCSStender.fonts.push( gatherProperties( match[1] ) );
     }
-    return css.replace( __re.t, EMPTY );
+    return css.replace( REGEXP_FONTS, EMPTY );
   }
   function extractPages( css )
   {
     var match, page, props;
-    while ( ( match = __re.p.exec( css ) ) != NULL )
+    while ( ( match = REGEXP_PAGES.exec( css ) ) != NULL )
     {
       page = ( defined( match[1] ) &&
                match[1] != EMPTY ) ? match[1].replace( COLON, EMPTY )
@@ -596,12 +594,12 @@ License:       MIT License (see homepage)
       }
       
     }
-    return css.replace( __re.p, EMPTY );
+    return css.replace( REGEXP_PAGES, EMPTY );
   }
   function handleMediaGroups( css )
   {
     var match, media, m, mLen, styles, id = 0;
-    while ( ( match = __re.m.exec( css ) ) != NULL )
+    while ( ( match = REGEXP_MEDIA.exec( css ) ) != NULL )
     {
       css = collapseAtMedia( css, match, id );
       id++;
@@ -611,11 +609,11 @@ License:       MIT License (see homepage)
   function extractOtherAtRules( css )
   {
     var match, group, keys, k, props, prop;
-    while ( ( match = __re.a.exec( css ) ) != NULL )
+    while ( ( match = REGEXP_ATRULE.exec( css ) ) != NULL )
     {
       group = match[1];
       keys  = trim( match[2] );
-      keys  = ( keys == EMPTY ) ? FALSE : keys.split( __re.c );
+      keys  = ( keys == EMPTY ) ? FALSE : keys.split( REGEXP_COMMA );
       props = gatherProperties( match[3] );
       if ( ! defined( eCSStender.at[group] ) )
       {
@@ -648,11 +646,11 @@ License:       MIT License (see homepage)
         }
       }
     }
-    return css.replace( __re.a, EMPTY );
+    return css.replace( REGEXP_ATRULE, EMPTY );
   }
   function collapseAtMedia( css, match, id )
   {
-    media  = match[1].split(__re.c);
+    media  = match[1].split(REGEXP_COMMA);
     styles = match[2];
     createMediaContainers( media );
     __media_groups[id] = {
@@ -689,7 +687,7 @@ License:       MIT License (see homepage)
       }
       else
       {
-        arr = selector.split(__re.c);
+        arr = selector.split(REGEXP_COMMA);
         for ( a=0, aLen=arr.length; a<aLen; a++ )
         {
           selector = trim( arr[a] );
@@ -725,7 +723,7 @@ License:       MIT License (see homepage)
       property = trim( properties[p] );
       // skip empties
       if ( property == EMPTY ){ continue; }
-      arr = property.split(__re.s);
+      arr = property.split(REGEXP_P_V);
       props[trim(arr[0])] = trim( arr[1] );
     }
     return props;
@@ -842,7 +840,7 @@ License:       MIT License (see homepage)
       if ( is( something, STRING ) &&
            something.indexOf(',') != -1 )
       {
-        temp = something.split( __re.c );
+        temp = something.split( REGEXP_COMMA );
         for ( i=0, iLen=temp.length; i<iLen; i++ )
         {
           arr.push( temp[i] );
@@ -860,7 +858,7 @@ License:       MIT License (see homepage)
         if ( is( something[i], STRING ) &&
             something[i].indexOf(',') != -1 )
         {
-          temp = something[i].split( __re.c );
+          temp = something[i].split( REGEXP_COMMA );
           for ( t=0, tLen=temp.length; t<tLen; t++ )
           {
             arr.push( temp[t] );
@@ -878,7 +876,7 @@ License:       MIT License (see homepage)
   {
     if ( ! is( media, ARRAY ) )
     {
-      media = ( media + EMPTY ).split( __re.c );
+      media = ( media + EMPTY ).split( REGEXP_COMMA );
     }
     for ( var m=0, mLen=media.length; m<mLen; m++ )
     {
@@ -975,25 +973,37 @@ License:       MIT License (see homepage)
   }
   function get( uri )
   {
-    if ( uri == NULL ||
-         in_object( uri.replace( __re.f, CAPTURE ), __ignored_css ) ){ return EMPTY; }
-    if ( __xhr == NULL ){ __xhr = new XHR(); }
+    if ( uri === NULL ||
+         in_object( uri.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) ){ return EMPTY; }
+    if ( __xhr === NULL ){ __xhr = new XHR(); }
+    var status = NULL;
     __xhr.open( 'GET', uri, FALSE );
     __xhr.send( NULL );
+    do {
+      if ( __xhr.readyState == 4 ) { status = __xhr.status; }
+      if ( status !== NULL &&
+           ( status < 200 ||
+             ( status >= 300 &&
+               status != 304 ) ) )
+      {
+        return EMPTY;
+      }
+    } while ( status === NULL )
     __modified[fingerprint(uri)] = __xhr.getResponseHeader('Last-Modified');
     return __xhr.responseText;
   }
   function extract( stylesheet )
   {
-    var r;
+    var r, low = low, regexp;
     try {
       r = stylesheet.ownerNode.innerHTML;
     }
     catch ( e )
     {
+      regexp = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig;
       r = stylesheet.owningElement.innerHTML;
       // IE6's CSS needs major cleaning (lame)
-      r = r.replace( /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig, low );
+      r = r.replace( regexp, low );
     }
     return r;
   }
@@ -1142,22 +1152,32 @@ License:       MIT License (see homepage)
     // IE (old school)
     else
     {
-      var div = newElement(DIV);
+      var
+      div = newElement(DIV),
+      tomorrow = new Date();
       div.style.behavior = 'url(#default#userData)';
       DOCUMENT.body.appendChild(div);
       if ( defined( div.XMLDocument ) )
       {
         __cache_object = div;
-        readFromBrowserCache = function( group, key )
+        __cache_object.load( ECSSTENDER );
+        // set the expiration for 1 day
+        tomorrow.setMinutes( tomorrow.getMinutes() + 1440 );
+        tomorrow = tomorrow.toUTCString();
+        __cache_object.expires = tomorrow;
+        clearBrowserCache = function()
         {
-          __cache_object.load( ECSSTENDER );
-          return __cache_object.getAttribute( group + HYPHEN + key );
+          __cache_object.XMLDocument.childNodes[0].attributes.length = 0;
         };
-        writeToBrowserCache = function( group, key, value )
+        readFromBrowserCache = function( cache, key )
         {
-          __cache_object.load(ECSSTENDER);
-          __cache_object.setAttribute( group + HYPHEN + key, value );
-          __cache_object.save(ECSSTENDER);
+          return __cache_object.getAttribute( cache + HYPHEN + key );
+        };
+        writeToBrowserCache = function( cache, key, value )
+        {
+          __cache_object.setAttribute( cache + HYPHEN + key, value );
+          __cache_object.save( ECSSTENDER );
+          
         };
       }
     }
@@ -1531,7 +1551,7 @@ License:       MIT License (see homepage)
         if ( defined( l_media ) &&
              l_media != ALL )
         {
-          e_media = l_media.split(__re.c);
+          e_media = l_media.split(REGEXP_COMMA);
           if ( medium != ALL &&
                ! in_object( medium, e_media ) )
           {
@@ -1788,7 +1808,7 @@ License:       MIT License (see homepage)
         // test element
         el = newElement(DIV);
         body.appendChild( el );
-        what = what.split(__re.s);
+        what = what.split(REGEXP_P_V);
         property  = what[0];
         value     = trim( what[1] );
         what = what.join(COLON);
