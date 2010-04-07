@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.1.3
+Version:       1.2
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -66,19 +66,21 @@ License:       MIT License (see homepage)
   PH_ATMEDIA = '!' + ECSSTENDER + '-media-placeholder!',
   
   // internals
-  __eCSStensions  = {}, // eCSStensions for parsing
-  __e_count       = 0,  // count of registered extensions
-  __t_count       = 0,  // count of triggered extensions
-  __stylesheets   = [], // stylesheets to parse
-  __style_objects = {}, // style rules to track
+  __eCSStensions  = {},    // eCSStensions for parsing
+  __e_count       = 0,     // count of registered extensions
+  __t_count       = 0,     // count of triggered extensions
+  __stylesheets   = [],    // stylesheets to parse
+  __s             = 0,     // index of current stylesheet
+  __checking      = FALSE, // still running?
+  __style_objects = {},    // style rules to track
   __media_groups  = {},
-  __xhr           = NULL,
+  __xhr           = new XHR(),
   __initialized   = FALSE,
   __ignored_css   = [],
   __ignored_props = [ SELECTOR, SPECIFICITY ],
   __location      = LOCATION.replace( /^\w+:\/\/\/?(.*?)\/.*/, CAPTURE ),
   __local         = ( LOCATION.indexOf( 'http' ) !== 0 ),
-  __delayed       = {}, // delayed stylesheets to write
+  __delayed       = {},    // delayed stylesheets to write
   __on_complete   = [],
   
   // expando handling (for IE)
@@ -129,7 +131,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.1.3',
+    version:   '1.2',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -140,6 +142,9 @@ License:       MIT License (see homepage)
   
   // window object
   WINDOW.eCSStender = eCSStender;
+  
+  // XHR callback
+  __xhr.onreadystatechange = getCSSFiles;
 
   /*------------------------------------*
    * Private Methods                    *
@@ -150,20 +155,23 @@ License:       MIT License (see homepage)
     if ( __initialized ){ return; }
     __initialized = TRUE;
     // performance logging
-    var started = now();
+    eCSStender.exec_time = now();
     // need the head
     __head = DOCUMENT.getElementsByTagName( 'head' )[0];
     // innards
     readBrowserCache();
     getActiveStylesheets();
     parseStyles();
+  }
+  function wrapUp()
+  {
     validateCache();
     runTests();
     eCSStend();
     triggerCallbacks();
     writeBrowserCache();
     // performance logging
-    eCSStender.exec_time = ( now() - started ) * .001;
+    eCSStender.exec_time = ( now() - eCSStender.exec_time ) * .001;
     triggerOnCompletes();
   }
   function getActiveStylesheets()
@@ -177,20 +185,15 @@ License:       MIT License (see homepage)
   }
   function parseStyles()
   {
-    var s, sLen, media, m, mLen, path, css;
+    var s, sLen, media, m, mLen;
     for ( s=0, sLen=__stylesheets.length; s<sLen; s++ )
     {
       // determine the media type
       media = determineMedia( __stylesheets[s] );
-      media = media.split(REGEXP_COMMA);
       createMediaContainers( media );
-      // get the stylesheet contents via XHR as we can't safely procure them from cssRules
-      path = determinePath( __stylesheets[s] );
-      css  = clean( path !== NULL ? get( path ) : extract( __stylesheets[s] ) );
-      css  = extractAtBlocks( css );
-      // handle remaining rules
-      extractStyleBlocks( media, css );
+      determinePath( __stylesheets[s] );
     }
+    getCSSFiles();
   }
   function validateCache()
   {
@@ -471,8 +474,8 @@ License:       MIT License (see homepage)
   {
     var
     actual_path = stylesheet.actual_path,
-    css_path = actual_path || stylesheet.href,
-    parent = stylesheet.parentStyleSheet,
+    css_path    = actual_path || stylesheet.href,
+    parent      = stylesheet.parentStyleSheet,
     curr_path, path_last_slash, file_name,
     parent_path = prefix = EMPTY;
     if ( ! css_path ) { css_path = NULL; }
@@ -545,7 +548,12 @@ License:       MIT License (see homepage)
       mediaText = media;
     }
     // default = all
-    return mediaText ? mediaText : ALL;
+    stylesheet.actual_media = mediaText ? mediaText : ALL;
+    if ( is( stylesheet.actual_media, STRING ) )
+    {
+      stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
+    }
+    return stylesheet.actual_media;
   }
   function extractAtBlocks( css )
   {
@@ -971,26 +979,63 @@ License:       MIT License (see homepage)
   {
     return String.fromCharCode( str );
   }
-  function get( uri )
+  function getCSSFiles()
   {
-    if ( uri === NULL ||
-         in_object( uri.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) ){ return EMPTY; }
-    if ( __xhr === NULL ){ __xhr = new XHR(); }
-    var status = NULL;
-    __xhr.open( 'GET', uri, FALSE );
-    __xhr.send( NULL );
-    do {
-      if ( __xhr.readyState == 4 ) { status = __xhr.status; }
-      if ( status !== NULL &&
-           ( status < 200 ||
-             ( status >= 300 &&
-               status != 304 ) ) )
+    var stylesheet, file, css, status;
+    if ( ! __checking )
+    {
+      if ( stylesheet = __stylesheets[__s] )
       {
-        return EMPTY;
+        if ( file = stylesheet.actual_path )
+        {
+          if ( file === NULL ||
+               in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
+          {
+            getCSSFiles();
+          }
+          else
+          {
+            __checking = TRUE;
+            __xhr.open( 'GET', file, FALSE );
+            __xhr.send( NULL );
+          }
+        }
+        else
+        {
+          __s++;
+          readCSS( extract( stylesheet ), stylesheet.actual_media );
+          getCSSFiles();
+        }
       }
-    } while ( status === NULL )
-    __modified[fingerprint(uri)] = __xhr.getResponseHeader('Last-Modified');
-    return __xhr.responseText;
+      else
+      {
+        wrapUp();
+      }
+    }
+    else
+    {
+      if ( __xhr.readyState == 4 )
+      {
+        __checking = FALSE;
+        status = __xhr.status;
+        if ( status === 0 ||                      // local
+             ( status >= 200 && status < 300 ) || // good
+             status == 304 )                      // cached
+        {
+          readCSS( __xhr.responseText, __stylesheets[__s].actual_media );
+          __modified[fingerprint( __stylesheets[__s].actual_path )] = __xhr.getResponseHeader('Last-Modified');
+          __s++;
+          getCSSFiles();
+        }
+      }
+    }
+  }
+  function readCSS( css, media )
+  {
+    css  = clean( css );
+    css  = extractAtBlocks( css );
+    // handle remaining rules
+    extractStyleBlocks( media, css );
   }
   function extract( stylesheet )
   {
