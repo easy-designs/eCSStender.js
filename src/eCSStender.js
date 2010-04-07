@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2
+Version:       1.2.1
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -71,7 +71,6 @@ License:       MIT License (see homepage)
   __t_count       = 0,     // count of triggered extensions
   __stylesheets   = [],    // stylesheets to parse
   __s             = 0,     // index of current stylesheet
-  __checking      = FALSE, // still running?
   __style_objects = {},    // style rules to track
   __media_groups  = {},
   __xhr           = new XHR(),
@@ -131,7 +130,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2',
+    version:   '1.2.1',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -143,9 +142,6 @@ License:       MIT License (see homepage)
   // window object
   WINDOW.eCSStender = eCSStender;
   
-  // XHR callback
-  __xhr.onreadystatechange = getCSSFiles;
-
   /*------------------------------------*
    * Private Methods                    *
    *------------------------------------*/
@@ -397,7 +393,9 @@ License:       MIT License (see homepage)
     else
     {
       blocks = stylesheet.cssRules || stylesheet.rules;
-      for ( i=0, iLen=blocks.length; i<iLen; i++ )
+      // for a strange Chrome error
+      if ( blocks === NULL ){ return; }
+      for ( i=0, iLen = blocks.length; i<iLen; i++ )
       {
         // imports must come first, so when we don't find one, return
         if ( blocks[i].type != 3 ){ return; }
@@ -982,52 +980,55 @@ License:       MIT License (see homepage)
   function getCSSFiles()
   {
     var stylesheet, file, css, status;
-    if ( ! __checking )
+    if ( stylesheet = __stylesheets[__s] )
     {
-      if ( stylesheet = __stylesheets[__s] )
+      if ( file = stylesheet.actual_path )
       {
-        if ( file = stylesheet.actual_path )
+        if ( file === NULL ||
+             in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
         {
-          if ( file === NULL ||
-               in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
-          {
-            getCSSFiles();
-          }
-          else
-          {
-            __checking = TRUE;
-            __xhr.open( 'GET', file, FALSE );
-            __xhr.send( NULL );
-          }
+          getCSSFiles();
         }
         else
         {
-          __s++;
-          readCSS( extract( stylesheet ), stylesheet.actual_media );
-          getCSSFiles();
+          __xhr = new XHR();
+          __xhr.onreadystatechange = xhrHandler;
+          __xhr.open( 'GET', file, FALSE );
+          __xhr.send( NULL );
+          try {
+            if ( __xhr.onreadystatechange != xhrHandler )
+            {
+              __xhr.onreadystatechange = xhrHandler();
+            }
+          } catch ( e ) { }
         }
       }
       else
       {
-        wrapUp();
+        readCSS( extract( stylesheet ), stylesheet.actual_media );
+        __s++;
+        getCSSFiles();
       }
     }
     else
     {
-      if ( __xhr.readyState == 4 )
+      wrapUp();
+    }
+  }
+  function xhrHandler( e )
+  {
+    if ( __xhr.readyState == 4 )
+    {
+      status = __xhr.status;
+      if ( status == 0 ||                       // local
+           ( status >= 200 && status < 300 ) || // good
+           status == 304 )                      // cached
       {
-        __checking = FALSE;
-        status = __xhr.status;
-        if ( status === 0 ||                      // local
-             ( status >= 200 && status < 300 ) || // good
-             status == 304 )                      // cached
-        {
-          readCSS( __xhr.responseText, __stylesheets[__s].actual_media );
-          __modified[fingerprint( __stylesheets[__s].actual_path )] = __xhr.getResponseHeader('Last-Modified');
-          __s++;
-          getCSSFiles();
-        }
+        readCSS( __xhr.responseText, __stylesheets[__s].actual_media );
+        __modified[fingerprint( __stylesheets[__s].actual_path )] = __xhr.getResponseHeader('Last-Modified');
       }
+      __s++;
+      getCSSFiles();
     }
   }
   function readCSS( css, media )

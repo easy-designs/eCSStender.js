@@ -1,3 +1,6 @@
+*v1.2.1* (2010-04-07)
+* Bug fixes for Firefox and IE
+
 *v1.2* (2010-04-07)
 * Adjusted the innards of eCSStender in hopes of reducing how often it blocks in the browser
 

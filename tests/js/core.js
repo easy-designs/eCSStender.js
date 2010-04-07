@@ -17,6 +17,10 @@ $(document).ready(function(){
 eCSStender.onComplete(function(){
   
   module('Core Properties');
+  test( 'eCSStender.exec_time', function(){
+    ok( typeof(eCSStender.exec_time)=='number', 'eCSStender.exec_time is the correct type' );
+    ok( true, 'eCSStender execution time: ' + eCSStender.exec_time + ' seconds' );
+  });
   test( 'eCSStender.fonts', function(){
     ok( eCSStender.fonts instanceof Array, 'eCSStender.fonts is the correct type' );
     ok( eCSStender.fonts.length==2, 'eCSStender.fonts contains 2 fonts, as expected' );
