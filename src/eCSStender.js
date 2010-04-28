@@ -350,6 +350,7 @@ License:       MIT License (see homepage)
       style_rule  = __style_objects[e[1]][e[2]];
       selector_id = e[1] + PIPES + e[2];
       if ( ! defined( extension ) ||
+           ! defined( style_rule ) ||
            in_object( selector_id, extension[PROCESSED] ) ) { continue; }
       // apply any filters
       if ( defined( extension[FILTER] ) )
@@ -1988,6 +1989,7 @@ License:       MIT License (see homepage)
    * 
    * @return bool - TRUE is property is inherited, FALSE is it isn't
    */
+  // TODO: consider switching to the native obj.hasOwnProperty(prop)
   function isInheritedProperty( obj, prop )
   {
     var c = obj.constructor;
