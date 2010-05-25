@@ -109,6 +109,9 @@ License:       MIT License (see homepage)
   writeToBrowserCache  = EMPTY_FN,
   clearBrowserCache    = EMPTY_FN,
   
+  // other stuff
+  __script = newElement( 'script' ),
+  
   // useful RegExps
   // for breaking on commas
   REGEXP_COMMA  = /\s*,\s*/,
@@ -117,11 +120,11 @@ License:       MIT License (see homepage)
   // for determining if it's a fully-executed path
   REGEXP_URL    = /\w+?\:\/\//,
   // for finding @font-face, @page & @media
-  REGEXP_FONTS  = /@font-face\s*?{(.*?)\s*?}/ig,
-  REGEXP_PAGES  = /@page\s*?(:\w*?){0,1}{\s*?(.*?)\s*?}/ig,
-  REGEXP_MEDIA  = /@media\s*(.*?)\s*{(.*?})}/ig,
+  REGEXP_FONTS  = /@font-face\s*?\{(.*?)\s*?\}/ig,
+  REGEXP_PAGES  = /@page\s*?(:\w*?){0,1}\{\s*?(.*?)\s*?\}/ig,
+  REGEXP_MEDIA  = /@media\s*(.*?)\s*\{(.*?})\}/ig,
   // extended @ rules
-  REGEXP_ATRULE = /@([\w-]+)(.*?){([^}]*)}/ig,
+  REGEXP_ATRULE = /@([\w-]+)(.*?)\{([^}]*)\}/ig,
   // for splitting properties from values
   REGEXP_P_V    = /:(?!\/\/)/,
   // for generating safe keys from selectors
@@ -1135,7 +1138,7 @@ License:       MIT License (see homepage)
         arr.push = push;
       }
       return arr;
-    }
+    };
   }
   // expando handling
   if ( defined( __expando ) )
@@ -1153,7 +1156,7 @@ License:       MIT License (see homepage)
         DOCUMENT.expando = DOCUMENT.old_expando;
         DOCUMENT.old_expando = NULL;
       }
-    }
+    };
   }
   
   /*-------------------------------------*
@@ -1308,7 +1311,7 @@ License:       MIT License (see homepage)
     {
       if ( ! isInheritedProperty( obj, key ) )
       {
-        str += key + COLON + obj[key] + SEMICOLON
+        str += key + COLON + obj[key] + SEMICOLON;
       }
     }
     return str;
@@ -1316,7 +1319,7 @@ License:       MIT License (see homepage)
   function stringToStyleObj( str )
   {
     var matches, obj = FALSE;
-    if ( ( matches = str.exec( /^{(.*?)}$/ ) ) != NULL )
+    if ( ( matches = str.exec( /^\{(.*?)\}$/ ) ) != NULL )
     {
       obj = gatherProperties( matches[1] );
     }
@@ -1512,7 +1515,7 @@ License:       MIT License (see homepage)
     // save the extension
     __eCSStensions[id] = eCSStension;
     __e_count++;
-  }
+  };
 
   /**
    * eCSStender::lookup()
@@ -1692,8 +1695,8 @@ License:       MIT License (see homepage)
     
     // back what we found
     return matches;
-    
-  }
+
+  };
 
   /**
    * eCSStender::addMethod()
@@ -1708,7 +1711,7 @@ License:       MIT License (see homepage)
     {
       eCSStender.methods[name] = the_function;
     }
-  }
+  };
 
   /**
    * eCSStender::onComplete()
@@ -1719,7 +1722,7 @@ License:       MIT License (see homepage)
   eCSStender.onComplete = function( the_function )
   {
     __on_complete.push( the_function );
-  }
+  };
 
   /**
    * eCSStender::embedCSS()
@@ -1765,7 +1768,7 @@ License:       MIT License (see homepage)
     }
     // return the style element
     return style;
-  }
+  };
 
   /**
    * eCSStender::newStyleElement()
@@ -1812,14 +1815,14 @@ License:       MIT License (see homepage)
     addRules = function( el, styles )
     {
       el.styleSheet.cssText += styles;
-    }
+    };
   }
   else
   {
     addRules = function( el, styles )
     { 
       el.appendChild( DOCUMENT.createTextNode( styles ) ); 
-    }
+    };
   }
   eCSStender.addRules = addRules;
 
@@ -1902,7 +1905,7 @@ License:       MIT License (see homepage)
       writeToLocalCache( type, what, result );
       return result;
     }
-  }
+  };
 
   /**
    * eCSStender::applyWeightedStyle()
@@ -1929,7 +1932,7 @@ License:       MIT License (see homepage)
         el.inlineStyles[prop] = specificity;
       }
     }
-  }
+  };
 
   /**
    * eCSStender::ignore()
@@ -1951,7 +1954,7 @@ License:       MIT License (see homepage)
     {
       __ignored_css.push( sheets[i] );
     }
-  }
+  };
 
   /**
    * eCSStender::disableCache()
@@ -1960,7 +1963,7 @@ License:       MIT License (see homepage)
   eCSStender.disableCache = function()
   {
     __no_cache = TRUE;
-  }
+  };
 
   /**
    * eCSStender::trim()
@@ -1979,6 +1982,50 @@ License:       MIT License (see homepage)
     return str;
   }
   eCSStender.trim = trim;
+
+  /**
+   * eCSStender::loadScript()
+   * dynamically loads a JavaScript file without loading the same one twice
+   *
+   * @param str src - the path to the JavaScript
+   * @param fn callback - optional callback to run when script is loaded
+   */
+  __script.setAttribute( 'type', 'text/javascript' );
+  eCSStender.loadScript = function( src, callback )
+  {
+    var
+    scripts = DOCUMENT.getElementsByTagName('script'),
+    i       = scripts.length,
+    script  = __script.cloneNode( TRUE );
+    if ( ! is( callback, FUNCTION ) )
+    {
+      callback = EMPTY_FN;
+    }
+    while ( i-- )
+    {
+      if ( scripts[i].src == src )
+      {
+        script = FALSE;
+      }
+    }
+    if ( script )
+    {
+      script.onreadystatechange = function(){
+        if ( script.readyState == 'loaded' ||
+             script.readyState == 'complete' )
+        {
+          script.onreadystatechange = null;
+          callback();
+        } 
+      };
+      script.setAttribute( 'src', src );
+      __head.appendChild( script );
+    }
+    else
+    {
+      setTimeout( callback, 100 );
+    }
+  };
 
   /**
    * eCSStender::isInheritedProperty()
