@@ -1989,19 +1989,31 @@ License:       MIT License (see homepage)
    * 
    * @return bool - TRUE is property is inherited, FALSE is it isn't
    */
-  // TODO: consider switching to the native obj.hasOwnProperty(prop)
   function isInheritedProperty( obj, prop )
   {
-    var c = obj.constructor;
-    if ( c &&
-         c.prototype )
-    { 
-      return obj[prop] === c.prototype[prop];
-    } 
-    return TRUE;
+    if ( obj.hasOwnProperty )
+    {
+      isInheritedProperty = function( obj, prop )
+      {
+        return ! obj.hasOwnProperty(prop);
+      };
+    }
+    else
+    {
+      isInheritedProperty = function( obj, prop )
+      {
+        var c = obj.constructor;
+        if ( c &&
+             c.prototype )
+        { 
+          return obj[prop] === c.prototype[prop];
+        } 
+        return TRUE;
+      };
+    }
+    eCSStender.isInheritedProperty = isInheritedProperty;
+    return isInheritedProperty( obj, prop );
   }
-  eCSStender.isInheritedProperty = isInheritedProperty;
-
 
   /*-------------------------------------*
    * DOM Loaded Trigger                  *
