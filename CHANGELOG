@@ -1,3 +1,9 @@
+*v1.2.3* (2010-05-27)
+* isSupported caching bug resolved
+* added public loadScript method
+* cleaned up JSLint warnings (regex stuff and semicolons)
+* sped up isInheritedProperty by switching to native hasOwnProperty if available
+
 *v1.2.2* (2010-04-28)
 * Minor bug fix in caching mechanism
 

@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.2
+Version:       1.2.3
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -133,7 +133,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.2',
+    version:   '1.2.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -350,23 +350,23 @@ License:       MIT License (see homepage)
     {
       e = __local_cache[EXTENSION][EXTENSION+s].split(PIPES);
       extension   = __eCSStensions[e[0]];
-      style_rule  = __style_objects[e[1]][e[2]];
-      selector_id = e[1] + PIPES + e[2];
-      if ( ! defined( extension ) ||
-           ! defined( style_rule ) ||
-           in_object( selector_id, extension[PROCESSED] ) ) { continue; }
-      // apply any filters
-      if ( defined( extension[FILTER] ) )
+      console.log( __style_objects );
+      if ( defined( __style_objects[e[1]] ) )
       {
-        if ( ! filtersMatched( style_rule, extension[FILTER] ) ){
-          continue;
-        }
+        style_rule  = __style_objects[e[1]][e[2]];
+        selector_id = e[1] + PIPES + e[2];
+        if ( ! defined( extension ) ||
+             ! defined( style_rule ) ||
+             in_object( selector_id, extension[PROCESSED] ) ||
+             // apply any filters
+             ( defined( extension[FILTER] ) &&
+               ! filtersMatched( style_rule, extension[FILTER] ) ) ) { continue; }
+        specificity = ( ! eCSStender.cache ) ? style_rule[SPECIFICITY]
+                                             : getSpecificity( e[2] );
+        properties = extractProperties( e[1], e[2], extension[PROPERTIES] );
+        extension[CALLBACK]( e[2], properties, e[1], specificity );
+        extension[PROCESSED].push( selector_id );
       }
-      specificity = ( ! eCSStender.cache ) ? style_rule[SPECIFICITY]
-                                           : getSpecificity( e[2] );
-      properties = extractProperties( e[1], e[2], extension[PROPERTIES] );
-      extension[CALLBACK]( e[2], properties, e[1], specificity );
-      extension[PROCESSED].push( selector_id );
     }
   }
   function triggerOnCompletes()
@@ -1227,7 +1227,6 @@ License:       MIT License (see homepage)
         {
           __cache_object.setAttribute( cache + HYPHEN + key, value );
           __cache_object.save( ECSSTENDER );
-          
         };
       }
     }
@@ -1262,6 +1261,8 @@ License:       MIT License (see homepage)
               else
               {
                 item = item.split(PIPES);
+                if ( item[1] == 'true' ){ item[1] = TRUE; }
+                if ( item[1] == 'false' ){ item[1] = FALSE; }
                 __local_cache[cache_group][item[0]] = item[1];
               }
             }
