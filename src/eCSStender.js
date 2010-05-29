@@ -218,7 +218,7 @@ License:       MIT License (see homepage)
         __local_cache.xhr[key] = __modified[key];
       }
     }
-    if ( i>j ){ eCSStender.cache = FALSE; }
+    if ( i>j || ( i == 0 && j === 0 ) ){ eCSStender.cache = FALSE; }
   }
   function runTests()
   {
