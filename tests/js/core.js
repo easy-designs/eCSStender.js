@@ -135,16 +135,6 @@ eCSStender.onComplete(function(){
     var matches;
     ok( typeof(eCSStender.ignore)=='function', 'method exists' );
     matches = eCSStender.lookup({'selector':'#foo'},'*');
-    for ( var i=0, iLen=matches.length; i<iLen; i++ ){
-      var
-      str = matches[i].selector + '{ ';
-      for ( var key in matches[i].properties )
-      {
-        str += key + ': ' + matches[i].properties[key] + '; ';
-      }
-      str += ' }';
-      alert(str);
-    }
     ok( matches.length===0, 'string css file ignored' );
     matches = eCSStender.lookup({'selector':'#bar'},'*');
     ok( matches.length===0, 'array of css files ignored' );

@@ -75,7 +75,7 @@ License:       MIT License (see homepage)
   __s             = 0,     // index of current stylesheet
   __style_objects = {},    // style rules to track
   __media_groups  = {},
-  __xhr           = new XHR(),
+  __xhr           = NULL,
   __initialized   = FALSE,
   __ignored_css   = [],
   __ignored_props = [ SELECTOR, SPECIFICITY ],
@@ -177,17 +177,25 @@ License:       MIT License (see homepage)
   }
   function getActiveStylesheets()
   {
-    var stylesheets = DOCUMENT.styleSheets, s, sLen;
-    for ( s=0, sLen=stylesheets.length; s<sLen; s++ )
+    var
+    stylesheets = DOCUMENT.styleSheets,
+    s = 0, sLen = stylesheets.length;
+    for ( ; s<sLen; s++ )
     {
       // add the stylesheet
       addStyleSheet( stylesheets[s] );
     }
+    // if browsers don't expose cssText, we need to rely on XHR
+    if ( sLen > 0 &&
+         ! defined( stylesheets[0].cssText ) )
+    {
+      __xhr = TRUE;
+    }
   }
   function parseStyles()
   {
-    var s, sLen, media, m, mLen;
-    for ( s=0, sLen=__stylesheets.length; s<sLen; s++ )
+    var s=0, sLen=__stylesheets.length, media, m, mLen;
+    for ( ; s<sLen; s++ )
     {
       // determine the media type
       media = determineMedia( __stylesheets[s] );
@@ -347,8 +355,8 @@ License:       MIT License (see homepage)
   // callback functionality
   function triggerCallbacks()
   {
-    var s, e, extension, style_rule, selector_id, properties, specificity, oLen;
-    for ( s=0; s<__t_count; s++ )
+    var s = 0, e, extension, style_rule, selector_id, properties, specificity, oLen;
+    for ( ; s<__t_count; s++ )
     {
       e = __local_cache[EXTENSION][EXTENSION+s].split(PIPES);
       extension   = __eCSStensions[e[0]];
@@ -383,37 +391,44 @@ License:       MIT License (see homepage)
    *------------------------------------*/
   function findImportedStylesheets( stylesheet )
   {
-    var blocks, imports, i, iLen;
-    // IE
-    if ( defined( stylesheet.imports ) )
-    {
-      imports = stylesheet.imports;
-      for ( i=0, iLen=imports.length; i<iLen; i++ )
-      {
-        // add the stylesheet
-        addStyleSheet( imports[i] );
-      }
-    }
     // W3C
+    if ( ! defined( stylesheet.imports ) )
+    {
+      findImportedStylesheets = function( stylesheet ){
+        var
+        blocks = stylesheet.cssRules || stylesheet.rules,
+        i = 0, iLen;
+        // for a strange Chrome error
+        if ( blocks === NULL ){ return; }
+        for ( iLen = blocks.length; i<iLen; i++ )
+        {
+          // imports must come first, so when we don't find one, return
+          if ( blocks[i].type != 3 ){ return; }
+
+          // add the stylesheet
+          addStyleSheet( blocks[i].styleSheet );
+        }
+        // no need to XHR stylesheets that only import other stylesheets
+        if ( i === iLen )
+        {
+          __ignored_css.push( stylesheet.href.replace( REGEXP_FILE, CAPTURE ) );
+        }
+      };
+    }
+    // IE (old)
     else
     {
-      blocks = stylesheet.cssRules || stylesheet.rules;
-      // for a strange Chrome error
-      if ( blocks === NULL ){ return; }
-      for ( i=0, iLen = blocks.length; i<iLen; i++ )
-      {
-        // imports must come first, so when we don't find one, return
-        if ( blocks[i].type != 3 ){ return; }
-  
-        // add the stylesheet
-        addStyleSheet( blocks[i].styleSheet );
-      }
-      // no need to XHR stylesheets that only import other stylesheets
-      if ( i === iLen )
-      {
-        __ignored_css.push( stylesheet.href.replace( REGEXP_FILE, CAPTURE ) );
-      }
+      findImportedStylesheets = function( stylesheet ){
+        var imports = stylesheet.imports,
+        i = 0, iLen = imports.length;
+        for ( ; i<iLen; i++ )
+        {
+          // add the stylesheet
+          addStyleSheet( imports[i] );
+        }
+      };
     }
+    findImportedStylesheets( stylesheet );
   }
   function addStyleSheet( stylesheet )
   {
@@ -520,43 +535,58 @@ License:       MIT License (see homepage)
   }
   function determineMedia( stylesheet )
   {
-    var
-    media = stylesheet.media,
-    owner = stylesheet.ownerRule,
-    mediaText = FALSE;
+    var media = stylesheet.media;
     // W3C compliant
     if ( ! is( media, STRING ) )
     {
-      // imported
-      if ( owner != NULL )
-      {
-        // media assignment in the import
-        mediaText = owner.media.mediaText;
-        if ( ! mediaText )
+      determineMedia = function( stylesheet ){
+        var
+        media = stylesheet.media,
+        owner = stylesheet.ownerRule,
+        mediaText = FALSE;
+        if ( ! is( media, STRING ) )
         {
-          // no media assignment... inherit
-          mediaText = determineMedia( owner.parentStyleSheet );
+          // imported
+          if ( owner != NULL )
+          {
+            // media assignment in the import
+            mediaText = owner.media.mediaText;
+            if ( ! mediaText )
+            {
+              // no media assignment... inherit
+              mediaText = determineMedia( owner.parentStyleSheet );
+            }
+          }
+          // media is defined
+          else
+          {
+            mediaText = media.mediaText;
+          }
         }
-      }
-      // media is defined
-      else
-      {
-        mediaText = media.mediaText;
-      }
+        // default = all
+        stylesheet.actual_media = mediaText ? mediaText : ALL;
+        if ( is( stylesheet.actual_media, STRING ) )
+        {
+          stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
+        }
+        return stylesheet.actual_media;
+      };
     }
     // old school
-    else if ( is( media, STRING ) &&
-              media )
+    else
     {
-      mediaText = media;
+      determineMedia = function( stylesheet ){
+        var mediaText = stylesheet.media;
+        // default = all
+        stylesheet.actual_media = mediaText ? mediaText : ALL;
+        if ( is( stylesheet.actual_media, STRING ) )
+        {
+          stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
+        }
+        return stylesheet.actual_media;
+      };
     }
-    // default = all
-    stylesheet.actual_media = mediaText ? mediaText : ALL;
-    if ( is( stylesheet.actual_media, STRING ) )
-    {
-      stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
-    }
-    return stylesheet.actual_media;
+    return determineMedia( stylesheet );
   }
   function extractAtBlocks( css )
   {
@@ -679,10 +709,11 @@ License:       MIT License (see homepage)
   function extractStyleBlocks( media, css )
   {
     // parse it into blocks & remove the last item (which is empty)
-    var blocks = css.split(CLOSE_CURLY), b, bLen, props, prop, selector, m, medium, arr, a, aLen;
+    var blocks = css.split(CLOSE_CURLY),
+    b = 0, bLen, props, prop, selector, m, medium, arr, a, aLen;
     blocks.pop();
     // loop
-    for ( b=0, bLen=blocks.length; b<bLen; b++ )
+    for ( bLen=blocks.length; b<bLen; b++ )
     {
       // separate the selector and the properties
       blocks[b] = blocks[b].split(OPEN_CURLY);
@@ -728,8 +759,8 @@ License:       MIT License (see homepage)
   {
     if ( ! is( properties, STRING ) ){ return {}; }
     properties = properties.split(SEMICOLON);
-    var props = {}, p, pLen, arr, property;
-    for ( p=0, pLen=properties.length; p<pLen; p++ )
+    var props = {}, p = 0, pLen = properties.length, arr, property;
+    for ( ; p<pLen; p++ )
     {
       property = trim( properties[p] );
       // skip empties
@@ -802,12 +833,12 @@ License:       MIT License (see homepage)
   }
   function extractProperties( medium, selector, requested_properties )
   {
-    var requested_property, property, properties = {}, p, pLen,
+    var requested_property, property, properties = {}, p = 0, pLen,
     style_rule = __style_objects[medium][selector];
     // grab the requested properties
     if ( is( requested_properties, ARRAY ) )
     {
-      for ( p=0, pLen=requested_properties.length; p<pLen; p++ )
+      for ( pLen=requested_properties.length; p<pLen; p++ )
       {
         requested_property = requested_properties[p];
         if ( is( requested_property, REGEXP ) )
@@ -845,14 +876,14 @@ License:       MIT License (see homepage)
   }
   function arrayify( something )
   {
-    var arr=[], i, iLen, temp, t, tLen;
+    var arr=[], i=0, iLen, temp, t, tLen;
     if ( ! is( something, ARRAY ) )
     {
       if ( is( something, STRING ) &&
            something.indexOf(',') != -1 )
       {
         temp = something.split( REGEXP_COMMA );
-        for ( i=0, iLen=temp.length; i<iLen; i++ )
+        for ( iLen=temp.length; i<iLen; i++ )
         {
           arr.push( temp[i] );
         }
@@ -864,7 +895,7 @@ License:       MIT License (see homepage)
     }
     else
     {
-      for ( i=0, iLen=something.length; i<iLen; i++ )
+      for ( iLen=something.length; i<iLen; i++ )
       {
         if ( is( something[i], STRING ) &&
             something[i].indexOf(',') != -1 )
@@ -938,11 +969,19 @@ License:       MIT License (see homepage)
   }
   function clean( css )
   {
-    css = css.replace( /\s*(?:\<\!--|--\>)\s*/g, EMPTY ) // strip HTML comments
-             .replace( /\/\*(?:.|\s)*?\*\//g, EMPTY )    // strip CSS comments
-             .replace( /\s*([,{}:;])\s*/g, CAPTURE )     // remove returns and indenting whitespace
-             .replace( /@import.*?;/g, EMPTY );          // axe imports
-    return css;
+    var
+    low_function  = low,
+    html_comments = /\s*(?:\<\!--|--\>)\s*/g, // strip HTML comments
+    css_comments  = /\/\*(?:.|\s)*?\*\//g,    // strip CSS comments
+    whitespace    = /\s*([,{}:;])\s*/g,       // remove returns and indenting whitespace
+    at_imports    = /@import.*?;/g,           // axe imports
+    // IE returns all uppercase tags and property names (except on XHR)
+    lowercase     = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig;
+    return css.replace( html_comments, EMPTY ) 
+              .replace( css_comments, EMPTY )    
+              .replace( whitespace, CAPTURE )     
+              .replace( at_imports, EMPTY )           
+              .replace( lowercase, low_function );
   }
   function in_object( needle, haystack )
   {
@@ -984,40 +1023,57 @@ License:       MIT License (see homepage)
   }
   function getCSSFiles()
   {
-    var stylesheet, file, css, status;
-    if ( stylesheet = __stylesheets[__s] )
+    if ( __xhr )
     {
-      if ( file = stylesheet.actual_path )
+      getCSSFiles = function()
       {
-        if ( file === NULL ||
-             in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
+        var stylesheet, file, css, status;
+        if ( stylesheet = __stylesheets[__s] )
         {
-          getCSSFiles();
+          if ( file = stylesheet.actual_path )
+          {
+            if ( file === NULL ||
+                 in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
+            {
+              getCSSFiles();
+            }
+            else
+            {
+              __xhr = new XHR();
+              __xhr.onreadystatechange = xhrHandler;
+              __xhr.open( 'GET', file, FALSE );
+              __xhr.send( NULL );
+              try {
+                if ( __xhr.onreadystatechange != xhrHandler )
+                {
+                  __xhr.onreadystatechange = xhrHandler();
+                }
+              } catch ( e ) { }
+            }
+          }
+          else
+          {
+            readCSS( extract( stylesheet ), stylesheet.actual_media );
+            __s++;
+            getCSSFiles();
+          }
         }
         else
         {
-          __xhr = new XHR();
-          __xhr.onreadystatechange = xhrHandler;
-          __xhr.open( 'GET', file, FALSE );
-          __xhr.send( NULL );
-          try {
-            if ( __xhr.onreadystatechange != xhrHandler )
-            {
-              __xhr.onreadystatechange = xhrHandler();
-            }
-          } catch ( e ) { }
+          wrapUp();
         }
-      }
-      else
-      {
-        readCSS( extract( stylesheet ), stylesheet.actual_media );
-        __s++;
-        getCSSFiles();
-      }
+      };
+      getCSSFiles();
     }
     else
     {
-      wrapUp();
+      for ( var i=0, iLen=__stylesheets; i<iLen; i++ )
+      {
+        if ( ! in_object( __stylesheets[i].actual_path.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) ) 
+        {
+          readCSS( __stylesheets[i].cssText, __stylesheets[i].actual_media );
+        }
+      }
     }
   }
   function xhrHandler( e )
@@ -1045,16 +1101,32 @@ License:       MIT License (see homepage)
   }
   function extract( stylesheet )
   {
-    var r, low = low, regexp;
-    try {
-      r = stylesheet.ownerNode.innerHTML;
-    }
-    catch ( e )
+    var r;
+    if ( defined( stylesheet.cssText ) )
     {
-      regexp = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig;
-      r = stylesheet.owningElement.innerHTML;
-      // IE6's CSS needs major cleaning (lame)
-      r = r.replace( regexp, low );
+      extract = function( stylesheet )
+      {
+        return stylesheet.ownerNode.innerHTML;
+      };
+      r = extract();
+    }
+    else
+    {
+      try {
+        r = stylesheet.ownerNode.innerHTML;
+        extract = function( stylesheet )
+        {
+          return stylesheet.ownerNode.innerHTML;
+        };
+      }
+      catch ( e )
+      {
+        r = stylesheet.owningElement.innerHTML;
+        extract = function( stylesheet )
+        {
+          return stylesheet.owningElement.innerHTML;
+        };
+      }
     }
     return r;
   }
@@ -1996,13 +2068,10 @@ License:       MIT License (see homepage)
   eCSStender.loadScript = function( src, callback )
   {
     var
-    scripts = DOCUMENT.getElementsByTagName('script'),
-    i       = scripts.length,
-    script  = __script.cloneNode( TRUE );
-    if ( ! is( callback, FUNCTION ) )
-    {
-      callback = EMPTY_FN;
-    }
+    scripts  = DOCUMENT.getElementsByTagName('script'),
+    i        = scripts.length,
+    script   = __script.cloneNode( TRUE );
+    callback = callback || EMPTY_FN;
     while ( i-- )
     {
       if ( scripts[i].src == src )

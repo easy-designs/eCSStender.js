@@ -18,4 +18,14 @@ $(document).ready(function(){
     ok( !eCSStender.isInheritedProperty( test, 'foo' ), 'custom property is correctly identified' );
   });
 
+  test( 'eCSStender::loadScript', function(){
+    ok( typeof(eCSStender.loadScript)=='function', 'method exists' );
+  });
+
+  eCSStender.loadScript('http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js',function(){
+    test( 'eCSStender::loadScript', function(){
+      ok( typeof(window.jQuery) == 'function', 'script was loaded successfully' );
+    });
+  });
+
 });
