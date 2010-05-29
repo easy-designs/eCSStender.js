@@ -56,6 +56,8 @@ License:       MIT License (see homepage)
   CLOSE_CURLY = '}',
   DIV         = 'div',
   HIDDEN      = 'hidden',
+  TYPE        = 'type',
+  COMPLETE    = 'complete',
   
   // Regex Bits
   ANYTHING        = '.*?',
@@ -350,7 +352,6 @@ License:       MIT License (see homepage)
     {
       e = __local_cache[EXTENSION][EXTENSION+s].split(PIPES);
       extension   = __eCSStensions[e[0]];
-      console.log( __style_objects );
       if ( defined( __style_objects[e[1]] ) )
       {
         style_rule  = __style_objects[e[1]][e[2]];
@@ -1211,8 +1212,8 @@ License:       MIT License (see homepage)
       {
         __cache_object = div;
         __cache_object.load( ECSSTENDER );
-        // set the expiration for 1 day
-        tomorrow.setMinutes( tomorrow.getMinutes() + 1440 );
+        // set the expiration for 1 week
+        tomorrow.setMinutes( tomorrow.getMinutes() + 10080 );
         tomorrow = tomorrow.toUTCString();
         __cache_object.expires = tomorrow;
         clearBrowserCache = function()
@@ -1810,7 +1811,7 @@ License:       MIT License (see homepage)
    * @param obj el     - the stylesheet
    * @param str styles - the style rules to add
    */
-  __style.setAttribute( 'type', 'text/css' );
+  __style.setAttribute( TYPE, 'text/css' );
   if ( defined( __style.styleSheet ) )
   { 
     addRules = function( el, styles )
@@ -1991,7 +1992,7 @@ License:       MIT License (see homepage)
    * @param str src - the path to the JavaScript
    * @param fn callback - optional callback to run when script is loaded
    */
-  __script.setAttribute( 'type', 'text/javascript' );
+  __script.setAttribute( TYPE, 'text/javascript' );
   eCSStender.loadScript = function( src, callback )
   {
     var
@@ -2013,9 +2014,9 @@ License:       MIT License (see homepage)
     {
       script.onreadystatechange = function(){
         if ( script.readyState == 'loaded' ||
-             script.readyState == 'complete' )
+             script.readyState == COMPLETE )
         {
-          script.onreadystatechange = null;
+          script.onreadystatechange = NULL;
           callback();
         } 
       };
@@ -2087,7 +2088,7 @@ License:       MIT License (see homepage)
   	{
   		// ensure firing before onload, maybe late but safe also for iframes
   		DOCUMENT.attachEvent( ORC, function(){
-  			if ( DOCUMENT.readyState === 'complete' ) {
+  			if ( DOCUMENT.readyState === COMPLETE ) {
   				DOCUMENT.detachEvent( ORC, arguments.callee );
   				initialize();
   			}
