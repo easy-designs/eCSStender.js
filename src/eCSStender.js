@@ -226,7 +226,7 @@ License:       MIT License (see homepage)
         __local_cache.xhr[key] = __modified[key];
       }
     }
-    if ( i>j || ( i == 0 && j === 0 ) ){ eCSStender.cache = FALSE; }
+    if ( i>j || ( i === 0 && j === 0 ) ){ eCSStender.cache = FALSE; }
   }
   function runTests()
   {
@@ -409,7 +409,8 @@ License:       MIT License (see homepage)
           addStyleSheet( blocks[i].styleSheet );
         }
         // no need to XHR stylesheets that only import other stylesheets
-        if ( i === iLen )
+        if ( i === iLen &&
+             stylesheet.href )
         {
           __ignored_css.push( stylesheet.href.replace( REGEXP_FILE, CAPTURE ) );
         }
