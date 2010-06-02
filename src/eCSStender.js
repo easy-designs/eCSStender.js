@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.3
+Version:       1.3
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -55,7 +55,6 @@ License:       MIT License (see homepage)
   OPEN_CURLY  = '{',
   CLOSE_CURLY = '}',
   DIV         = 'div',
-  HIDDEN      = 'hidden',
   TYPE        = 'type',
   COMPLETE    = 'complete',
   
@@ -135,7 +134,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.3',
+    version:   '1.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -707,7 +706,7 @@ License:       MIT License (see homepage)
     extractStyleBlocks( media_group.media, media_group.styles );
     __media_groups[id] = NULL;
   }
-  function extractStyleBlocks( media, css )
+  function extractStyleBlocks( media, css, delayed_id )
   {
     // parse it into blocks & remove the last item (which is empty)
     var blocks = css.split(CLOSE_CURLY),
@@ -739,15 +738,34 @@ License:       MIT License (see homepage)
             if ( ! isInheritedProperty( media, m ) )
             {
               medium = media[m];
-              if ( ! defined( __style_objects[medium][selector] ) )
+              // normal run
+              if ( ! defined( delayed_id ) )
               {
-                __style_objects[medium][selector] = {};
-              }
-              for ( prop in props )
-              {
-                if ( ! isInheritedProperty( props, prop ) )
+                if ( ! defined( __style_objects[medium][selector] ) )
                 {
-                  __style_objects[medium][selector][prop] = props[prop];
+                  __style_objects[medium][selector] = {};
+                }
+                for ( prop in props )
+                {
+                  if ( ! isInheritedProperty( props, prop ) )
+                  {
+                    __style_objects[medium][selector][prop] = props[prop];
+                  }
+                }
+              }
+              // delayed run
+              else
+              {
+                if ( ! defined( __delayed[delayed_id][selector] ) )
+                {
+                  __delayed[delayed_id][selector] = {};
+                }
+                for ( prop in props )
+                {
+                  if ( ! isInheritedProperty( props, prop ) )
+                  {
+                    __delayed[delayed_id][selector][prop] = props[prop];
+                  }
                 }
               }
             }
@@ -1238,14 +1256,21 @@ License:       MIT License (see homepage)
    *-------------------------------------*/
   function writeStyleSheets()
   {
-    var id, style;
+    var id, style, styles, selector;
     for ( id in __delayed )
     {
       if ( ! isInheritedProperty( __delayed, id ) )
       {
-        style = DOCUMENT.getElementById( id );
-        addRules( style, __delayed[id] );
-        // style.disabled = FALSE;
+        style  = DOCUMENT.getElementById( id );
+        styles = '';
+        for ( selector in __delayed[id] )
+        {
+          if ( ! isInheritedProperty( __delayed, id ) )
+          {
+            styles += selector + OPEN_CURLY + styleObjToString( __delayed[id][selector], selector ) + CLOSE_CURLY;
+          }
+        } 
+        addRules( style, styles );
       }
     }
   }
@@ -1838,7 +1863,7 @@ License:       MIT License (see homepage)
       }
       else
       {
-        __delayed[id] += styles;
+        extractStyleBlocks( media, styles, id );
       }
     }
     // return the style element
@@ -1868,7 +1893,7 @@ License:       MIT License (see homepage)
     delay = defined( delay ) ? delay : TRUE;
     if ( delay )
     {
-      __delayed[id] = EMPTY;
+      __delayed[id] = {};
       //style.disabled = TRUE;
     }
     __head.appendChild( style );
@@ -1918,7 +1943,9 @@ License:       MIT License (see homepage)
     body = DOCUMENT.body,
     // property test vars
     property, value, settable = TRUE,
-    compute = WINDOW.getComputedStyle,
+    computed   = WINDOW.getComputedStyle,
+    VISIBILITY = 'visibility',
+    HIDDEN     = 'hidden',
     // selector test vars
     style;
     if ( defined( result = readFromLocalCache( type, what ) ) )
@@ -1946,8 +1973,8 @@ License:       MIT License (see homepage)
         if ( settable &&
              ( el.currentStyle &&
                zero_out( el.currentStyle[camelize( property )] ) == value ) ||
-             ( compute &&
-               zero_out( compute( el, NULL ).getPropertyValue( property ) ) == value ) )
+             ( computed &&
+               zero_out( computed( el, NULL ).getPropertyValue( property ) ) == value ) )
         {
           result = TRUE;
         }
@@ -1962,12 +1989,12 @@ License:       MIT License (see homepage)
         style = newStyleElement( 'screen', FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
-          addRules( style, what + " { visibility: hidden; }" );
+          addRules( style, what + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
           // if it succeeds, we don't want to run the eCSStension
           if ( ( el.currentStyle &&
-                 el.currentStyle['visibility'] == HIDDEN ) ||
-               ( compute &&
-                 compute( el, NULL ).getPropertyValue( 'visibility' ) == HIDDEN ) )
+                 el.currentStyle[VISIBILITY] == HIDDEN ) ||
+               ( computed &&
+                 computed( el, NULL ).getPropertyValue(VISIBILITY) == HIDDEN ) )
           {
             result = TRUE;
           }
