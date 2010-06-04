@@ -31,6 +31,9 @@ eCSStender.onComplete(function(){
     ok( typeof(eCSStender.pages['right'])=='object', 'eCSStender.pages["right"] is the correct type' );
     ok( typeof(eCSStender.pages['right']['border'])!='undefined', 'eCSStender.pages["right"]["border"] is defined' );
     ok( eCSStender.pages['right']['margin']=='6cm', 'eCSStender.pages["right"]["margin"] is the expected value' );
+    ok( typeof(eCSStender.pages['right']['@'])=='object', 'eCSStender.pages["right"] contains a margin boxes' );
+    ok( typeof(eCSStender.pages['right']['@']['bottom-right'])=='object', 'eCSStender.pages["right"] contains a bottom-right margin box' );
+    ok( eCSStender.pages['right']['@']['bottom-right']['vertical-align']=='top', 'eCSStender.pages["right"]["@"]["bottom-right"]["vertical-align"] is the correct value' );
   });
   test( 'eCSStender.at', function(){
     ok( typeof(eCSStender.at)=='object', 'at is the correct type' );

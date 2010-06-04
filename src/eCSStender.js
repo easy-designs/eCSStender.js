@@ -88,7 +88,7 @@ License:       MIT License (see homepage)
   toggleExpando = EMPTY_FN,
   
   // for embedding stylesheets
-  __head         = FALSE,
+  __head         = DOCUMENT.getElementsByTagName( 'head' )[0],
   __style        = newElement( 'style' ),
   __embedded_css = [],
   addRules       = EMPTY_FN,
@@ -118,18 +118,10 @@ License:       MIT License (see homepage)
   REGEXP_COMMA  = /\s*,\s*/,
   // for getting file names
   REGEXP_FILE   = /.*\/(.*?\..*?)(?:\?.*)?$/,
-  // for determining if it's a fully-executed path
-  REGEXP_URL    = /\w+?\:\/\//,
-  // for finding @font-face, @page & @media
-  REGEXP_FONTS  = /@font-face\s*?\{(.*?)\s*?\}/ig,
-  REGEXP_PAGES  = /@page\s*?(:\w*?){0,1}\{\s*?(.*?)\s*?\}/ig,
-  REGEXP_MEDIA  = /@media\s*(.*?)\s*\{(.*?})\}/ig,
-  // extended @ rules
+  // generalized @ rules
   REGEXP_ATRULE = /@([\w-]+)(.*?)\{([^}]*)\}/ig,
   // for splitting properties from values
   REGEXP_P_V    = /:(?!\/\/)/,
-  // for generating safe keys from selectors
-  REGEXP_KEYS   = /[:()]/g,
   
   // eCSStender Object
   eCSStender = {
@@ -156,8 +148,6 @@ License:       MIT License (see homepage)
     __initialized = TRUE;
     // performance logging
     eCSStender.exec_time = now();
-    // need the head
-    __head = DOCUMENT.getElementsByTagName( 'head' )[0];
     // innards
     readBrowserCache();
     getActiveStylesheets();
@@ -491,6 +481,8 @@ License:       MIT License (see homepage)
   function determinePath( stylesheet )
   {
     var
+    // for determining if it's a fully-executed path
+    REGEXP_URL  = /\w+?\:\/\//,
     actual_path = stylesheet.actual_path,
     css_path    = actual_path || stylesheet.href,
     parent      = stylesheet.parentStyleSheet,
@@ -603,7 +595,9 @@ License:       MIT License (see homepage)
   }
   function extractFonts( css )
   {
-    var match;
+    var
+    REGEXP_FONTS = /@font-face\s*?\{(.*?)\s*?\}/ig,
+    match;
     while ( ( match = REGEXP_FONTS.exec( css ) ) != NULL )
     {
       eCSStender.fonts.push( gatherProperties( match[1] ) );
@@ -612,34 +606,83 @@ License:       MIT License (see homepage)
   }
   function extractPages( css )
   {
-    var match, page, props;
+    // TODO: make pages media-aware
+    var
+    PAGES = 'pages', AT = '@',
+    match, page, box, content, group, props, prop,
+    /* Regex must match all of the following
+         @page { ... }
+         @page :left { ... }
+         @page :right { ... }
+         @page LandscapeTable { ... }
+         @page CompanyLetterHead:first { ... }
+         @page:first { ... }
+       Plus margin boxes inside:
+         @top-left-corner, @top-left, @top-center, @top-right, @top-right-corner,
+         @bottom-left-corner, @bottom-left, @bottom-center, @bottom-right, @bottom-right-corner,
+         @left-top, @left-middle, @left-bottom, @right-top, @right-middle, @right-bottom
+       For example
+         @page{margin:0;@top-left{content:title}padding:2px;} */
+    REGEXP_PAGES = /@page\s*?([\w:]*){0,1}\{\s*?((?:@[\w-]+\{[^\}]*\}|[\w-]+:[^;]+;)*)\s*?\}/ig;
     while ( ( match = REGEXP_PAGES.exec( css ) ) != NULL )
     {
-      page = ( defined( match[1] ) &&
-               match[1] != EMPTY ) ? match[1].replace( COLON, EMPTY )
-                                   : ALL;
-      props = gatherProperties( match[2] );
-      if ( ! defined( eCSStender.pages[page] ) )
+      page = match[1];
+      if ( ! defined( page ) || page == EMPTY )
       {
-        eCSStender.pages[page] = props;
+        page = ALL;
       }
-      else
+      else if ( page.indexOf(COLON) == 0 )
       {
-        for ( prop in props )
+        page = page.replace( COLON, EMPTY );
+      }
+      content = match[2];
+      if ( ! defined( eCSStender[PAGES][page] ) )
+      {
+        eCSStender[PAGES][page] = {};
+      }
+      // Margin boxes
+      while ( ( box = REGEXP_ATRULE.exec( content ) ) != NULL )
+      {
+        group = box[1];
+        props = gatherProperties( box[3] );
+        if ( ! defined( eCSStender[PAGES][page][AT] ) )
         {
-          if ( ! isInheritedProperty( props, prop ) )
+          eCSStender[PAGES][page][AT] = {};
+        }
+        if ( ! defined( eCSStender[PAGES][page][AT][group] ) )
+        {
+          eCSStender[PAGES][page][AT][group] = props;
+        }
+        else
+        {
+          for ( prop in props )
           {
-            eCSStender.pages[page][prop] = props[prop];
+            if ( ! isInheritedProperty( props, prop ) )
+            {
+              eCSStender[PAGES][page][AT][group][prop] = props[prop];
+            }
           }
         }
+        content = content.replace( box[0], EMPTY );
       }
-      
+      // properties
+      props = gatherProperties( content );
+      for ( prop in props )
+      {
+        if ( ! isInheritedProperty( props, prop ) )
+        {
+          eCSStender[PAGES][page][prop] = props[prop];
+        }
+      }
     }
     return css.replace( REGEXP_PAGES, EMPTY );
   }
   function handleMediaGroups( css )
   {
-    var match, media, m, mLen, styles, id = 0;
+    // TODO: @media can contain @page, not just declaration blocks.
+    var
+    REGEXP_MEDIA  = /@media\s*(.*?)\s*\{(.*?})\}/ig,
+    match, media, m, mLen, styles, id = 0;
     while ( ( match = REGEXP_MEDIA.exec( css ) ) != NULL )
     {
       css = collapseAtMedia( css, match, id );
@@ -649,7 +692,8 @@ License:       MIT License (see homepage)
   }
   function extractOtherAtRules( css )
   {
-    var match, group, keys, k, props, prop;
+    var
+    match, group, keys, k, props, prop;
     while ( ( match = REGEXP_ATRULE.exec( css ) ) != NULL )
     {
       group = match[1];
@@ -666,8 +710,8 @@ License:       MIT License (see homepage)
       }
       else
       {
-        k = keys.length-1;
-        while ( k > -1 )
+        k = keys.length;
+        while ( k-- )
         {
           if ( ! defined( eCSStender.at[group][keys[k]] ) )
           {
@@ -683,7 +727,6 @@ License:       MIT License (see homepage)
               }
             }
           }
-          k--;
         }
       }
     }
@@ -2098,7 +2141,8 @@ License:       MIT License (see homepage)
     var
     scripts  = DOCUMENT.getElementsByTagName('script'),
     i        = scripts.length,
-    script   = __script.cloneNode( TRUE );
+    script   = __script.cloneNode( TRUE ),
+    loaded   = FALSE;
     callback = callback || EMPTY_FN;
     while ( i-- )
     {
@@ -2109,11 +2153,14 @@ License:       MIT License (see homepage)
     }
     if ( script )
     {
-      script.onreadystatechange = function(){
-        if ( script.readyState == 'loaded' ||
-             script.readyState == COMPLETE )
+      script.onload = script.onreadystatechange = function(){
+        if ( ! loaded &&
+             ( ! defined( script.readyState ) ||
+               script.readyState == 'loaded' ||
+               script.readyState == COMPLETE ) )
         {
-          script.onreadystatechange = NULL;
+          loaded = TRUE;
+          script.onload = script.onreadystatechange = NULL;
           callback();
         } 
       };

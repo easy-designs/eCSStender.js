@@ -22,9 +22,10 @@ $(document).ready(function(){
     ok( typeof(eCSStender.loadScript)=='function', 'method exists' );
   });
 
-  eCSStender.loadScript('http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js',function(){
-    test( 'eCSStender::loadScript', function(){
-      ok( typeof(window.jQuery) == 'function', 'script was loaded successfully' );
+  eCSStender.loadScript('http://swfobject.googlecode.com/svn/tags/swfobject_2_2/swfobject.js',function(){
+    test( 'eCSStender::loadScript callback', function(){
+      ok( true, 'callback was called' );
+      ok( typeof window.swfobject == 'object', 'script was loaded successfully' );
     });
   });
 
