@@ -18,6 +18,7 @@ License:       MIT License (see homepage)
   NULL     = null,
   STRING   = 'string',
   NUMBER   = 'number',
+  OBJECT   = 'object',
   ARRAY    = Array,
   FUNCTION = Function,
   REGEXP   = RegExp,
@@ -89,6 +90,7 @@ License:       MIT License (see homepage)
   
   // for embedding stylesheets
   __head         = DOCUMENT.getElementsByTagName( 'head' )[0],
+  __body         = NULL,
   __style        = newElement( 'style' ),
   __embedded_css = [],
   addRules       = EMPTY_FN,
@@ -148,6 +150,8 @@ License:       MIT License (see homepage)
     __initialized = TRUE;
     // performance logging
     eCSStender.exec_time = now();
+    // DOM Access
+    __body = DOCUMENT.getElementsByTagName( 'body' )[0];
     // innards
     readBrowserCache();
     getActiveStylesheets();
@@ -751,9 +755,10 @@ License:       MIT License (see homepage)
   }
   function extractStyleBlocks( media, css, delayed_id )
   {
+    media = arrayify(media);
     // parse it into blocks & remove the last item (which is empty)
     var blocks = css.split(CLOSE_CURLY),
-    b = 0, bLen, props, prop, selector, m, medium, arr, a, aLen;
+    b=m=a=0, bLen, mLen=media.length, props, prop, selector, medium, arr, aLen;
     blocks.pop();
     // loop
     for ( bLen=blocks.length; b<bLen; b++ )
@@ -776,39 +781,36 @@ License:       MIT License (see homepage)
         for ( a=0, aLen=arr.length; a<aLen; a++ )
         {
           selector = trim( arr[a] );
-          for ( m in media )
+          for ( m=0; m<mLen; m++ )
           {
-            if ( ! isInheritedProperty( media, m ) )
+            medium = media[m];
+            // normal run
+            if ( ! defined( delayed_id ) )
             {
-              medium = media[m];
-              // normal run
-              if ( ! defined( delayed_id ) )
+              if ( ! defined( __style_objects[medium][selector] ) )
               {
-                if ( ! defined( __style_objects[medium][selector] ) )
+                __style_objects[medium][selector] = {};
+              }
+              for ( prop in props )
+              {
+                if ( ! isInheritedProperty( props, prop ) )
                 {
-                  __style_objects[medium][selector] = {};
-                }
-                for ( prop in props )
-                {
-                  if ( ! isInheritedProperty( props, prop ) )
-                  {
-                    __style_objects[medium][selector][prop] = props[prop];
-                  }
+                  __style_objects[medium][selector][prop] = props[prop];
                 }
               }
-              // delayed run
-              else
+            }
+            // delayed run
+            else
+            {
+              if ( ! defined( __delayed[delayed_id][selector] ) )
               {
-                if ( ! defined( __delayed[delayed_id][selector] ) )
+                __delayed[delayed_id][selector] = {};
+              }
+              for ( prop in props )
+              {
+                if ( ! isInheritedProperty( props, prop ) )
                 {
-                  __delayed[delayed_id][selector] = {};
-                }
-                for ( prop in props )
-                {
-                  if ( ! isInheritedProperty( props, prop ) )
-                  {
-                    __delayed[delayed_id][selector][prop] = props[prop];
-                  }
+                  __delayed[delayed_id][selector][prop] = props[prop];
                 }
               }
             }
@@ -938,11 +940,21 @@ License:       MIT License (see homepage)
   }
   function arrayify( something )
   {
-    var arr=[], i=0, iLen, temp, t, tLen;
+    var arr=addPush([]), i=0, iLen, temp, t, tLen;
     if ( ! is( something, ARRAY ) )
     {
-      if ( is( something, STRING ) &&
-           something.indexOf(',') != -1 )
+      if ( is( something, OBJECT ) )
+      {
+        for ( i in something )
+        {
+          if ( ! isInheritedProperty( something, i ) )
+          {
+            arr.push( something[i] );
+          }
+        }
+      } 
+      else if ( is( something, STRING ) &&
+                something.indexOf(',') != -1 )
       {
         temp = something.split( REGEXP_COMMA );
         for ( iLen=temp.length; i<iLen; i++ )
@@ -1097,6 +1109,7 @@ License:       MIT License (see homepage)
             if ( file === NULL ||
                  in_object( file.replace( REGEXP_FILE, CAPTURE ), __ignored_css ) )
             {
+              __s++;
               getCSSFiles();
             }
             else
@@ -1348,7 +1361,7 @@ License:       MIT License (see homepage)
       div = newElement(DIV),
       tomorrow = new Date();
       div.style.behavior = 'url(#default#userData)';
-      DOCUMENT.body.appendChild(div);
+      __body.appendChild(div);
       if ( defined( div.XMLDocument ) )
       {
         __cache_object = div;
@@ -1717,7 +1730,7 @@ License:       MIT License (see homepage)
         max = l_specificity;
         min = 0;
       }
-      else if ( is( l_specificity, 'object' ) )
+      else if ( is( l_specificity, OBJECT ) )
       {
         max = l_specificity['max'];
         min = l_specificity['min'];
@@ -1983,7 +1996,6 @@ License:       MIT License (see homepage)
   eCSStender.isSupported = function( type, what, html, el )
   {
     var result,
-    body = DOCUMENT.body,
     // property test vars
     property, value, settable = TRUE,
     computed   = WINDOW.getComputedStyle,
@@ -2002,7 +2014,7 @@ License:       MIT License (see homepage)
       {
         // test element
         el = newElement(DIV);
-        body.appendChild( el );
+        __body.appendChild( el );
         what = what.split(REGEXP_P_V);
         property  = what[0];
         value     = trim( what[1] );
@@ -2022,13 +2034,13 @@ License:       MIT License (see homepage)
           result = TRUE;
         }
         // cleanup
-        body.removeChild( el );
+        __body.removeChild( el );
         el = NULL;
       }
       else if ( type == SELECTOR )
       {
         // append the test markup and the test style element
-        body.appendChild( html );
+        __body.appendChild( html );
         style = newStyleElement( 'screen', FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
@@ -2043,7 +2055,7 @@ License:       MIT License (see homepage)
           }
         } catch( e ){}
         // cleanup
-        body.removeChild( html );
+        __body.removeChild( html );
         style.parentNode.removeChild( style );
         style = NULL;
       }
