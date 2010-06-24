@@ -1,3 +1,16 @@
+*v1.2.4* (2010-06-24)
+* removing the examples folder from the build (as there are more extensions out there now).
+* fixed a bug discovered in Mozilla browsers, which treat RegExp as objects rather than functions.
+* fixing some bugs in Chrome for Mac
+* made some tweaks to the margin-boxes implementation in eCSStender.pages
+* Added TODOs for allowing @media to contain @page and making eCSStender.pages media-aware
+* adjusted internals to keep a stack of delayed styles to write, to reduce the amount written to the document (and to maintain cascade, etc.)
+* small fixes to validateCache and findImportedStylesheets
+* more optimizations
+* added tests for the loadScript method
+* cleaned up some other tests
+* minor bug fix for instances where CSS is purely embedded (no external files).
+
 *v1.2.3* (2010-05-27)
 * isSupported caching bug resolved
 * added public loadScript method

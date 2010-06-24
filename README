@@ -18,7 +18,7 @@ Put eCSStender.js in a directory on your website, e.g. /js.
 Now, you can include the scripts by adding the following 
 tags to your HTML pages:
 
- <script src="/js/eCSStender.js" type="text/javascript"></script>
+ <script src="eCSStender.js" type="text/javascript"></script>
 
 eCSStender does nothing on it's own, but it facilitates the use of
 eCSStensions developed by the community. Some eCSStensions do simple
@@ -28,12 +28,9 @@ for future iterations of the language.
 
 == The distribution
 
-Besides the eCSStender files in src, there's a complete
-test tree included which holds assorted tests for eCSStender.
-
-If you need examples on how to implement things, we suggest opening 
-tests/index.html (in your browser) and browsing the examples 
-provided.
+Besides the eCSStender files in /src, there's a complete
+test tree included (/tests) which holds assorted tests for eCSStender
+(also published at http://test.ecsstender.org).
 
 == License
 
