@@ -943,7 +943,8 @@ License:       MIT License (see homepage)
     var arr=addPush([]), i=0, iLen, temp, t, tLen;
     if ( ! is( something, ARRAY ) )
     {
-      if ( is( something, OBJECT ) )
+      if ( is( something, OBJECT ) &&
+           ! is( something, REGEXP ) )
       {
         for ( i in something )
         {
