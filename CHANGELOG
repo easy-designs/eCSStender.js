@@ -1,3 +1,6 @@
+*v1.2.5* (2010-06-27)
+* IE's cssText property is too buggy to be relied on, so we're returning to pure XHR
+
 *v1.2.4* (2010-06-24)
 * removing the examples folder from the build (as there are more extensions out there now).
 * fixed a bug discovered in Mozilla browsers, which treat RegExp as objects rather than functions.

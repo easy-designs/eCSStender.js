@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.4
+Version:       1.2.5
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.4',
+    version:   '1.2.5',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -178,9 +178,8 @@ License:       MIT License (see homepage)
       // add the stylesheet
       addStyleSheet( stylesheets[s] );
     }
-    // if browsers don't expose cssText, we need to rely on XHR
-    if ( sLen > 0 &&
-         ! defined( stylesheets[0].cssText ) )
+    // cssText is truly unreliable, we need to rely on XHR
+    if ( sLen > 0 )
     {
       __xhr = TRUE;
     }
