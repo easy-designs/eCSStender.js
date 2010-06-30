@@ -1044,18 +1044,19 @@ License:       MIT License (see homepage)
   function clean( css )
   {
     var
-    low_function  = low,
+    // IE returns all uppercase tags and property names (except on XHR)
+    // low_function  = low,
+    // lowercase     = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig,
     html_comments = /\s*(?:\<\!--|--\>)\s*/g, // strip HTML comments
     css_comments  = /\/\*(?:.|\s)*?\*\//g,    // strip CSS comments
     whitespace    = /\s*([,{}:;])\s*/g,       // remove returns and indenting whitespace
-    at_imports    = /@import.*?;/g,           // axe imports
-    // IE returns all uppercase tags and property names (except on XHR)
-    lowercase     = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig;
+    at_imports    = /@import.*?;/g;           // axe imports
     return css.replace( html_comments, EMPTY ) 
               .replace( css_comments, EMPTY )    
               .replace( whitespace, CAPTURE )     
-              .replace( at_imports, EMPTY )           
-              .replace( lowercase, low_function );
+              .replace( at_imports, EMPTY );
+              // removed with removal of IE's cssText
+              // .replace( lowercase, low_function );
   }
   function in_object( needle, haystack )
   {
