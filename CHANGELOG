@@ -1,3 +1,6 @@
+*v1.2.5.1* (2010-06-30)
+* forgot to remove the lowercasing part of clean (which was being used to compensate for IE's buggy cssText property)
+
 *v1.2.5* (2010-06-27)
 * IE's cssText property is too buggy to be relied on, so we're returning to pure XHR
 
