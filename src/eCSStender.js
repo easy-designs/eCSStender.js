@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.5.1
+Version:       1.2.5.2
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.5.1',
+    version:   '1.2.5.2',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -2040,8 +2040,11 @@ License:       MIT License (see homepage)
       }
       else if ( type == SELECTOR )
       {
-        // append the test markup and the test style element
-        __body.appendChild( html );
+        // append the test markup (if it exists) and the test style element
+        if ( html )
+        {
+          __body.appendChild( html );
+        }
         style = newStyleElement( 'screen', FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
@@ -2056,7 +2059,10 @@ License:       MIT License (see homepage)
           }
         } catch( e ){}
         // cleanup
-        __body.removeChild( html );
+        if ( html )
+        {
+          __body.removeChild( html );
+        }
         style.parentNode.removeChild( style );
         style = NULL;
       }
