@@ -1,3 +1,9 @@
+*v1.2.5.3* (2010-07-05)
+* fixed bug in clean() that removed whitespace before uncombined pseudo selectors
+
+*v1.2.5.2* (2010-07-02)
+* added ability to not supply html to isSupported when testing selectors (in case you want to test against existing markup)
+
 *v1.2.5.1* (2010-06-30)
 * forgot to remove the lowercasing part of clean (which was being used to compensate for IE's buggy cssText property)
 

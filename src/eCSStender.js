@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.5.2
+Version:       1.2.5.3
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.5.2',
+    version:   '1.2.5.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -1049,7 +1049,8 @@ License:       MIT License (see homepage)
     // lowercase     = /(?:\s?([^.#:]+).*?[,{]|\s?([^:]+):)/ig,
     html_comments = /\s*(?:\<\!--|--\>)\s*/g, // strip HTML comments
     css_comments  = /\/\*(?:.|\s)*?\*\//g,    // strip CSS comments
-    whitespace    = /\s*([,{}:;])\s*/g,       // remove returns and indenting whitespace
+     // remove returns and indenting whitespace (not not spaces before pseudo-element & pseudo-class selectors)
+    whitespace    = /\s*([,{};]|:(?!nth|first|last|only|empty|checked|(dis|en)abled))\s*/g,
     at_imports    = /@import.*?;/g;           // axe imports
     return css.replace( html_comments, EMPTY ) 
               .replace( css_comments, EMPTY )    
