@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.5.3
+Version:       1.2.5.4
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.5.3',
+    version:   '1.2.5.4',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -822,14 +822,18 @@ License:       MIT License (see homepage)
   {
     if ( ! is( properties, STRING ) ){ return {}; }
     properties = properties.split(SEMICOLON);
-    var props = {}, p = 0, pLen = properties.length, arr, property;
+    var props = {},
+    p = 0, pLen = properties.length,
+    property, arr, prop, val;
     for ( ; p<pLen; p++ )
     {
       property = trim( properties[p] );
       // skip empties
       if ( property == EMPTY ){ continue; }
-      arr = property.split(REGEXP_P_V);
-      props[trim(arr[0])] = trim( arr[1] );
+      arr  = property.split(REGEXP_P_V);
+      prop = arr.shift();
+      val  = arr.join(COLON);
+      props[trim(prop)] = trim( val );
     }
     return props;
   }
