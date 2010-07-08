@@ -1161,7 +1161,7 @@ License:       MIT License (see homepage)
   {
     if ( __xhr.readyState == 4 )
     {
-      status = __xhr.status;
+      var status = __xhr.status;
       if ( status == 0 ||                       // local
            ( status >= 200 && status < 300 ) || // good
            status == 304 )                      // cached

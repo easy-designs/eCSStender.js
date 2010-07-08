@@ -1,3 +1,6 @@
+*v1.2.5.4* (2010-07-07)
+* fixed bug in gatherProperties() that caused it not to ignore colons in property values
+
 *v1.2.5.3* (2010-07-05)
 * fixed bug in clean() that removed whitespace before uncombined pseudo selectors
 
