@@ -2232,6 +2232,98 @@ License:       MIT License (see homepage)
     return isInheritedProperty( obj, prop );
   }
 
+  /**
+   * makeClassRegExp()
+   * makes a usable regex out of a class name
+   *
+   * @param str the_class - the class to add
+   * 
+   * @return RegExp - the regular expression
+   */
+  function makeClassRegExp( the_class )
+  {
+    return new RegExp( '(\\s|^)' + the_class + '(\\s|$)' );
+  }
+  /**
+   * eCSStender::makeUniqueClass()
+   * creates a unique class for an element
+   * 
+   * @return str - the unique class
+   */
+  eCSStender.makeUniqueClass = function()
+  {
+    var date = new Date();
+    return ECSSTENDER + HYPHEN + date.getTime();
+  };
+  /**
+   * eCSStender::addClass()
+   * adds a class to an element
+   *
+   * @param obj el - the element to have its class augmented
+   * @param str the_class - the class to add
+   * @param RegExp re - a regular expression to match the class (optional)
+   */
+  function addClass( el, the_class, re )
+  {
+    re = re || makeClassRegExp( the_class );
+    if ( ! hasClass( el, the_class, re ) )
+    {
+      el.className += SPACE + the_class;
+    } 
+  }
+  eCSStender.addClass = addClass;
+  /**
+   * eCSStender::removeClass()
+   * removes a class from an element
+   *
+   * @param obj el - the element to have its class augmented
+   * @param str the_class - the class to add
+   * @param RegExp re - a regular expression to match the class (optional)
+   */
+  function removeClass( el, the_class, re )
+  {
+    re = re || makeClassRegExp( the_class );
+    if ( hasClass( el, the_class, re ) )
+    {
+   		el.className = trim( ele.className.replace( re, SPACE ) );
+   	}
+  };
+  eCSStender.removeClass = removeClass;
+  /**
+   * eCSStender::hasClass()
+   * checks to see if an element has the given class
+   *
+   * @param obj el - the element to have its class augmented
+   * @param str the_class - the class to add
+   * @param RegExp re - a regular expression to match the class (optional)
+   */
+  function hasClass( el, the_class, re )
+  {
+    re = re || makeClassRegExp( the_class );
+    return ele.className.match( re );
+  };
+  eCSStender.hasClass = hasClass;
+  /**
+   * eCSStender::toggleClass()
+   * adds or removes a class based on whether it's already there
+   *
+   * @param obj el - the element to have its class augmented
+   * @param str the_class - the class to add
+   */
+  function toggleClass( el, the_class )
+  {
+    var re = makeClassRegExp( the_class );
+    if ( hasClass( el, the_class, re ) )
+    {
+      removeClass( el, the_class, re );
+    }
+    else
+    {
+      addClass( el, the_class, re );
+    }
+  };
+  eCSStender.toggleClass = toggleClass;
+  
   /*-------------------------------------*
    * DOM Loaded Trigger                  *
    * Based on jQuery's                   *
