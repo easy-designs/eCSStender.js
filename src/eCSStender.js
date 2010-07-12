@@ -2285,7 +2285,7 @@ License:       MIT License (see homepage)
     re = re || makeClassRegExp( the_class );
     if ( hasClass( el, the_class, re ) )
     {
-   		el.className = trim( ele.className.replace( re, SPACE ) );
+   		el.className = trim( el.className.replace( re, SPACE ) );
    	}
   };
   eCSStender.removeClass = removeClass;
