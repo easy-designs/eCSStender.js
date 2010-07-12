@@ -2300,7 +2300,7 @@ License:       MIT License (see homepage)
   function hasClass( el, the_class, re )
   {
     re = re || makeClassRegExp( the_class );
-    return ele.className.match( re );
+    return el.className.match( re );
   };
   eCSStender.hasClass = hasClass;
   /**
