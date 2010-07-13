@@ -1,3 +1,19 @@
+*v1.2.6* (2010-07-13)
+* overhauled eCSStender::isSupported() so it can accept
+  - assignment of support info into the cache and
+  - accept a property as the second argument and a string value (or array of strings) as the third argument for property tests (so that you can offer alternatives like ['#000000','black'] or re-ordering for browsers that have alternate internal value storage schemes)
+* added some new methods:
+  - eCSStender::getCSSValue()
+  - eCSStender::addClass()
+  - eCSStender::removeClass()
+  - eCSStender::hasClass()
+  - eCSStender::toggleClass()
+  - eCSStender::makeUniqueClass()
+* adjusted eCSStender::isSupported() to make use of getCSSValue()
+* fixed window.status issue 
+* minor typo fixes
+* tests for some the new/revised functionality
+
 *v1.2.5.4* (2010-07-07)
 * fixed bug in gatherProperties() that caused it not to ignore colons in property values
 
