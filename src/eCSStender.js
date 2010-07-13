@@ -33,6 +33,7 @@ License:       MIT License (see homepage)
   SELECTOR    = 'selector',
   PROPERTY    = 'property',
   SPECIFICITY = 'specificity',
+  SCREEN      = 'screen',
   ALL         = 'all',
   MEDIA       = 'media',
   FIND_BY     = 'find_by',
@@ -558,8 +559,8 @@ License:       MIT License (see homepage)
             mediaText = media.mediaText;
           }
         }
-        // default = all
-        stylesheet.actual_media = mediaText ? mediaText : ALL;
+        // default = screen
+        stylesheet.actual_media = mediaText ? mediaText : SCREEN;
         if ( is( stylesheet.actual_media, STRING ) )
         {
           stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
@@ -572,8 +573,8 @@ License:       MIT License (see homepage)
     {
       determineMedia = function( stylesheet ){
         var mediaText = stylesheet.media;
-        // default = all
-        stylesheet.actual_media = mediaText ? mediaText : ALL;
+        // default = screen
+        stylesheet.actual_media = mediaText ? mediaText : SCREEN;
         if ( is( stylesheet.actual_media, STRING ) )
         {
           stylesheet.actual_media = stylesheet.actual_media.split( REGEXP_COMMA );
@@ -1996,28 +1997,52 @@ License:       MIT License (see homepage)
    * eCSStender::isSupported()
    * tests support for properties and selectors
    *
-   * @param str type - PROPERTY or SELECTOR
-   * @param str what - the property:value pair or the selector in question
-   * @param obj html - the HTML to test against (used by selector test)
-   * @param obj el   - the element the selector should select (used by selector test)
-   * 
-   * @return bool - TRUE for success, FALSE for failure
+   * Option 1: Selector test
+   *   eCSStender::isSupported( type, selector, html, el )
+   *   @param str type - 'property'
+   *   @param str selector - the selector
+   *   @param obj html - HTML to test against
+   *   @param obj el   - the element the selector should select
+   *   @return bool - TRUE for success, FALSE for failure
+   *
+   * Option 2: Property Test (simple) 
+   *   eCSStender::isSupported( type, test )
+   *   @param str type - 'selector'
+   *   @param str test - the property: value pair to test
+   *   @return bool - TRUE for success, FALSE for failure
+   *
+   * Option 3: Property Test (complex) 
+   *   eCSStender::isSupported( type, property, value )
+   *   @param str type - 'selector'
+   *   @param str property - the property to test
+   *   @param mixed value - the string value or an array of possible values
+   *   @return bool - TRUE for success, FALSE for failure
+   *
+   * Option 3: Storage
+   *   eCSStender::isSupported( type, what, result )
+   *   @param str type - 'selector'
+   *   @param str what - the key to store
+   *   @param bool result - the result of the test you want stored
+   *   @return bool - the result you passed in
    */
   eCSStender.isSupported = function( type )
   {
     var result,
-    arg = arguments,
+    arg   = arguments,
+    aLen  = arg.length,
     // global test vars
-    what, el, arg1 = arg[1], value,
+    what  = arg[1],
+    value = html = arg[2] || NULL,
+    el    = arg[3] || NULL,
     // property test vars
-    property, settable = TRUE,
+    property, settable = TRUE, i,
     computed   = WINDOW.getComputedStyle,
     VISIBILITY = 'visibility',
     HIDDEN     = 'hidden',
     // selector test vars
-    html, style;
+    style;
     // check for cached value
-    if ( defined( result = readFromLocalCache( type, arg[1] ) ) )
+    if ( defined( result = readFromLocalCache( type, what ) ) )
     {
       // we'll return the result at the end
     }
@@ -2025,8 +2050,8 @@ License:       MIT License (see homepage)
     else
     {
       result = FALSE;
-      // test for just setting the value
-      if ( is( ( value = arg[2] ), 'boolean' ) )
+      // just caching the value for later
+      if ( is( value, 'boolean' ) )
       {
         result = value;
       }
@@ -2034,22 +2059,36 @@ License:       MIT License (see homepage)
       else if ( type == PROPERTY )
       {
         // test element
-        el       = newElement(DIV);
-        what     = arg1.split(REGEXP_P_V);
-        property = what[0];
-        value    = trim( what[1] );
-        what     = what.join(COLON);
+        el = newElement(DIV);
+        // are property and value flowing in separately?
+        if ( value )
+        {
+          property = what;
+          value    = arrayify( value );
+        }
+        else
+        {
+          what     = what.split(REGEXP_P_V);
+          property = what[0];
+          value    = [ trim( what[1] ) ];
+          // reset what for the cache
+          what     = arg[1];
+        }
         __body.appendChild( el );
         toggleExpando();
-        if ( ! addInlineStyle( el, property, value ) )
+        if ( ! addInlineStyle( el, property, value[0] ) )
         {
           settable = FALSE;
         }
         toggleExpando();
-        if ( settable &&
-             zero_out( getCSSValue( el, property ) ) == value )
+        if ( settable )
         {
-          result = TRUE;
+          i = value.length;
+          while ( i-- &&
+                  ! result )
+          {
+            result = ( zero_out( getCSSValue( el, property ) ) == value[i] );
+          }
         }
         // cleanup
         __body.removeChild( el );
@@ -2057,18 +2096,17 @@ License:       MIT License (see homepage)
       // selector test
       else if ( type == SELECTOR )
       {
-        html = arg[2];
         // append the test markup (if it exists) and the test style element
         if ( html )
         {
           __body.appendChild( html );
         }
-        style = newStyleElement( 'screen', FALSE, FALSE );
+        style = newStyleElement( SCREEN, FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
-          addRules( style, arg1 + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
+          addRules( style, what + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
           // if it succeeds, we don't want to run the eCSStension
-          if ( getCSSValue( arg[3], VISIBILITY ) == HIDDEN )
+          if ( getCSSValue( el, VISIBILITY ) == HIDDEN )
           {
             result = TRUE;
           }
@@ -2081,8 +2119,8 @@ License:       MIT License (see homepage)
         style.parentNode.removeChild( style );
       }
       // write it to the cache and clean up
-      writeToLocalCache( type, arg1, result );
-      html = el = style = NULL;
+      writeToLocalCache( type, what, result );
+      value = html = el = style = NULL;
     }
     return result;
   };
@@ -2287,8 +2325,14 @@ License:       MIT License (see homepage)
    */
   eCSStender.makeUniqueClass = function()
   {
-    var date = new Date();
-    return ECSSTENDER + HYPHEN + date.getTime();
+    var start = new Date();
+    start = start.getTime();
+    function init()
+    {
+      return ECSSTENDER + HYPHEN + start++;
+    }
+    eCSStender.makeUniqueClass = init;
+    return init();
   };
   /**
    * eCSStender::addClass()

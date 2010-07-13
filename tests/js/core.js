@@ -119,6 +119,10 @@ eCSStender.onComplete(function(){
     ok( !eCSStender.isSupported( 'selector', 'p ?? b', html, el ), 'unknown selector is not supported' );
     ok( eCSStender.isSupported( 'property', 'visibility: hidden' ), 'visibility: hidden is supported' );
     ok( !eCSStender.isSupported( 'property', 'foo: bar' ), 'unknown property is not supported' );
+    ok( eCSStender.isSupported( 'property', 'visibility', 'hidden' ), 'visibility: hidden as separate arguments is supported' );
+    ok( eCSStender.isSupported( 'property', 'visibility', ['visible','hidden'] ),
+                                'visibility: hidden as separate arguments with the value options as an array is supported' );
+    el = html = null;
   });
   test( 'eCSStender::applyWeightedStyle', function(){
     ok( typeof(eCSStender.applyWeightedStyle)=='function', 'method exists' );
@@ -133,6 +137,37 @@ eCSStender.onComplete(function(){
     ok( el.style.visibility=='visible', 'element was made visible when specificity was equal to existing one' );
     eCSStender.applyWeightedStyle( el, { 'visibility': 'hidden' }, 100 );
     ok( el.style.visibility=='hidden', 'element was hidden again when specificity was greater' );
+  });
+  test( 'eCSStender::getCSSValue', function(){
+    ok( typeof(eCSStender.getCSSValue)=='function', 'method exists' );
+    var el    = document.createElement('b');
+    eCSStender.embedCSS( 'b { visibility: visible; }', false, false );
+    document.body.appendChild(el);
+    ok( eCSStender.getCSSValue( el, 'visibility' ) == 'visible', 'correct value returned from embedded assignment' );
+    el.style.visibility = 'hidden';
+    ok( eCSStender.getCSSValue( el, 'visibility' ) == 'hidden', 'correct value returned from inline assignment' );
+  });
+  test( 'eCSStender::makeUniqueClass', function(){
+    ok( typeof(eCSStender.makeUniqueClass)=='function', 'method exists' );
+    var
+    class1 = eCSStender.makeUniqueClass(),
+    class2 = eCSStender.makeUniqueClass();
+    ok( class1 != '', 'a value is returned: ' + class1 );
+    ok( class1 != class2, class1 + ' != ' + class2 );
+  });
+  test( 'eCSStender Class Juggling', function(){
+    ok( typeof(eCSStender.hasClass)=='function', 'eCSStender::hasClass() exists' );
+    ok( typeof(eCSStender.addClass)=='function', 'eCSStender::addClass() exists' );
+    ok( typeof(eCSStender.removeClass)=='function', 'eCSStender::removeClass() exists' );
+    ok( typeof(eCSStender.toggleClass)=='function', 'eCSStender::toggleClass() exists' );
+    var b = document.createElement('b');
+    ok( !eCSStender.hasClass( b, 'foo' ), 'eCSStender::hasClass() works: the element does not have a class of "foo"' );
+    eCSStender.addClass( b, 'foo' );
+    ok( eCSStender.hasClass( b, 'foo' ), 'eCSStender::addClass() works: the element now has a class of "foo"' );
+    eCSStender.removeClass( b, 'foo' );
+    ok( !eCSStender.hasClass( b, 'foo' ), 'eCSStender::removeClass() works: the element no longer has a class of "foo"' );
+    eCSStender.toggleClass( b, 'foo' );
+    ok( eCSStender.hasClass( b, 'foo' ), 'eCSStender::toggleClass() works: the element has a class of "foo" again' );
   });
   test( 'eCSStender::ignore', function(){
     var matches;
