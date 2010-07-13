@@ -1272,6 +1272,10 @@ License:       MIT License (see homepage)
   {
     return new RegExp( rxp );
   }
+  function makeClassRegExp( the_class )
+  {
+    return newRegExp( '(\\s|^)' + the_class + '(\\s|$)' );
+  }
   // push handling
   function addPush( arr )
   {
@@ -2032,10 +2036,7 @@ License:       MIT License (see homepage)
         }
         toggleExpando();
         if ( settable &&
-             ( el.currentStyle &&
-               zero_out( el.currentStyle[camelize( property )] ) == value ) ||
-             ( computed &&
-               zero_out( computed( el, NULL ).getPropertyValue( property ) ) == value ) )
+             zero_out( getCSSValue( el, property ) ) )
         {
           result = TRUE;
         }
@@ -2055,10 +2056,7 @@ License:       MIT License (see homepage)
         try {
           addRules( style, what + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
           // if it succeeds, we don't want to run the eCSStension
-          if ( ( el.currentStyle &&
-                 el.currentStyle[VISIBILITY] == HIDDEN ) ||
-               ( computed &&
-                 computed( el, NULL ).getPropertyValue(VISIBILITY) == HIDDEN ) )
+          if ( getCSSValue( el, VISIBILITY ) == HIDDEN )
           {
             result = TRUE;
           }
@@ -2233,16 +2231,40 @@ License:       MIT License (see homepage)
   }
 
   /**
-   * makeClassRegExp()
-   * makes a usable regex out of a class name
+   * eCSStender::getCSSValue()
+   * gets the computed value of a CSS property
    *
-   * @param str the_class - the class to add
+   * @param obj el - the element
+   * @param str prop - the property name
    * 
-   * @return RegExp - the regular expression
+   * @return str - the value
    */
-  function makeClassRegExp( the_class )
+  function getCSSValue( el, prop )
   {
-    return new RegExp( '(\\s|^)' + the_class + '(\\s|$)' );
+    var computed = WINDOW.getComputedStyle;
+    if ( el.currentStyle )
+    {
+      getCSSValue = function( el, prop )
+      {
+        return el.currentStyle[camelize( prop )];
+      };
+    }
+    else if ( computed )
+    {
+      getCSSValue = function( el, prop )
+      {
+        return computed( el, NULL ).getPropertyValue( prop );
+      };
+    }
+    else
+    {
+      getCSSValue = function()
+      {
+        return FALSE;
+      };
+    }
+    eCSStender.getCSSValue = getCSSValue;
+    return getCSSValue( el, prop );
   }
   /**
    * eCSStender::makeUniqueClass()
