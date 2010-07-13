@@ -2003,32 +2003,43 @@ License:       MIT License (see homepage)
    * 
    * @return bool - TRUE for success, FALSE for failure
    */
-  eCSStender.isSupported = function( type, what, html, el )
+  eCSStender.isSupported = function( type )
   {
     var result,
+    arg = arguments,
+    // global test vars
+    what, el, arg1 = arg[1], value,
     // property test vars
-    property, value, settable = TRUE,
+    property, settable = TRUE,
     computed   = WINDOW.getComputedStyle,
     VISIBILITY = 'visibility',
     HIDDEN     = 'hidden',
     // selector test vars
-    style;
-    if ( defined( result = readFromLocalCache( type, what ) ) )
+    html, style;
+    // check for cached value
+    if ( defined( result = readFromLocalCache( type, arg[1] ) ) )
     {
-      return result;
+      // we'll return the result at the end
     }
+    // actual tests
     else
     {
       result = FALSE;
-      if ( type == PROPERTY )
+      // test for just setting the value
+      if ( is( ( value = arg[2] ), 'boolean' ) )
+      {
+        result = value;
+      }
+      // property test
+      else if ( type == PROPERTY )
       {
         // test element
-        el = newElement(DIV);
+        el       = newElement(DIV);
+        what     = arg1.split(REGEXP_P_V);
+        property = what[0];
+        value    = trim( what[1] );
+        what     = what.join(COLON);
         __body.appendChild( el );
-        what = what.split(REGEXP_P_V);
-        property  = what[0];
-        value     = trim( what[1] );
-        what = what.join(COLON);
         toggleExpando();
         if ( ! addInlineStyle( el, property, value ) )
         {
@@ -2036,16 +2047,17 @@ License:       MIT License (see homepage)
         }
         toggleExpando();
         if ( settable &&
-             zero_out( getCSSValue( el, property ) ) )
+             zero_out( getCSSValue( el, property ) ) == value )
         {
           result = TRUE;
         }
         // cleanup
         __body.removeChild( el );
-        el = NULL;
       }
+      // selector test
       else if ( type == SELECTOR )
       {
+        html = arg[2];
         // append the test markup (if it exists) and the test style element
         if ( html )
         {
@@ -2054,9 +2066,9 @@ License:       MIT License (see homepage)
         style = newStyleElement( 'screen', FALSE, FALSE );
         // if the browser doesn't support the selector, it should error out
         try {
-          addRules( style, what + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
+          addRules( style, arg1 + OPEN_CURLY + VISIBILITY + COLON + HIDDEN + SEMICOLON + CLOSE_CURLY );
           // if it succeeds, we don't want to run the eCSStension
-          if ( getCSSValue( el, VISIBILITY ) == HIDDEN )
+          if ( getCSSValue( arg[3], VISIBILITY ) == HIDDEN )
           {
             result = TRUE;
           }
@@ -2067,11 +2079,12 @@ License:       MIT License (see homepage)
           __body.removeChild( html );
         }
         style.parentNode.removeChild( style );
-        style = NULL;
       }
-      writeToLocalCache( type, what, result );
-      return result;
+      // write it to the cache and clean up
+      writeToLocalCache( type, arg1, result );
+      html = el = style = NULL;
     }
+    return result;
   };
 
   /**
