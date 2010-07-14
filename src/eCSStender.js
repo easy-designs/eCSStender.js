@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.1
+Version:       1.2.6
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.1',
+    version:   '1.2.6',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -368,10 +368,10 @@ License:       MIT License (see homepage)
         properties = extractProperties( e[1], e[2], extension[PROPERTIES] );
         result = extension[CALLBACK]( e[2], properties, e[1], specificity );
         // allow on-the-fly re-definition of callback
-        if ( is( result, FUNCTION ) )
-        {
-          __eCSStensions[e[0]][CALLBACK] = result;
-        }
+        // if ( is( result, FUNCTION ) )
+        // {
+        //   __eCSStensions[e[0]][CALLBACK] = result;
+        // }
         __eCSStensions[e[0]][PROCESSED].push( selector_id );
       }
     }
