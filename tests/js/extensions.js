@@ -358,6 +358,28 @@ eCSStender.register(
     });
   });
 
+// callback redefinition
+(function(){
+  var i = j = 0;
+  eCSStender.register(
+    { selector: 'body,h1' },
+    '*',
+    function( selector, properties )
+    {
+      i++;
+      return function(){
+        j++;
+      };
+    });
+  eCSStender.onComplete(function(){
+    module('Extension Tests');
+    test( 'Callback redefinition', function(){
+      ok( i===1, 'original extension callback ran only once' );
+      ok( j===1, 'callback successfully redefined itself' );
+    });
+  });
+})();
+
 // this should never trigger
 eCSStender.register(
   {'selector': 'h1 h2'},
