@@ -1,5 +1,5 @@
 // ignoring some stuff
-eCSStender.ignore('testsuite.css');
+eCSStender.ignore('qunit.css');
 eCSStender.ignore('ignored-1.css');
 eCSStender.ignore(['ignored-2.css']);
 

@@ -1,0 +1,6 @@
+[submodule "vendors/QUnit"]
+	path = vendors/QUnit
+	url = git://github.com/jquery/qunit.git
+[submodule "vendors/EmissionsTest"]
+	path = vendors/EmissionsTest
+	url = git://github.com/easy-designs/EmissionsTest.js.git

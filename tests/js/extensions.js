@@ -359,26 +359,28 @@ eCSStender.register(
   });
 
 // callback redefinition
-// (function(){
-//   var i = j = 0;
-//   eCSStender.register(
-//     { selector: 'body,h1' },
-//     '*',
-//     function( selector, properties )
-//     {
-//       i++;
-//       return function(){
-//         j++;
-//       };
-//     });
-//   eCSStender.onComplete(function(){
-//     module('Extension Tests');
-//     test( 'Callback redefinition', function(){
-//       ok( i===1, 'original extension callback ran only once' );
-//       ok( j===1, 'callback successfully redefined itself' );
-//     });
-//   });
-// })();
+(function(){
+  var
+  redefinition_count_1 = 0,
+  redefinition_count_2 = 0;
+  eCSStender.register(
+    { selector: 'body,h1' },
+    '*',
+    function( selector, properties )
+    {
+      redefinition_count_1++;
+      return function( selector, properties ){
+        redefinition_count_2++;
+      };
+    });
+  eCSStender.onComplete(function(){
+    module('Extension Tests');
+    test( 'Callback redefinition', function(){
+      ok( redefinition_count_1===1, 'original extension callback ran only once' );
+      ok( redefinition_count_2===redefinition_count_1, 'callback successfully redefined itself' );
+    });
+  });
+})();
 
 // this should never trigger
 eCSStender.register(

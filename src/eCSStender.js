@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6
+Version:       1.2.6.1
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6',
+    version:   '1.2.6.1',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -201,7 +201,7 @@ License:       MIT License (see homepage)
   {
     if ( __no_cache || __local ){ return; }
     // check the xhr headers against what we read from the cache
-    var key, cached = __local_cache.xhr, i=j=0;
+    var key, cached = __local_cache.xhr, i=0, j=0;
     eCSStender.cache = TRUE;
     for ( key in __modified )
     {
@@ -368,17 +368,18 @@ License:       MIT License (see homepage)
         properties = extractProperties( e[1], e[2], extension[PROPERTIES] );
         result = extension[CALLBACK]( e[2], properties, e[1], specificity );
         // allow on-the-fly re-definition of callback
-        // if ( is( result, FUNCTION ) )
-        // {
-        //   __eCSStensions[e[0]][CALLBACK] = result;
-        // }
+        if ( is( result, FUNCTION ) )
+        {
+          __eCSStensions[e[0]][CALLBACK] = result;
+        }
         __eCSStensions[e[0]][PROCESSED].push( selector_id );
       }
     }
   }
   function triggerOnCompletes()
   {
-    for ( var o = __on_complete.length-1; o >= 0; o-- )
+    var o = __on_complete.length;
+    while ( o-- )
     {
       __on_complete[o]();
     }
@@ -495,8 +496,9 @@ License:       MIT License (see homepage)
     actual_path = stylesheet.actual_path,
     css_path    = actual_path || stylesheet.href,
     parent      = stylesheet.parentStyleSheet,
-    curr_path, path_last_slash, file_name,
-    parent_path = prefix = EMPTY;
+    parent_path = EMPTY,
+    prefix      = EMPTY,
+    curr_path, path_last_slash, file_name;
     if ( ! css_path ) { css_path = NULL; }
     // we only want sheets
     if ( ! actual_path &&
@@ -743,7 +745,8 @@ License:       MIT License (see homepage)
   }
   function collapseAtMedia( css, match, id )
   {
-    media  = match[1].split(REGEXP_COMMA);
+    var
+    media  = match[1].split(REGEXP_COMMA),
     styles = match[2];
     createMediaContainers( media );
     __media_groups[id] = {
@@ -763,7 +766,8 @@ License:       MIT License (see homepage)
     media = arrayify(media);
     // parse it into blocks & remove the last item (which is empty)
     var blocks = css.split(CLOSE_CURLY),
-    b=m=a=0, bLen, mLen=media.length, props, prop, selector, medium, arr, aLen;
+    b=0, m=0, a=0, bLen, mLen = media.length, 
+    props, prop, selector, medium, arr, aLen;
     blocks.pop();
     // loop
     for ( bLen=blocks.length; b<bLen; b++ )
@@ -1733,10 +1737,11 @@ License:       MIT License (see homepage)
     l_fragment    = lookup[FRAGMENT],
     l_prefix      = lookup[PREFIX],
     l_media       = lookup[MEDIA],
+    props, property,
     min, max,
     medium, e_media,
     sLoop, styles, sorted_styles,
-    s, sLen, selector, found,
+    s, sLen, selector, block, found,
     i, iLen, test, matches = [];
     // figure out specificity params
     if ( defined( l_specificity ) )
@@ -2037,7 +2042,8 @@ License:       MIT License (see homepage)
     aLen  = arg.length,
     // global test vars
     what  = arg[1],
-    value = html = arg[2] || NULL,
+    value = arg[2] || NULL,
+    html  = value,
     el    = arg[3] || NULL,
     // property test vars
     property, settable = TRUE, i,

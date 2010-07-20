@@ -1,3 +1,7 @@
+*v1.2.6.1* (2010-07-20)
+* Added ability for extensions to dynamically redefine themselves
+* cleaned up some leaky variables (thanks to EmissionsTest.js)
+
 *v1.2.6* (2010-07-13)
 * overhauled eCSStender::isSupported() so it can accept
   - assignment of support info into the cache and
