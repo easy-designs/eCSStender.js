@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.1
+Version:       1.2.6.2
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.1',
+    version:   '1.2.6.2',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -1381,7 +1381,14 @@ License:       MIT License (see homepage)
         __cache_object.expires = tomorrow;
         clearBrowserCache = function()
         {
-          __cache_object.XMLDocument.childNodes[0].attributes.length = 0;
+          var
+          attr = __cache_object.XMLDocument.firstChild.attributes,
+          i    = attr.length;
+          while ( i-- )
+          {
+            __cache_object.removeAttribute( attr[i].nodeName );
+          }
+          __cache_object.save( ECSSTENDER );
         };
         readFromBrowserCache = function( cache, key )
         {
