@@ -1,3 +1,12 @@
+*v1.2.6.2* (2010-07-30)
+* bug fix for IE error: 'ownerNode' is null or not an object
+* tweaks to the caching setup:
+  * revised clearBrowserCache for IE userData and localStorage
+  * prefixed all cached items in localStorage with eCSStender- so we can remove them individually
+  * caching the eCSStender version number
+  * adjusted the cache-reading mechanism to check against current eCSStender version number before reading. If version numbers don't match, it doesn't read the cache, it only wipes it.
+  * clearing local storage once it's read (this should help with memory-related issues).
+
 *v1.2.6.1* (2010-07-20)
 * Added ability for extensions to dynamically redefine themselves
 * cleaned up some leaky variables (thanks to EmissionsTest.js)
