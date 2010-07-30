@@ -1352,9 +1352,11 @@ License:       MIT License (see homepage)
       __cache_object = WINDOW.localStorage;
       clearBrowserCache = function()
       {
+        var i = __cache_object.length, key;
         // cherry-pick only our own items in the cache
-        for ( var key in __cache_object )
+        while ( --i )
         {
+          key = localStorage.key(i);
           if ( key.indexOf( ECSSTENDER ) === 0 )
           {
             delete( __cache_object[key] );
