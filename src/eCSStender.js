@@ -1352,14 +1352,31 @@ License:       MIT License (see homepage)
       __cache_object = WINDOW.localStorage;
       clearBrowserCache = function()
       {
-        __cache_object.clear();
+        // cherry-pick only our own items in the cache
+        for ( var key in __cache_object )
+        {
+          if ( key.indexOf( ECSSTENDER ) === 0 )
+          {
+            delete( __cache_object[key] );
+          }
+        }
       };
       readFromBrowserCache = function( cache, key )
       {
+        // make sure our cached objects are prefixed
+        if ( cache != ECSSTENDER )
+        {
+          cache = ECSSTENDER + HYPHEN + cache;
+        }
         return __cache_object.getItem( cache + HYPHEN + key );
       };
       writeToBrowserCache = function( cache, key, value )
       {
+        // make sure our cached objects are prefixed
+        if ( cache != ECSSTENDER )
+        {
+          cache = ECSSTENDER + HYPHEN + cache;
+        }
         __cache_object.setItem( cache + HYPHEN + key, value );
       };
     }
@@ -1406,38 +1423,45 @@ License:       MIT License (see homepage)
   {
     if ( __no_cache || __local ){ return; }
     enableCache();
-    var cache_group, item, count;
-    for ( cache_group in __local_cache )
+    var cache_group, item, count,
+    version       = 'version',
+    cache_version = readFromBrowserCache( ECSSTENDER, version );
+    // only use the cache if it was created from the same version of eCSStender
+    // this allows us to tweak the cache going forward
+    if ( cache_version == eCSStender[version] )
     {
-      if ( ! isInheritedProperty( __local_cache, cache_group ) &&
-           defined( cache_group ) )
+      for ( cache_group in __local_cache )
       {
-        count = readFromBrowserCache( ECSSTENDER, cache_group + COUNT );
-        if ( defined( count ) )
+        if ( ! isInheritedProperty( __local_cache, cache_group ) &&
+             defined( cache_group ) )
         {
-          if ( cache_group == EXTENSION )
+          count = readFromBrowserCache( ECSSTENDER, cache_group + COUNT );
+          if ( defined( count ) )
           {
-            __t_count = count;
-            if ( count < 1 ){ eCSStender.cache = FALSE; }
-          }
-          while ( count >= 0 )
-          {
-            item = readFromBrowserCache( cache_group, count );
-            if ( item != NULL )
+            if ( cache_group == EXTENSION )
             {
-              if ( cache_group == EXTENSION )
-              {
-                __local_cache[cache_group][EXTENSION+count] = item;
-              }
-              else
-              {
-                item = item.split(PIPES);
-                if ( item[1] == 'true' ){ item[1] = TRUE; }
-                if ( item[1] == 'false' ){ item[1] = FALSE; }
-                __local_cache[cache_group][item[0]] = item[1];
-              }
+              __t_count = count;
+              if ( count < 1 ){ eCSStender.cache = FALSE; }
             }
-            count--;
+            while ( count >= 0 )
+            {
+              item = readFromBrowserCache( cache_group, count );
+              if ( item != NULL )
+              {
+                if ( cache_group == EXTENSION )
+                {
+                  __local_cache[cache_group][EXTENSION+count] = item;
+                }
+                else
+                {
+                  item = item.split(PIPES);
+                  if ( item[1] == 'true' ){ item[1] = TRUE; }
+                  if ( item[1] == 'false' ){ item[1] = FALSE; }
+                  __local_cache[cache_group][item[0]] = item[1];
+                }
+              }
+              count--;
+            }
           }
         }
       }
@@ -1475,6 +1499,7 @@ License:       MIT License (see homepage)
         writeToBrowserCache( ECSSTENDER, cache_group + COUNT, count );
       }
     }
+    writeToBrowserCache( ECSSTENDER, 'version', eCSStender.version );
     __cached_out = TRUE;
   }
   function styleObjToString( obj )
