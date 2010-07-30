@@ -1193,31 +1193,20 @@ License:       MIT License (see homepage)
   function extract( stylesheet )
   {
     var r;
-    if ( defined( stylesheet.cssText ) )
-    {
+    try {
+      r = stylesheet.ownerNode.innerHTML;
       extract = function( stylesheet )
       {
         return stylesheet.ownerNode.innerHTML;
       };
-      r = extract();
     }
-    else
+    catch ( e )
     {
-      try {
-        r = stylesheet.ownerNode.innerHTML;
-        extract = function( stylesheet )
-        {
-          return stylesheet.ownerNode.innerHTML;
-        };
-      }
-      catch ( e )
+      r = stylesheet.owningElement.innerHTML;
+      extract = function( stylesheet )
       {
-        r = stylesheet.owningElement.innerHTML;
-        extract = function( stylesheet )
-        {
-          return stylesheet.owningElement.innerHTML;
-        };
-      }
+        return stylesheet.owningElement.innerHTML;
+      };
     }
     return r;
   }
