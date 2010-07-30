@@ -1435,6 +1435,7 @@ License:       MIT License (see homepage)
         }
       }
     }
+    clearBrowserCache();
   }
   function writeBrowserCache()
   {
