@@ -1366,8 +1366,9 @@ License:       MIT License (see homepage)
         // cherry-pick only our own items in the cache
         while ( --i )
         {
-          key = localStorage.key(i);
-          if ( key.indexOf( ECSSTENDER ) === 0 )
+          key = __cache_object.key(i);
+          if ( key &&
+	             key.indexOf( ECSSTENDER ) === 0 )
           {
             delete( __cache_object[key] );
           }

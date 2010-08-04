@@ -1,5 +1,6 @@
 *v1.2.6.3* (2010-08-04)
 * minor bug fix for determinePath() on imported stylesheets
+* fix to miskey in clearBrowserCache()
 
 *v1.2.6.2* (2010-07-30)
 * bug fix for IE error: 'ownerNode' is null or not an object
