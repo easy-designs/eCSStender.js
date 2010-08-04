@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.2
+Version:       1.2.6.3
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.2',
+    version:   '1.2.6.3',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -498,14 +498,24 @@ License:       MIT License (see homepage)
     parent      = stylesheet.parentStyleSheet,
     parent_path = EMPTY,
     prefix      = EMPTY,
-    curr_path, path_last_slash, file_name;
-    if ( ! css_path ) { css_path = NULL; }
-    // we only want sheets
-    if ( ! actual_path &&
-         ( parent != NULL ||                         // with a parent or
-           ( css_path != NULL &&                     // that has a path and
-             css_path.match( REGEXP_URL ) === NULL ) ) ) // isn't a full URL
-    {
+    full_url		= FALSE,
+		curr_path, path_last_slash, file_name;
+    if ( ! css_path )
+		{
+			css_path = NULL;
+		}
+		else
+		{
+			full_url = css_path.match( REGEXP_URL );
+			if ( is( full_url, ARRAY ) )
+			{
+				full_url = ( full_url.length > 0 );
+			}
+		}
+		// we only want sheets
+    if ( ! actual_path &&		// that don't already have a path
+	       ! full_url ) 			// that don't have a full URL
+		{
       if ( css_path.indexOf( SLASH ) === 0 ) { css_path = css_path.substring( 1 ); }
       curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
       path_last_slash = css_path.lastIndexOf( SLASH );
