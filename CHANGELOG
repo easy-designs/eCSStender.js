@@ -1,3 +1,6 @@
+*v1.2.6.4* (2010-08-04)
+* swapped decrement side in clearBrowserCache()
+
 *v1.2.6.3* (2010-08-04)
 * minor bug fix for determinePath() on imported stylesheets
 * fix to miskey in clearBrowserCache()

@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.3
+Version:       1.2.6.4
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.3',
+    version:   '1.2.6.4',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -1364,7 +1364,7 @@ License:       MIT License (see homepage)
       {
         var i = __cache_object.length, key;
         // cherry-pick only our own items in the cache
-        while ( --i )
+        while ( i-- )
         {
           key = __cache_object.key(i);
           if ( key &&
