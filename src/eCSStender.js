@@ -1226,21 +1226,19 @@ License:       MIT License (see homepage)
   }
   function camelize( str )
   {
-    var
-    bits = str.split(HYPHEN), len  = bits.length, new_str, i = 1;
-    if ( len == 1 ) { return bits[0]; } 
-    if ( str.charAt(0) == HYPHEN ) {
-      new_str = bits[0].charAt(0).toUpperCase() + bits[0].substring(1);
-    } else {
-      new_str = bits[0];
-    }
-    while ( i < len ) {
-      new_str += bits[i].charAt(0).toUpperCase() + bits[i].substring(1);
-      i++;
-    }
-    return new_str;
+		var
+		regex = /(-[a-z])/g,
+		func  = function( bit ){
+			return bit.toUpperCase().replace( HYPHEN, EMPTY );
+		};
+		camelize = function( str )
+		{
+			return is( str, STRING ) ? low( str ).replace( regex, func )
+			 												 : str;
+		};
+		return camelize( str );
   }
-  function zero_out( str )
+	function zero_out( str )
   {
     if ( is( str, STRING ) )
     {
@@ -2081,8 +2079,7 @@ License:       MIT License (see homepage)
     html  = value,
     el    = arg[3] || NULL,
     // property test vars
-    property, settable = TRUE, i,
-    computed   = WINDOW.getComputedStyle,
+    property, val, i,
     VISIBILITY = 'visibility',
     HIDDEN     = 'hidden',
     // selector test vars
@@ -2106,38 +2103,36 @@ License:       MIT License (see homepage)
       {
         // test element
         el = newElement(DIV);
-        // are property and value flowing in separately?
-        if ( value )
-        {
-          property = what;
-          value    = arrayify( value );
-        }
-        else
-        {
-          what     = what.split(REGEXP_P_V);
-          property = what[0];
-          value    = [ trim( what[1] ) ];
-          // reset what for the cache
-          what     = arg[1];
-        }
-        __body.appendChild( el );
-        toggleExpando();
-        if ( ! addInlineStyle( el, property, value[0] ) )
-        {
-          settable = FALSE;
-        }
-        toggleExpando();
-        if ( settable )
-        {
-          i = value.length;
-          while ( i-- &&
-                  ! result )
-          {
-            result = ( zero_out( getCSSValue( el, property ) ) == value[i] );
-          }
-        }
-        // cleanup
-        __body.removeChild( el );
+				// are property and value flowing in separately?
+	      if ( value )
+	      {
+	        property = what;
+	        value    = arrayify( value );
+	      }
+	      else
+	      {
+	        what     = what.split(REGEXP_P_V);
+	        property = what[0];
+	        value    = [ trim( what[1] ) ];
+	        // reset what for the cache
+	        what     = arg[1];
+	      }
+				// camel case
+				property = camelize( property );
+				if ( el.style[property] !== UNDEFINED )
+				{
+					// set it
+	        el.style[property] = value[0];
+					// get it back
+					val = zero_out( el.style[property] );
+					// test
+	        i = value.length;
+	        while ( i-- &&
+	                ! result )
+	        {
+	      		result = ( val === value[i] );
+	        }
+				}
       }
       // selector test
       else if ( type == SELECTOR )
