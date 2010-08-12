@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.4
+Version:       1.2.6.5
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -85,10 +85,6 @@ License:       MIT License (see homepage)
   __delayed       = {},    // delayed stylesheets to write
   __on_complete   = [],
   
-  // expando handling (for IE)
-  __expando     = DOCUMENT.expando,
-  toggleExpando = EMPTY_FN,
-  
   // for embedding stylesheets
   __head         = DOCUMENT.getElementsByTagName( 'head' )[0],
   __body         = NULL,
@@ -129,7 +125,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.4',
+    version:   '1.2.6.5',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -723,7 +719,7 @@ License:       MIT License (see homepage)
       props = gatherProperties( match[3] );
       if ( ! defined( eCSStender.at[group] ) )
       {
-        eCSStender.at[group] = ! keys ? addPush( [] ) : {};
+        eCSStender.at[group] = ! keys ? [] : {};
       }
       if ( ! keys )
       {
@@ -963,7 +959,7 @@ License:       MIT License (see homepage)
   }
   function arrayify( something )
   {
-    var arr=addPush([]), i=0, iLen, temp, t, tLen;
+    var arr=[], i=0, iLen, temp, t, tLen;
     if ( ! is( something, ARRAY ) )
     {
       if ( is( something, OBJECT ) &&
@@ -1121,6 +1117,118 @@ License:       MIT License (see homepage)
   {
     return String.fromCharCode( str );
   }
+  function readCSS( css, media )
+  {
+    css  = clean( css );
+    css  = extractAtBlocks( css );
+    // handle remaining rules
+    extractStyleBlocks( media, css );
+  }
+  function extract( stylesheet )
+  {
+    var r;
+    try {
+      r = stylesheet.ownerNode.innerHTML;
+      extract = function( stylesheet )
+      {
+        return stylesheet.ownerNode.innerHTML;
+      };
+    }
+    catch ( e )
+    {
+      r = stylesheet.owningElement.innerHTML;
+      extract = function( stylesheet )
+      {
+        return stylesheet.owningElement.innerHTML;
+      };
+    }
+    return r;
+  }
+  function low( w )
+  {
+    return is( w, STRING ) ? w.toLowerCase() : w;
+  }
+  function camelize( str )
+  {
+		var
+		regex = /(-[a-z])/g,
+		func  = function( bit ){
+			return bit.toUpperCase().replace( HYPHEN, EMPTY );
+		};
+		camelize = function( str )
+		{
+			return is( str, STRING ) ? low( str ).replace( regex, func )
+			 												 : str;
+		};
+		return camelize( str );
+  }
+	function zero_out( str )
+	{
+	  /* finds and removes any unit on a zero
+		   http://www.w3.org/TR/2006/WD-css3-values-20060919/#numbers0
+		   Relative values: em, ex, px, gd, rem, vw, vh, vm, ch
+		   Absolute values: in, cm, mm, pt, pc
+		   Percentages: %
+		   Angles: deg, grad, rad, turn
+		   Times: ms, s
+		   Frequencies: Hz, kHz */
+		var regex = /(\s0)((c|m|r?e|v)m|ch|deg|ex|gd|g?rad|in|k?Hz|m?s|p[ctx]|turn|v[hw]|%)/g;
+		return is( str, STRING ) ? str.replace( regex, CAPTURE ) : str;
+	}
+  function addInlineStyle( el, property, value )
+  {
+    try {
+      el.style[property] = value;
+      el.style[camelize( property )] = value;
+    } catch( e ){
+      return FALSE;
+    }
+    return TRUE;
+  }
+  function newElement( el )
+  {
+    return DOCUMENT.createElement( el );
+  }
+  function newRegExp( rxp )
+  {
+    return new RegExp( rxp );
+  }
+  function makeClassRegExp( the_class )
+  {
+    return newRegExp( '(\\s|^)' + the_class + '(\\s|$)' );
+  }
+
+  /*-------------------------------------*
+   * XHR Stuff
+   *-------------------------------------*/
+  function XHR()
+  {
+    var
+		obj,
+		type = NULL;
+    if ( WINDOW.XMLHttpRequest )
+		{
+			obj = WINDOW.XMLHttpRequest;
+		}
+		else
+		{
+      try {
+				obj  = ActiveXObject;
+				type ='Microsoft.XMLHTTP';
+				connection = new obj(type);
+			}
+			catch ( e )
+			{
+				obj = function(){
+					return NULL;
+				};
+			}
+		}
+		XHR = function(){
+			return new obj(type);
+		};
+		return XHR();
+  }
   function getCSSFiles()
   {
     if ( __xhr )
@@ -1192,136 +1300,6 @@ License:       MIT License (see homepage)
       __s++;
       getCSSFiles();
     }
-  }
-  function readCSS( css, media )
-  {
-    css  = clean( css );
-    css  = extractAtBlocks( css );
-    // handle remaining rules
-    extractStyleBlocks( media, css );
-  }
-  function extract( stylesheet )
-  {
-    var r;
-    try {
-      r = stylesheet.ownerNode.innerHTML;
-      extract = function( stylesheet )
-      {
-        return stylesheet.ownerNode.innerHTML;
-      };
-    }
-    catch ( e )
-    {
-      r = stylesheet.owningElement.innerHTML;
-      extract = function( stylesheet )
-      {
-        return stylesheet.owningElement.innerHTML;
-      };
-    }
-    return r;
-  }
-  function low( w )
-  {
-    return is( w, STRING ) ? w.toLowerCase() : w;
-  }
-  function camelize( str )
-  {
-		var
-		regex = /(-[a-z])/g,
-		func  = function( bit ){
-			return bit.toUpperCase().replace( HYPHEN, EMPTY );
-		};
-		camelize = function( str )
-		{
-			return is( str, STRING ) ? low( str ).replace( regex, func )
-			 												 : str;
-		};
-		return camelize( str );
-  }
-	function zero_out( str )
-  {
-    if ( is( str, STRING ) )
-    {
-      str = str.replace( /(\s0)px/g, CAPTURE );
-    }
-    return str;
-  }
-  function addInlineStyle( el, property, value )
-  {
-    try {
-      el.style[property] = value;
-      el.style[camelize( property )] = value;
-    } catch( e ){
-      return FALSE;
-    }
-    return TRUE;
-  }
-  function XHR()
-  {
-    var connection;
-    try { connection = new XMLHttpRequest(); }
-    catch( e ){
-      try { connection = new ActiveXObject('Msxml2.XMLHTTP'); }
-      catch( e ){
-        try { connection = new ActiveXObject('Microsoft.XMLHTTP'); }
-        catch( e ){
-          connection = FALSE;
-        }
-      }
-    }
-    return ( ! connection ) ? NULL : connection;
-  }
-  function newElement( el )
-  {
-    return DOCUMENT.createElement( el );
-  }
-  function newRegExp( rxp )
-  {
-    return new RegExp( rxp );
-  }
-  function makeClassRegExp( the_class )
-  {
-    return newRegExp( '(\\s|^)' + the_class + '(\\s|$)' );
-  }
-  // push handling
-  function addPush( arr )
-  {
-    return arr;
-  }
-  if ( Array.prototype.push == NULL )
-  {
-    var push = function( obj )
-    {
-      this[this.length] = obj;
-      return this.length;
-    };
-    eCSStender.fonts.push = __eCSStensions.push = __stylesheets.push = __embedded_css.push = __on_complete.push = push;
-    addPush = function( arr )
-    {
-      if ( typeof( arr ) == ARRAY )
-      {
-        arr.push = push;
-      }
-      return arr;
-    };
-  }
-  // expando handling
-  if ( defined( __expando ) )
-  {
-    toggleExpando = function()
-    {
-      if ( ! defined( DOCUMENT.old_expando ) ||
-           DOCUMENT.old_expando == NULL )
-      {
-        DOCUMENT.old_expando = DOCUMENT.expando;
-        DOCUMENT.expando = FALSE;
-      }
-      else
-      {
-        DOCUMENT.expando = DOCUMENT.old_expando;
-        DOCUMENT.old_expando = NULL;
-      }
-    };
   }
   
   /*-------------------------------------*

@@ -1,3 +1,9 @@
+*v1.2.6.5* (2010-08-12)
+* reorganized XHR stuff
+* adjusted eCSStender::isSupported() (property version) to avoid using expando-related checks (in preparation for IE9)
+* beefed-up internal zero_out() function
+* stripped out addition of Array.push() for browsers that didn't support it (it was unnecessary)
+
 *v1.2.6.4* (2010-08-04)
 * swapped decrement side in clearBrowserCache()
 
