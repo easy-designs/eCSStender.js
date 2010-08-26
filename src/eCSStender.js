@@ -1250,14 +1250,8 @@ License:       MIT License (see homepage)
             {
               __xhr = new XHR();
               __xhr.onreadystatechange = xhrHandler;
-              __xhr.open( 'GET', file, FALSE );
+              __xhr.open( 'GET', file, TRUE );
               __xhr.send( NULL );
-              try {
-                if ( __xhr.onreadystatechange != xhrHandler )
-                {
-                  __xhr.onreadystatechange = xhrHandler();
-                }
-              } catch ( e ) { }
             }
           }
           else
