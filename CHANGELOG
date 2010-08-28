@@ -1,3 +1,6 @@
+*v1.2.6.6* (2010-08-26)
+* bugfix: don't call determinePath() on embedded stylesheets
+
 *v1.2.6.5* (2010-08-12)
 * reorganized XHR stuff
 * adjusted eCSStender::isSupported() (property version) to avoid using expando-related checks (in preparation for IE9)
