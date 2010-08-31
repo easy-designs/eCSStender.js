@@ -515,8 +515,15 @@ License:       MIT License (see homepage)
     if ( ! actual_path &&		// that don't already have a path
 	       ! full_url ) 			// that don't have a full URL
 		{
-      if ( css_path.indexOf( SLASH ) === 0 ) { css_path = css_path.substring( 1 ); }
-      curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
+      if ( css_path.indexOf( SLASH ) === 0 )
+      {
+        css_path = css_path.substring( 1 );
+        curr_path = LOCATION.substring( 0, LOCATION.lastIndexOf(WINDOW.location.pathname) );
+      }
+      else
+      {
+        curr_path = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
+      }
       path_last_slash = css_path.lastIndexOf( SLASH );
       file_name       = css_path.substring( path_last_slash + 1 );
       // check for an owner
