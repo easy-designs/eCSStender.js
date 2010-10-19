@@ -2,7 +2,7 @@
 Function:      eCSStender()
 Author:        Aaron Gustafson (aaron at easy-designs dot net)
 Creation Date: 2006-12-03
-Version:       1.2.6.6
+Version:       1.2.6.7
 Homepage:      http://eCSStender.org
 License:       MIT License (see homepage)
 ------------------------------------------------------------------------------*/
@@ -125,7 +125,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.6.6',
+    version:   '1.2.6.7',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -1259,15 +1259,9 @@ License:       MIT License (see homepage)
             else
             {
               __xhr = new XHR();
+              __xhr.open( 'GET', file, TRUE );
               __xhr.onreadystatechange = xhrHandler;
-              __xhr.open( 'GET', file, FALSE );
               __xhr.send( NULL );
-              try {
-                if ( __xhr.onreadystatechange != xhrHandler )
-                {
-                  __xhr.onreadystatechange = xhrHandler();
-                }
-              } catch ( e ) { }
             }
           }
           else
@@ -1308,6 +1302,7 @@ License:       MIT License (see homepage)
         __modified[fingerprint( __stylesheets[__s].actual_path )] = __xhr.getResponseHeader('Last-Modified');
       }
       __s++;
+      __xhr.onreadystatechange = EMPTY_FN;
       getCSSFiles();
     }
   }
