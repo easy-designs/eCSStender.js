@@ -190,9 +190,9 @@ License:       MIT License (see homepage)
       media = determineMedia( __stylesheets[s] );
       createMediaContainers( media );
       if ( __stylesheets[s].href )
-			{
-	      determinePath( __stylesheets[s] );
-			}
+      {
+        determinePath( __stylesheets[s] );
+      }
     }
     getCSSFiles();
   }
@@ -497,26 +497,33 @@ License:       MIT License (see homepage)
     parent      = stylesheet.parentStyleSheet,
     parent_path = EMPTY,
     prefix      = EMPTY,
-    full_url		= FALSE,
-		curr_path, path_last_slash, file_name;
+    full_url    = FALSE,
+    curr_path, path_last_slash, file_name;
     if ( ! css_path )
-		{
-			css_path = NULL;
-		}
-		else
-		{
-			full_url = css_path.match( REGEXP_URL );
-			if ( is( full_url, ARRAY ) )
-			{
-				full_url = ( full_url.length > 0 );
-			}
-		}
-		// we only want sheets
-    if ( ! actual_path &&		// that don't already have a path
-	       ! full_url ) 			// that don't have a full URL
-		{
-      if ( css_path.indexOf( SLASH ) === 0 ) { css_path = css_path.substring( 1 ); }
-      curr_path       = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
+    {
+      css_path = NULL;
+    }
+    else
+    {
+      full_url = css_path.match( REGEXP_URL );
+      if ( is( full_url, ARRAY ) )
+      {
+        full_url = ( full_url.length > 0 );
+      }
+    }
+    // we only want sheets
+    if ( ! actual_path &&   // that don't already have a path
+         ! full_url )       // that don't have a full URL
+    {
+      if ( css_path.indexOf( SLASH ) === 0 )
+      {
+        css_path = css_path.substring( 1 );
+        curr_path = LOCATION.substring( 0, LOCATION.lastIndexOf(WINDOW.location.pathname) );
+      }
+      else
+      {
+        curr_path = LOCATION.substring( 0, LOCATION.lastIndexOf( SLASH ) );
+      }
       path_last_slash = css_path.lastIndexOf( SLASH );
       file_name       = css_path.substring( path_last_slash + 1 );
       // check for an owner
@@ -1153,31 +1160,31 @@ License:       MIT License (see homepage)
   }
   function camelize( str )
   {
-		var
-		regex = /(-[a-z])/g,
-		func  = function( bit ){
-			return bit.toUpperCase().replace( HYPHEN, EMPTY );
-		};
-		camelize = function( str )
-		{
-			return is( str, STRING ) ? low( str ).replace( regex, func )
-			 												 : str;
-		};
-		return camelize( str );
+    var
+    regex = /(-[a-z])/g,
+    func  = function( bit ){
+      return bit.toUpperCase().replace( HYPHEN, EMPTY );
+    };
+    camelize = function( str )
+    {
+      return is( str, STRING ) ? low( str ).replace( regex, func )
+                               : str;
+    };
+    return camelize( str );
   }
-	function zero_out( str )
-	{
-	  /* finds and removes any unit on a zero
-		   http://www.w3.org/TR/2006/WD-css3-values-20060919/#numbers0
-		   Relative values: em, ex, px, gd, rem, vw, vh, vm, ch
-		   Absolute values: in, cm, mm, pt, pc
-		   Percentages: %
-		   Angles: deg, grad, rad, turn
-		   Times: ms, s
-		   Frequencies: Hz, kHz */
-		var regex = /(\s0)((c|m|r?e|v)m|ch|deg|ex|gd|g?rad|in|k?Hz|m?s|p[ctx]|turn|v[hw]|%)/g;
-		return is( str, STRING ) ? str.replace( regex, CAPTURE ) : str;
-	}
+  function zero_out( str )
+  {
+    /* finds and removes any unit on a zero
+       http://www.w3.org/TR/2006/WD-css3-values-20060919/#numbers0
+       Relative values: em, ex, px, gd, rem, vw, vh, vm, ch
+       Absolute values: in, cm, mm, pt, pc
+       Percentages: %
+       Angles: deg, grad, rad, turn
+       Times: ms, s
+       Frequencies: Hz, kHz */
+    var regex = /(\s0)((c|m|r?e|v)m|ch|deg|ex|gd|g?rad|in|k?Hz|m?s|p[ctx]|turn|v[hw]|%)/g;
+    return is( str, STRING ) ? str.replace( regex, CAPTURE ) : str;
+  }
   function addInlineStyle( el, property, value )
   {
     try {
@@ -1207,30 +1214,30 @@ License:       MIT License (see homepage)
   function XHR()
   {
     var
-		obj,
-		type = NULL;
+    obj,
+    type = NULL;
     if ( WINDOW.XMLHttpRequest )
-		{
-			obj = WINDOW.XMLHttpRequest;
-		}
-		else
-		{
+    {
+      obj = WINDOW.XMLHttpRequest;
+    }
+    else
+    {
       try {
-				obj  = ActiveXObject;
-				type ='Microsoft.XMLHTTP';
-				connection = new obj(type);
-			}
-			catch ( e )
-			{
-				obj = function(){
-					return NULL;
-				};
-			}
-		}
-		XHR = function(){
-			return new obj(type);
-		};
-		return XHR();
+        obj  = ActiveXObject;
+        type ='Microsoft.XMLHTTP';
+        connection = new obj(type);
+      }
+      catch ( e )
+      {
+        obj = function(){
+          return NULL;
+        };
+      }
+    }
+    XHR = function(){
+      return new obj(type);
+    };
+    return XHR();
   }
   function getCSSFiles()
   {
@@ -1347,7 +1354,7 @@ License:       MIT License (see homepage)
         {
           key = __cache_object.key(i);
           if ( key &&
-	             key.indexOf( ECSSTENDER ) === 0 )
+               key.indexOf( ECSSTENDER ) === 0 )
           {
             delete( __cache_object[key] );
           }
@@ -1527,25 +1534,25 @@ License:       MIT License (see homepage)
       c1 = str.charCodeAt(i);
       if ( c1 < 128 )
       {
-    		newstr += charAt( c1 );
-    	}
-    	else if ( (c1 > 127) && (c1 < 2048) )
-    	{
-    		newstr += charAt( (c1 >> 6) | 192 );
-    		newstr += charAt( (c1 & 63) | 128 );
-    	}
-    	else
-    	{
-    		newstr += charAt( (c1 >> 12) | 224 );
-    		newstr += charAt( ((c1 >> 6) & 63) | 128 );
-    		newstr += charAt( (c1 & 63) | 128 );
-    	}
-		}
-		str = newstr;
-		newstr = EMPTY;
-		// base64
-		i = 0;
-		iLen = str.length;
+        newstr += charAt( c1 );
+      }
+      else if ( (c1 > 127) && (c1 < 2048) )
+      {
+        newstr += charAt( (c1 >> 6) | 192 );
+        newstr += charAt( (c1 & 63) | 128 );
+      }
+      else
+      {
+        newstr += charAt( (c1 >> 12) | 224 );
+        newstr += charAt( ((c1 >> 6) & 63) | 128 );
+        newstr += charAt( (c1 & 63) | 128 );
+      }
+    }
+    str = newstr;
+    newstr = EMPTY;
+    // base64
+    i = 0;
+    iLen = str.length;
     while ( i < iLen )
     {
       c1 = str.charCodeAt(i++);
@@ -1559,11 +1566,11 @@ License:       MIT License (see homepage)
 
       if ( isNaN(c2) )
       {
-      	e3 = e4 = 64;
+        e3 = e4 = 64;
       }
       else if ( isNaN(c3) )
       {
-      	e4 = 64;
+        e4 = 64;
       }
       newstr += keystr.charAt(e1) + keystr.charAt(e2) +
                 keystr.charAt(e3) + keystr.charAt(e4);
@@ -2084,36 +2091,36 @@ License:       MIT License (see homepage)
       {
         // test element
         el = newElement(DIV);
-				// are property and value flowing in separately?
-	      if ( value )
-	      {
-	        property = what;
-	        value    = arrayify( value );
-	      }
-	      else
-	      {
-	        what     = what.split(REGEXP_P_V);
-	        property = what[0];
-	        value    = [ trim( what[1] ) ];
-	        // reset what for the cache
-	        what     = arg[1];
-	      }
-				// camel case
-				property = camelize( property );
-				if ( el.style[property] !== UNDEFINED )
-				{
-					// set it
-	        el.style[property] = value[0];
-					// get it back
-					val = zero_out( el.style[property] );
-					// test
-	        i = value.length;
-	        while ( i-- &&
-	                ! result )
-	        {
-	      		result = ( val === value[i] );
-	        }
-				}
+        // are property and value flowing in separately?
+        if ( value )
+        {
+          property = what;
+          value    = arrayify( value );
+        }
+        else
+        {
+          what     = what.split(REGEXP_P_V);
+          property = what[0];
+          value    = [ trim( what[1] ) ];
+          // reset what for the cache
+          what     = arg[1];
+        }
+        // camel case
+        property = camelize( property );
+        if ( el.style[property] !== UNDEFINED )
+        {
+          // set it
+          el.style[property] = value[0];
+          // get it back
+          val = zero_out( el.style[property] );
+          // test
+          i = value.length;
+          while ( i-- &&
+                  ! result )
+          {
+            result = ( val === value[i] );
+          }
+        }
       }
       // selector test
       else if ( type == SELECTOR )
@@ -2386,8 +2393,8 @@ License:       MIT License (see homepage)
     re = re || makeClassRegExp( the_class );
     if ( hasClass( el, the_class, re ) )
     {
-   		el.className = trim( el.className.replace( re, SPACE ) );
-   	}
+      el.className = trim( el.className.replace( re, SPACE ) );
+    }
   };
   eCSStender.removeClass = removeClass;
   /**
@@ -2437,7 +2444,7 @@ License:       MIT License (see homepage)
     doScroll = DOCUMENT.documentElement.doScroll;
     
     // for Mozilla/Safari/Opera9
-  	if ( DOCUMENT.addEventListener )
+    if ( DOCUMENT.addEventListener )
     {
       DOCUMENT.addEventListener( DCL, function(){
         DOCUMENT.removeEventListener( DCL, arguments.callee, FALSE );
@@ -2445,36 +2452,36 @@ License:       MIT License (see homepage)
       }, FALSE );
     }
     // If IE event model is used
-  	else if ( DOCUMENT.attachEvent )
-  	{
-  		// ensure firing before onload, maybe late but safe also for iframes
-  		DOCUMENT.attachEvent( ORC, function(){
-  			if ( DOCUMENT.readyState === COMPLETE ) {
-  				DOCUMENT.detachEvent( ORC, arguments.callee );
-  				initialize();
-  			}
-  		});
+    else if ( DOCUMENT.attachEvent )
+    {
+      // ensure firing before onload, maybe late but safe also for iframes
+      DOCUMENT.attachEvent( ORC, function(){
+        if ( DOCUMENT.readyState === COMPLETE ) {
+          DOCUMENT.detachEvent( ORC, arguments.callee );
+          initialize();
+        }
+      });
 
-  		// If IE and not an iframe, continually check to see if the document is ready
-  		if ( doScroll &&
-  		     WINDOW == WINDOW.top )
-  		{
-  		  (function(){
-  			  try {
-      			// If IE is used, use the trick by Diego Perini
-      			// http://javascript.nwbox.com/IEContentLoaded/
-      			doScroll('left');
-      		}
-      		catch( error )
-      		{
-      			setTimeout( arguments.callee, 0 );
-      			return;
-      		}
+      // If IE and not an iframe, continually check to see if the document is ready
+      if ( doScroll &&
+           WINDOW == WINDOW.top )
+      {
+        (function(){
+          try {
+            // If IE is used, use the trick by Diego Perini
+            // http://javascript.nwbox.com/IEContentLoaded/
+            doScroll('left');
+          }
+          catch( error )
+          {
+            setTimeout( arguments.callee, 0 );
+            return;
+          }
           // and execute any waiting functions
-  			  initialize();
-  		  })();
-  	  }
-  	}
+          initialize();
+        })();
+      }
+    }
   })();
   
 })();
