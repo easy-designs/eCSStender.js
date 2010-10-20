@@ -119,6 +119,7 @@ eCSStender.onComplete(function(){
     ok( !eCSStender.isSupported( 'selector', 'p ?? b', html, el ), 'unknown selector is not supported' );
     ok( eCSStender.isSupported( 'property', 'visibility: hidden' ), 'visibility: hidden is supported' );
     ok( !eCSStender.isSupported( 'property', 'foo: bar' ), 'unknown property is not supported' );
+    ok( !eCSStender.isSupported( 'property', 'color: foo' ), 'unknown value is not supported' );
     ok( eCSStender.isSupported( 'property', 'visibility', 'hidden' ), 'visibility: hidden as separate arguments is supported' );
     ok( eCSStender.isSupported( 'property', 'visibility', ['visible','hidden'] ),
                                 'visibility: hidden as separate arguments with the value options as an array is supported' );
