@@ -2104,8 +2104,10 @@ License:       MIT License (see homepage)
         property = camelize( property );
         if ( el.style[property] !== UNDEFINED )
         {
-          // set it
-          el.style[property] = value[0];
+          // attempt to set it
+          try {
+            el.style[property] = value[0];
+          } catch(e) {}
           // get it back
           val = zero_out( el.style[property] );
           // test
