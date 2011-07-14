@@ -56,9 +56,28 @@ License:       MIT License (see homepage)
   HYPHEN      = '-',
   OPEN_CURLY  = '{',
   CLOSE_CURLY = '}',
+  COMMA       = ',',
   DIV         = 'div',
   TYPE        = 'type',
   COMPLETE    = 'complete',
+  BODY        = 'body',
+  ORIENTATION = 'orientation',
+  PORTRAIT    = 'portrait',
+  LANDSCAPE   = 'landscape',
+  WIDTH       = 'width',
+  MAXWIDTH    = 'max-width',
+  MINWIDTH    = 'min-width',
+  DEVWIDTH    = 'device-width',
+  DEVMAXWIDTH = 'max-device-width',
+  DEVMINWIDTH = 'min-device-width',
+  HEIGHT      = 'height',
+  MAXHEIGHT   = 'max-height',
+  MINHEIGHT   = 'min-height',
+  DEVHEIGHT   = 'device-height',
+  DEVMAXHEIGHT  = 'max-device-height',
+  DEVMINHEIGHT  = 'min-device-height',
+  PX          = 'px',
+  PT          = 'pt',
   
   // Regex Bits
   ANYTHING        = '.*?',
@@ -76,6 +95,7 @@ License:       MIT License (see homepage)
   __s             = 0,     // index of current stylesheet
   __style_objects = {},    // style rules to track
   __media_groups  = {},
+  __media_queries = {},    // all styles where a CSS3-style media queries is in use
   __xhr           = NULL,
   __initialized   = FALSE,
   __ignored_css   = [],
@@ -121,6 +141,8 @@ License:       MIT License (see homepage)
   REGEXP_ATRULE = /@([\w-]+)(.*?)\{([^}]*)\}/ig,
   // for splitting properties from values
   REGEXP_P_V    = /:(?!\/\/)/,
+  // for detecting CSS3-style media queries
+  REGEXP_MQ_PARENS  = /\(.*:.*\)/,
   
   // eCSStender Object
   eCSStender = {
@@ -158,6 +180,7 @@ License:       MIT License (see homepage)
   {
     validateCache();
     runTests();
+    getMediaQueryStyles();
     eCSStend();
     triggerCallbacks();
     writeBrowserCache();
@@ -180,6 +203,15 @@ License:       MIT License (see homepage)
     {
       __xhr = TRUE;
     }
+  }
+  function getMediaQueryStyles() {
+    var mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS);
+    for( var styleObject in __style_objects ) {
+      if( mediaQueryRegex.test(styleObject) ) {
+        __media_queries[ styleObject ] = __style_objects[ styleObject ];
+      }
+    }
+    eCSStender.mediaQueryStyles = __media_queries;
   }
   function parseStyles()
   {
@@ -2428,7 +2460,198 @@ License:       MIT License (see homepage)
     }
   };
   eCSStender.toggleClass = toggleClass;
-  
+  /**
+   * eCSStender.matchMedia()
+   * returns true if the media query matches the state of rendered document 
+   * and false if it does not (does not take into account things like "screen",
+   * "print" or "handheld", though native support does)
+   * 
+   * based on http://dev.w3.org/csswg/cssom-view/
+   * uses native matchMedia if available
+   * 
+   * @param str query - the media query to test
+   */
+  function matchMedia( query ) {
+    if( WINDOW.matchMedia ) {
+      matchMedia  = function( query ) {
+        return WINDOW.matchMedia( query ).matches;
+      }
+    } else {
+      var 
+      getWidth,
+      getHeight,
+      if( defined( window.innerWidth ) ) {
+        getWidth = function () { return window.innerWidth };
+      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientWidth ) && document.documentElement.clientWidth ) {
+        getWidth = function() { return document.documentElement.clientWidth };
+      } else {
+        getWidth = function() { return document.getElementsByTagName(BODY)[0].clientWidth; }
+      }
+      if( defined( window.innerHeight ) ) {
+        getHeight = function() { return window.innerHeight; }
+      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientHeight ) && document.documentElement.clientHeight ) {
+        getHeight = function() { return document.documentElement.clientHeight; }
+      } else {
+        getHeight = function() { return document.getElementsByTagName(BODY)[0].clientHeight; }
+      }
+      function convertToPixels( val ) {
+        var
+        number  = parseInt(val.replace(/[^\d]+/g, ''), 10),
+        unit    = val.replace(number, '');
+        switch(unit) {
+          case PX:
+            break;
+          case PT:
+            number  = number * 96 / 72;
+            break;
+          default:
+            break;
+        }
+        return number;
+      }
+      
+      matchMedia  = function( query ) {
+        if(query.indexOf(COMMA) > -1) { // handle OR conditions
+          var
+          queries = query.split(COMMA),
+          i       = queries.length;
+          while( i ) {
+            var q = queries[i - 1];
+            q = trim(q);
+            if( matchMedia(q) ) { // if any of the conditions match, we can return true and bail
+              return TRUE;
+            }
+            i--;
+          }
+        }
+        var 
+        queries         = query.split(' and '), // split the query into each condition
+        matches         = TRUE, // optimism
+        mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS),
+        W               = getWidth(),
+        DW              = screen.width,
+        H               = getHeight(),
+        DH              = screen.height;
+        i               = queries.length;
+        while ( i ) {
+          var q = queries[i - 1];
+          if(mediaQueryRegex.test(q)) { // we only test query parts in the style of (property:value)
+            var 
+            q     = q.split(COLON),
+            prop  = q[0].toLowerCase(),
+            val   = q[1];
+
+            prop  = prop.replace(/^\(/, EMPTY);
+            val   = val.replace(/\)$/, EMPTY);
+
+            if( prop != ORIENTATION ) {
+              val = convertToPixels(val);
+            }
+            switch( prop ) {
+              case ORIENTATION:
+                switch( val ) {
+                  case LANDSCAPE:
+                    if( W < H )
+                    {
+                      matches = FALSE;
+                    }
+                    break;
+                  case PORTRAIT:
+                    if( W > H )
+                    {
+                      matches = FALSE;
+                    }
+                    break;
+                  default:
+                    // we only support landscape and portrait
+                    break;
+                }
+                break;
+              case WIDTH:
+                if( W != val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case MAXWIDTH:
+                if( W > val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case MINWIDTH:
+                if( W < val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVWIDTH:
+                if( DW != val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVMAXWIDTH:
+                if( DW > val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVMINWIDTH:
+                if( DW < val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case HEIGHT:
+                if( H != val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case MAXHEIGHT:
+                if( H > val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case MINHEIGHT:
+                if( H < val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVHEIGHT:
+                if( DH != val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVMAXHEIGHT:
+                if( DH > val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              case DEVMINHEIGHT:
+                if( DH < val )
+                {
+                  matches = FALSE;
+                }
+                break;
+              default:
+                break;
+            }
+          }
+          i--;
+        };
+
+        return matches;
+      }
+      return matchMedia( query );
+    }
+  }
+  eCSStender.matchMedia = matchMedia;
   /*-------------------------------------*
    * DOM Loaded Trigger                  *
    * Based on jQuery's                   *
@@ -2480,5 +2703,5 @@ License:       MIT License (see homepage)
       }
     }
   })();
-  
+
 })();
