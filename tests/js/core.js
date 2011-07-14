@@ -181,30 +181,16 @@ eCSStender.onComplete(function(){
   module('Media Queries');
   test( 'eCSStender::matchMedia', function(){
     ok( typeof(eCSStender.matchMedia) == 'function', 'eCSStender::matchMedia() exists' );
-    var 
-    getWidth,
-    getHeight;
-    if( typeof( window.innerWidth ) != 'undefined' ) {
-      getWidth = function () { return window.innerWidth };
-    } else if ( typeof( document.documentElement ) != 'undefined' && typeof( document.documentElement.clientWidth ) != 'undefined' && document.documentElement.clientWidth ) {
-      getWidth = function() { return document.documentElement.clientWidth };
-    } else {
-      getWidth = function() { return document.getElementsByTagName('body')[0].clientWidth; }
-    }
-    if( typeof( window.innerHeight ) != 'undefined' ) {
-      getHeight = function() { return window.innerHeight; }
-    } else if ( typeof( document.documentElement )  != 'undefined' && typeof( document.documentElement.clientHeight ) != 'undefined' && document.documentElement.clientHeight ) {
-      getHeight = function() { return document.documentElement.clientHeight; }
-    } else {
-      getHeight = function() { return document.getElementsByTagName('body')[0].clientHeight; }
+    if( typeof(window.matchMedia) != 'undefined' && false ) {
+      ok(true, 'window.matchMedia exists, these tests are using the native method');
     }
     var
-    W   = getWidth(),
-    H   = getHeight(),
+    W   = $(window).width(),
+    H   = $(window).height(),
     DW  = screen.width,
     DH  = screen.height,
     O   = W > H ? 'landscape' : 'portrait';
-    
+
     // orientation
     ok( eCSStender.matchMedia('screen and (orientation:portrait)') == (O == 'portrait'), '(orientation:portrait) ' + (O == 'portrait' ? 'matched' : 'does not match') );
     ok( eCSStender.matchMedia('screen and (orientation:landscape)') == (O == 'landscape'), '(orientation:landscape) ' + (O == 'landscape' ? 'matched' : 'does not match') );

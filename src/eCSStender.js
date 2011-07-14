@@ -2472,28 +2472,10 @@ License:       MIT License (see homepage)
    * @param str query - the media query to test
    */
   function matchMedia( query ) {
-    if( WINDOW.matchMedia ) {
-      matchMedia  = function( query ) {
-        return WINDOW.matchMedia( query ).matches;
-      }
+    if( defined( WINDOW.matchMedia ) ) {
+      console.log(query, WINDOW.matchMedia(query).matches);
+      return WINDOW.matchMedia( query ).matches;
     } else {
-      var 
-      getWidth,
-      getHeight;
-      if( defined( window.innerWidth ) ) {
-        getWidth = function () { return window.innerWidth };
-      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientWidth ) && document.documentElement.clientWidth ) {
-        getWidth = function() { return document.documentElement.clientWidth };
-      } else {
-        getWidth = function() { return document.getElementsByTagName(BODY)[0].clientWidth; }
-      }
-      if( defined( window.innerHeight ) ) {
-        getHeight = function() { return window.innerHeight; }
-      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientHeight ) && document.documentElement.clientHeight ) {
-        getHeight = function() { return document.documentElement.clientHeight; }
-      } else {
-        getHeight = function() { return document.getElementsByTagName(BODY)[0].clientHeight; }
-      }
       function convertToPixels( val ) {
         var
         number  = parseInt(val.replace(/[^\d]+/g, ''), 10),
@@ -2508,6 +2490,20 @@ License:       MIT License (see homepage)
             break;
         }
         return number;
+      }
+      var 
+      getWidth,
+      getHeight;
+      getWidth  = function() {
+        var _body = document.getElementsByTagName(BODY)[0];
+        return _body.clientWidth + convertToPixels( getCSSValue( _body, 'margin-left' ) ) + convertToPixels( getCSSValue( _body, 'margin-right' ) );
+      }
+      if( defined( window.innerHeight ) ) {
+        getHeight = function() { return window.innerHeight; }
+      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientHeight ) && document.documentElement.clientHeight ) {
+        getHeight = function() { return document.documentElement.clientHeight; }
+      } else {
+        getHeight = function() { return document.getElementsByTagName(BODY)[0].clientHeight; }
       }
       
       matchMedia  = function( query ) {
