@@ -147,7 +147,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.7',
+    version:   '1.2.8',
     fonts:     [],
     pages:     {},
     at:        {},
