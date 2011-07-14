@@ -2479,7 +2479,7 @@ License:       MIT License (see homepage)
     } else {
       var 
       getWidth,
-      getHeight,
+      getHeight;
       if( defined( window.innerWidth ) ) {
         getWidth = function () { return window.innerWidth };
       } else if ( defined( document.documentElement ) && defined( document.documentElement.clientWidth ) && document.documentElement.clientWidth ) {

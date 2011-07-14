@@ -183,7 +183,7 @@ eCSStender.onComplete(function(){
     ok( typeof(eCSStender.matchMedia) == 'function', 'eCSStender::matchMedia() exists' );
     var 
     getWidth,
-    getHeight,
+    getHeight;
     if( typeof( window.innerWidth ) != 'undefined' ) {
       getWidth = function () { return window.innerWidth };
     } else if ( typeof( document.documentElement ) != 'undefined' && typeof( document.documentElement.clientWidth ) != 'undefined' && document.documentElement.clientWidth ) {
