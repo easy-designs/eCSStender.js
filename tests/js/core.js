@@ -178,5 +178,89 @@ eCSStender.onComplete(function(){
     matches = eCSStender.lookup({'selector':'#bar'},'*');
     ok( matches.length===0, 'array of css files ignored' );
   });
-  
+  module('Media Queries');
+  test( 'eCSStender::matchMedia', function(){
+    ok( typeof(eCSStender.matchMedia) == 'function', 'eCSStender::matchMedia() exists' );
+    if( typeof(window.matchMedia) != 'undefined' && false ) {
+      ok(true, 'window.matchMedia exists, these tests are using the native method');
+    }
+    var
+    W   = $(window).width(),
+    H   = $(window).height(),
+    DW  = screen.width,
+    DH  = screen.height,
+    O   = W > H ? 'landscape' : 'portrait';
+
+    // orientation
+    ok( eCSStender.matchMedia('screen and (orientation:portrait)') == (O == 'portrait'), '(orientation:portrait) ' + (O == 'portrait' ? 'matched' : 'does not match') );
+    ok( eCSStender.matchMedia('screen and (orientation:landscape)') == (O == 'landscape'), '(orientation:landscape) ' + (O == 'landscape' ? 'matched' : 'does not match') );
+
+    // width
+    ok( eCSStender.matchMedia('screen and (width:' + W + 'px)'), 'width set to window width matches' );
+    ok( !eCSStender.matchMedia('screen and (width:' + (W - 100) + 'px)'), 'width set to window width - 100 does not match' );
+    ok( !eCSStender.matchMedia('screen and (width:' + (W + 100) + 'px)'), 'width set to window width + 100 does not match' );
+    
+    // max-width
+    ok( eCSStender.matchMedia('screen and (max-width:' + W + 'px)'), 'max-width set to window width matches' );
+    ok( !eCSStender.matchMedia('screen and (max-width:' + (W - 100) + 'px)'), 'max-width set to window width - 100 does not match' );
+    ok( eCSStender.matchMedia('screen and (max-width:' + (W + 100) + 'px)'), 'max-width set to window width + 100 matches' );
+
+    // min-width
+    ok( eCSStender.matchMedia('screen and (min-width:' + W + 'px)'), 'min-width set to window width matches' );
+    ok( eCSStender.matchMedia('screen and (min-width:' + (W - 100) + 'px)'), 'min-width set to window width - 100 matches' );
+    ok( !eCSStender.matchMedia('screen and (min-width:' + (W + 100) + 'px)'), 'min-width set to window width + 100 does not match' );
+
+    // device-width
+    ok( eCSStender.matchMedia('screen and (device-width:' + DW + 'px)'), 'device-width set to device-width matches' );
+    ok( !eCSStender.matchMedia('screen and (device-width:' + (DW - 100) + 'px)'), 'device-width set to device-width - 100 does not match' );
+    ok( !eCSStender.matchMedia('screen and (device-width:' + (DW + 100) + 'px)'), 'device-width set to device-width + 100 does not match' );
+
+    // max-device-width
+    ok( eCSStender.matchMedia('screen and (max-device-width:' + DW + 'px)'), 'max-device-width set to device-width matches' );
+    ok( !eCSStender.matchMedia('screen and (max-device-width:' + (DW - 100) + 'px)'), 'max-device-width set to device-width - 100 does not match' );
+    ok( eCSStender.matchMedia('screen and (max-device-width:' + (DW + 100) + 'px)'), 'max-device-width set to device-width + 100 matches' );
+
+    // min-device-width
+    ok( eCSStender.matchMedia('screen and (min-device-width:' + DW + 'px)'), 'min-device-width set to device-width matches' );
+    ok( eCSStender.matchMedia('screen and (min-device-width:' + (DW - 100) + 'px)'), 'min-device-width set to device-width - 100 matches' );
+    ok( !eCSStender.matchMedia('screen and (min-device-width:' + (DW + 100) + 'px)'), 'min-device-width set to device-width + 100 does not match' );
+
+    // height
+    ok( eCSStender.matchMedia('screen and (height:' + H + 'px)'), 'height set to window height matches' );
+    ok( !eCSStender.matchMedia('screen and (height:' + (H - 100) + 'px)'), 'height set to window height - 100 does not match' );
+    ok( !eCSStender.matchMedia('screen and (height:' + (H + 100) + 'px)'), 'height set to window height + 100 does not match' );
+
+    // max-height
+    ok( eCSStender.matchMedia('screen and (max-height:' + H + 'px)'), 'max-height set to window height matches' );
+    ok( !eCSStender.matchMedia('screen and (max-height:' + (H - 100) + 'px)'), 'max-height set to window height - 100 does not match' );
+    ok( eCSStender.matchMedia('screen and (max-height:' + (H + 100) + 'px)'), 'max-height set to window height + 100 matches' );
+
+    // min-height
+    ok( eCSStender.matchMedia('screen and (min-height:' + H + 'px)'), 'min-height set to window height matches' );
+    ok( eCSStender.matchMedia('screen and (min-height:' + (H - 100) + 'px)'), 'min-height set to window height - 100 matches' );
+    ok( !eCSStender.matchMedia('screen and (min-height:' + (H + 100) + 'px)'), 'min-height set to window height + 100 does not match' );
+
+    // device-height
+    ok( eCSStender.matchMedia('screen and (device-height:' + DH + 'px)'), 'device-height set to device-height matches' );
+    ok( !eCSStender.matchMedia('screen and (device-height:' + (DH - 100) + 'px)'), 'device-height set to device-height - 100 does not match' );
+    ok( !eCSStender.matchMedia('screen and (device-height:' + (DH + 100) + 'px)'), 'device-height set to device-height + 100 does not match' );
+
+    // max-device-height
+    ok( eCSStender.matchMedia('screen and (max-device-height:' + DH + 'px)'), 'max-device-height set to device-height matches' );
+    ok( !eCSStender.matchMedia('screen and (max-device-height:' + (DH - 100) + 'px)'), 'max-device-height set to device-height - 100 does not match' );
+    ok( eCSStender.matchMedia('screen and (max-device-height:' + (DH + 100) + 'px)'), 'max-device-height set to device-height + 100 matches' );
+
+    // min-device-height
+    ok( eCSStender.matchMedia('screen and (min-device-height:' + DH + 'px)'), 'min-device-height set to device-height matches' );
+    ok( eCSStender.matchMedia('screen and (min-device-height:' + (DH - 100) + 'px)'), 'min-device-height set to device-height - 100 matches' );
+    ok( !eCSStender.matchMedia('screen and (min-device-height:' + (DH + 100) + 'px)'), 'min-device-height set to device-height + 100 does not match' );
+    
+    // complex rules
+    ok( eCSStender.matchMedia('screen and (min-width:' + (W - 100) + 'px) and (max-width:' + (W + 100) + 'px)'), '' + 'screen and (min-width:' + (W - 100) + 'px) and (max-width:' + (W + 100) + 'px) matches');
+    ok( eCSStender.matchMedia('screen and (min-height:' + (H - 100) + 'px) and (max-height:' + (H + 100) + 'px)'), '' + 'screen and (min-height:' + (H - 100) + 'px) and (max-height:' + (H + 100) + 'px) matches');
+    ok( eCSStender.matchMedia('screen and (min-width:' + (W - 100) + 'px), screen and (max-width:' + (W + 100) + 'px)'), '' + 'screen and (min-width:' + (W - 100) + 'px), screen and (max-width:' + (W + 100) + 'px) matches');
+    ok( eCSStender.matchMedia('screen and (min-width:' + (W - 100) + 'px) and (orientation:' + O + ')'), '' + 'screen and (min-width:' + (W - 100) + 'px) and (orientation:' + O + ') matches');
+    ok( !eCSStender.matchMedia('screen and (min-width:' + (W - 100) + 'px) and (orientation:' + ( O == 'portrait' ? 'landscape' : 'portrait' ) + ')'), '' + 'screen and (min-width:' + (W - 100) + 'px) and (orientation:' + ( O == 'portrait' ? 'landscape' : 'portrait' ) + ') does not match');
+    ok( !eCSStender.matchMedia('screen and (max-width:' + (W - 100) + 'px), screen and (orientation:' + ( O == 'portrait' ? 'landscape' : 'portrait' ) + ')'), '' + 'screen and (max-width:' + (W - 100) + 'px), screen and (orientation:' + ( O == 'portrait' ? 'landscape' : 'portrait' ) + ') does not match');
+  });
 });

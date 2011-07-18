@@ -1,3 +1,6 @@
+*v1.2.8 (2011-07-14)
+* added eCSStender::matchMedia() method
+
 *v1.2.6.6* (2010-08-26)
 * bugfix: don't call determinePath() on embedded stylesheets
 
