@@ -23,6 +23,7 @@ License:       MIT License (see homepage)
   FUNCTION = Function,
   REGEXP   = RegExp,
   DOCUMENT = document,
+  DOC_EL   = DOCUMENT.documentElement,
   WINDOW   = window,
   LOCATION = WINDOW.location.href,
   EMPTY_FN = function(){},
@@ -601,8 +602,8 @@ License:       MIT License (see homepage)
           if ( owner != NULL )
           {
             // media assignment in the import
-            mediaText = owner.media.mediaText;
-            if ( ! mediaText )
+            if ( ! ( media in owner ) ||
+                 ! owner.media.mediaText )
             {
               // no media assignment... inherit
               mediaText = determineMedia( owner.parentStyleSheet );
@@ -2517,13 +2518,13 @@ License:       MIT License (see homepage)
           return WINDOW.innerHeight;
         };
       }
-      else if ( defined( DOCUMENT.documentElement ) && 
-                defined( DOCUMENT.documentElement.clientHeight ) &&
-                DOCUMENT.documentElement.clientHeight )
+      else if ( defined( DOC_EL ) && 
+                defined( DOC_EL.clientHeight ) &&
+                DOC_EL.clientHeight )
       {
         getHeight = function()
         {
-          return DOCUMENT.documentElement.clientHeight;
+          return DOC_EL.clientHeight;
         };
       }
       else
@@ -2616,7 +2617,7 @@ License:       MIT License (see homepage)
     DCL = 'DOMContentLoaded',
     ORC = 'onreadystatechange',
     __old_onload = WINDOW.onload,
-    doScroll = DOCUMENT.documentElement.doScroll;
+    doScroll = DOC_EL.doScroll;
     
     // for Mozilla/Safari/Opera9
     if ( DOCUMENT.addEventListener )
