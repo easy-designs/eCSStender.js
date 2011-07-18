@@ -24,6 +24,7 @@ License:       MIT License (see homepage)
   REGEXP   = RegExp,
   DOCUMENT = document,
   WINDOW   = window,
+  SCREEN   = screen,
   LOCATION = WINDOW.location.href,
   EMPTY_FN = function(){},
   
@@ -147,7 +148,7 @@ License:       MIT License (see homepage)
   // eCSStender Object
   eCSStender = {
     name:      ECSSTENDER,
-    version:   '1.2.8',
+    version:   '1.2.7',
     fonts:     [],
     pages:     {},
     at:        {},
@@ -1230,6 +1231,10 @@ License:       MIT License (see homepage)
   function newElement( el )
   {
     return DOCUMENT.createElement( el );
+  }
+  function getElements( tag )
+  {
+    return DOCUMENT.getElementsByTagName( tag );
   }
   function newRegExp( rxp )
   {
@@ -2471,12 +2476,17 @@ License:       MIT License (see homepage)
    * 
    * @param str query - the media query to test
    */
-  function matchMedia( query ) {
-    if( defined( WINDOW.matchMedia ) ) {
-      console.log(query, WINDOW.matchMedia(query).matches);
+  function matchMedia( query )
+  {
+    if ( defined( WINDOW.matchMedia ) )
+    {
       return WINDOW.matchMedia( query ).matches;
-    } else {
-      function convertToPixels( val ) {
+    }
+    else
+    {
+      /* Helpers */
+      function convertToPixels( val )
+      {
         var
         number  = parseInt(val.replace(/[^\d]+/g, ''), 10),
         unit    = val.replace(number, '');
@@ -2494,156 +2504,106 @@ License:       MIT License (see homepage)
       var 
       getWidth,
       getHeight;
-      getWidth  = function() {
-        var _body = document.getElementsByTagName(BODY)[0];
-        return _body.clientWidth + convertToPixels( getCSSValue( _body, 'margin-left' ) ) + convertToPixels( getCSSValue( _body, 'margin-right' ) );
+      getWidth  = function()
+      {
+        var _body = getElements(BODY)[0];
+        return _body.clientWidth +
+               convertToPixels( getCSSValue( _body, 'margin-left' ) ) +
+               convertToPixels( getCSSValue( _body, 'margin-right' ) );
       }
-      if( defined( window.innerHeight ) ) {
-        getHeight = function() { return window.innerHeight; }
-      } else if ( defined( document.documentElement ) && defined( document.documentElement.clientHeight ) && document.documentElement.clientHeight ) {
-        getHeight = function() { return document.documentElement.clientHeight; }
-      } else {
-        getHeight = function() { return document.getElementsByTagName(BODY)[0].clientHeight; }
+      if ( defined( WINDOW.innerHeight ) )
+      {
+        getHeight = function()
+        {
+          return WINDOW.innerHeight;
+        }
       }
-      
-      matchMedia  = function( query ) {
-        if(query.indexOf(COMMA) > -1) { // handle OR conditions
-          var
-          queries = query.split(COMMA),
+      else if ( defined( DOCUMENT.documentElement ) && 
+                defined( DOCUMENT.documentElement.clientHeight ) &&
+                DOCUMENT.documentElement.clientHeight )
+      {
+        getHeight = function()
+        {
+          return document.documentElement.clientHeight;
+        }
+      }
+      else
+      {
+        getHeight = function()
+        {
+          return getElements(BODY)[0].clientHeight;
+        }
+      }
+      /* Method */
+      matchMedia  = function( query )
+      {
+        var queries, matches, mediaQueryRegex, W, DW, H, DH, i, q, prop, val;
+        
+        // handle OR conditions
+        if ( query.indexOf(COMMA) > -1 )
+        {
+          queries = query.split(COMMA);
           i       = queries.length;
-          while( i ) {
-            var q = queries[i - 1];
-            q = trim(q);
-            if( matchMedia(q) ) { // if any of the conditions match, we can return true and bail
+          while( i-- )
+          {
+            q = trim( queries[i] );
+            if ( matchMedia(q) )
+            {
+              // if any of the conditions match, we can return true and bail
               return TRUE;
             }
-            i--;
           }
         }
-        var 
+        //isInheritedProperty( obj, prop )
         queries         = query.split(' and '), // split the query into each condition
         matches         = TRUE, // optimism
         mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS),
         W               = getWidth(),
-        DW              = screen.width,
+        DW              = SCREEN.width,
         H               = getHeight(),
-        DH              = screen.height;
+        DH              = SCREEN.height;
         i               = queries.length;
-        while ( i ) {
-          var q = queries[i - 1];
-          if(mediaQueryRegex.test(q)) { // we only test query parts in the style of (property:value)
-            var 
-            q     = q.split(COLON),
-            prop  = q[0].toLowerCase(),
+        while ( i-- )
+        {
+          q = queries[i];
+           // we only test query parts in the style of (property:value)
+          if ( mediaQueryRegex.test(q) )
+          {
+            q     = q.split(COLON);
+            prop  = q[0].toLowerCase();
             val   = q[1];
 
             prop  = prop.replace(/^\(/, EMPTY);
             val   = val.replace(/\)$/, EMPTY);
 
-            if( prop != ORIENTATION ) {
+            if ( prop != ORIENTATION )
+            {
               val = convertToPixels(val);
             }
-            switch( prop ) {
-              case ORIENTATION:
-                switch( val ) {
-                  case LANDSCAPE:
-                    if( W < H )
-                    {
-                      matches = FALSE;
-                    }
-                    break;
-                  case PORTRAIT:
-                    if( W > H )
-                    {
-                      matches = FALSE;
-                    }
-                    break;
-                  default:
-                    // we only support landscape and portrait
-                    break;
-                }
-                break;
-              case WIDTH:
-                if( W != val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case MAXWIDTH:
-                if( W > val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case MINWIDTH:
-                if( W < val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVWIDTH:
-                if( DW != val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVMAXWIDTH:
-                if( DW > val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVMINWIDTH:
-                if( DW < val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case HEIGHT:
-                if( H != val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case MAXHEIGHT:
-                if( H > val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case MINHEIGHT:
-                if( H < val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVHEIGHT:
-                if( DH != val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVMAXHEIGHT:
-                if( DH > val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              case DEVMINHEIGHT:
-                if( DH < val )
-                {
-                  matches = FALSE;
-                }
-                break;
-              default:
+            
+            switch( TRUE )
+            {
+              case ( prop == ORIENTATION && val == LANDSCAPE && W < H ):
+              case ( prop == ORIENTATION && val == PORTRAIT && W > H ):
+              case ( prop == WIDTH && W != val ):
+              case ( prop == MAXWIDTH && W > val ):
+              case ( prop == MINWIDTH && W < val ):
+              case ( prop == DEVWIDTH && DW != val ):
+              case ( prop == DEVMAXWIDTH && DW > val ):
+              case ( prop == DEVMINWIDTH && DW < val ):
+              case ( prop == HEIGHT && H != val ):
+              case ( prop == MAXHEIGHT && H > val ):
+              case ( prop == MINHEIGHT && H < val ):
+              case ( prop == DEVHEIGHT && DH != val ):
+              case ( prop == DEVMAXHEIGHT && DH > val ):
+              case ( prop == DEVMINHEIGHT && DH < val ):
+                matches = FALSE;
                 break;
             }
           }
-          i--;
-        };
-
+        }
         return matches;
-      }
+      };
       return matchMedia( query );
     }
   }
