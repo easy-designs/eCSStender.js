@@ -178,12 +178,20 @@ eCSStender.onComplete(function(){
     matches = eCSStender.lookup({'selector':'#bar'},'*');
     ok( matches.length===0, 'array of css files ignored' );
   });
+  
   module('Media Queries');
-  test( 'eCSStender::matchMedia', function(){
+  test( 'eCSStender::matchMedia', function()
+  {
     ok( typeof(eCSStender.matchMedia) == 'function', 'eCSStender::matchMedia() exists' );
-    if( typeof(window.matchMedia) != 'undefined' && false ) {
+    if( typeof(window.matchMedia) == 'undefined' )
+    {
+      ok(true, 'window.matchMedia does not exist, these tests are using the eCSStender method');
+    }
+    else
+    {
       ok(true, 'window.matchMedia exists, these tests are using the native method');
     }
+    
     var
     W   = $(window).width(),
     H   = $(window).height(),

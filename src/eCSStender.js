@@ -24,7 +24,6 @@ License:       MIT License (see homepage)
   REGEXP   = RegExp,
   DOCUMENT = document,
   WINDOW   = window,
-  SCREEN   = screen,
   LOCATION = WINDOW.location.href,
   EMPTY_FN = function(){},
   
@@ -2488,7 +2487,7 @@ License:       MIT License (see homepage)
       function convertToPixels( val )
       {
         var
-        number  = parseInt(val.replace(/[^\d]+/g, ''), 10),
+        number  = parseInt(val, 10),
         unit    = val.replace(number, '');
         switch(unit) {
           case PX:
@@ -2524,7 +2523,7 @@ License:       MIT License (see homepage)
       {
         getHeight = function()
         {
-          return document.documentElement.clientHeight;
+          return DOCUMENT.documentElement.clientHeight;
         };
       }
       else
@@ -2559,9 +2558,9 @@ License:       MIT License (see homepage)
         matches         = TRUE; // optimism
         mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS);
         W               = getWidth();
-        DW              = SCREEN.width;
+        DW              = screen.width;
         H               = getHeight();
-        DH              = SCREEN.height;
+        DH              = screen.height;
         i               = queries.length;
         while ( i-- )
         {
