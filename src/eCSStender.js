@@ -2478,7 +2478,7 @@ License:       MIT License (see homepage)
     } else {
       function convertToPixels( val ) {
         var
-        number  = parseInt(val.replace(/[^\d]+/g, ''), 10),
+        number  = parseInt(val, 10),
         unit    = val.replace(number, '');
         switch(unit) {
           case PX:
