@@ -2510,13 +2510,13 @@ License:       MIT License (see homepage)
         return _body.clientWidth +
                convertToPixels( getCSSValue( _body, 'margin-left' ) ) +
                convertToPixels( getCSSValue( _body, 'margin-right' ) );
-      }
+      };
       if ( defined( WINDOW.innerHeight ) )
       {
         getHeight = function()
         {
           return WINDOW.innerHeight;
-        }
+        };
       }
       else if ( defined( DOCUMENT.documentElement ) && 
                 defined( DOCUMENT.documentElement.clientHeight ) &&
@@ -2525,14 +2525,14 @@ License:       MIT License (see homepage)
         getHeight = function()
         {
           return document.documentElement.clientHeight;
-        }
+        };
       }
       else
       {
         getHeight = function()
         {
           return getElements(BODY)[0].clientHeight;
-        }
+        };
       }
       /* Method */
       matchMedia  = function( query )
@@ -2555,12 +2555,12 @@ License:       MIT License (see homepage)
           }
         }
         //isInheritedProperty( obj, prop )
-        queries         = query.split(' and '), // split the query into each condition
-        matches         = TRUE, // optimism
-        mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS),
-        W               = getWidth(),
-        DW              = SCREEN.width,
-        H               = getHeight(),
+        queries         = query.split(' and '); // split the query into each condition
+        matches         = TRUE; // optimism
+        mediaQueryRegex = newRegExp(REGEXP_MQ_PARENS);
+        W               = getWidth();
+        DW              = SCREEN.width;
+        H               = getHeight();
         DH              = SCREEN.height;
         i               = queries.length;
         while ( i-- )
