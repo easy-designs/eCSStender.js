@@ -59,6 +59,8 @@ License:       MIT License (see homepage)
   CLOSE_CURLY = '}',
   COMMA       = ',',
   DIV         = 'div',
+  SCRIPT      = 'script',
+  SRC         = 'src',
   TYPE        = 'type',
   COMPLETE    = 'complete',
   BODY        = 'body',
@@ -131,7 +133,7 @@ License:       MIT License (see homepage)
   clearBrowserCache    = EMPTY_FN,
   
   // other stuff
-  __script = newElement( 'script' ),
+  __script = newElement( SCRIPT ),
   
   // useful RegExps
   // for breaking on commas
@@ -2057,12 +2059,46 @@ License:       MIT License (see homepage)
   eCSStender.addRules = addRules;
 
   /**
+   * eCSStender::emptyStyleSheets()
+   * clears the contents of embedded stylesheets
+   * 
+   * @return null
+   */
+  function emptyStyleSheets()
+  {
+    if ( defined( stylesheet.styleSheet ) )
+    {
+      emptyStyleSheets = function() 
+      {
+        var i = arguments.length;
+        while ( i-- )
+        {
+          arguments[i].styleSheet.cssText = EMPTY;
+        }
+      };
+    }
+    else
+    {
+      emptyStyleSheets = function() 
+      {
+        var i = arguments.length;
+        while ( i-- )
+        {
+          arguments[i].innerHTML = EMPTY;
+        }
+      };
+    }
+    emptyStyleSheets.apply( NULL, arguments );
+  }
+  eCSStender.emptyStyleSheets = emptyStyleSheets;
+
+  /**
    * eCSStender::isSupported()
    * tests support for properties and selectors
    *
    * Option 1: Selector test
    *   eCSStender::isSupported( type, selector, html, el )
-   *   @param str type - 'property'
+   *   @param str type - 'selector'
    *   @param str selector - the selector
    *   @param obj html - HTML to test against
    *   @param obj el   - the element the selector should select
@@ -2070,20 +2106,20 @@ License:       MIT License (see homepage)
    *
    * Option 2: Property Test (simple) 
    *   eCSStender::isSupported( type, test )
-   *   @param str type - 'selector'
+   *   @param str type - 'property'
    *   @param str test - the property: value pair to test
    *   @return bool - TRUE for success, FALSE for failure
    *
    * Option 3: Property Test (complex) 
    *   eCSStender::isSupported( type, property, value )
-   *   @param str type - 'selector'
+   *   @param str type - 'property'
    *   @param str property - the property to test
    *   @param mixed value - the string value or an array of possible values
    *   @return bool - TRUE for success, FALSE for failure
    *
    * Option 3: Storage
    *   eCSStender::isSupported( type, what, result )
-   *   @param str type - 'selector'
+   *   @param str type - 'selector' or 'property'
    *   @param str what - the key to store
    *   @param bool result - the result of the test you want stored
    *   @return bool - the result you passed in
@@ -2263,6 +2299,33 @@ License:       MIT License (see homepage)
     return str;
   }
   eCSStender.trim = trim;
+  
+  /**
+   * eCSStender::getPathTo()
+   * finds the path to a given resource in the document (scripts by default)
+   *
+   * @param str resource - the filename you're looking for
+   * @param str tag - the tag family you're searching in
+   * @return str - the complete resource path
+   */
+  eCSStender.getPathTo = function( resource, tag )
+  {
+    tag = tag || SCRIPT;
+    var
+    regex       = new RegExp( resource ),
+    attr        = tag == 'link' ? 'href' : SRC,
+    collection  = getElements( tag ),
+    i           = collection.length,
+    value;
+    while ( i-- )
+    {
+      value = collection[i].getAttribute( attr );
+      if ( regex.test( value ) )
+      {
+        return value.replace( regex, EMPTY );
+      }
+    }
+  };
 
   /**
    * eCSStender::loadScript()
@@ -2275,7 +2338,7 @@ License:       MIT License (see homepage)
   eCSStender.loadScript = function( src, callback )
   {
     var
-    scripts  = DOCUMENT.getElementsByTagName('script'),
+    scripts  = DOCUMENT.getElementsByTagName(SCRIPT),
     i        = scripts.length,
     script   = __script.cloneNode( TRUE ),
     loaded   = FALSE;
@@ -2300,7 +2363,7 @@ License:       MIT License (see homepage)
           callback();
         } 
       };
-      script.setAttribute( 'src', src );
+      script.setAttribute( SRC, src );
       __head.appendChild( script );
     }
     else
@@ -2377,9 +2440,10 @@ License:       MIT License (see homepage)
         return FALSE;
       };
     }
-    eCSStender.getCSSValue = getCSSValue;
     return getCSSValue( el, prop );
   }
+  eCSStender.getCSSValue = getCSSValue;
+
   /**
    * eCSStender::makeUniqueClass()
    * creates a unique class for an element
@@ -2466,6 +2530,53 @@ License:       MIT License (see homepage)
   };
   eCSStender.toggleClass = toggleClass;
   /**
+   * eCSStender::elementMatchesSelector()
+   * checks to see if a given element matches the selector you've passed to it
+   * 
+   * @return bool
+   */
+  eCSStender.elementMatchesSelector = function( element, selector )
+  {
+    if ( defined( element.matchesSelector ) )
+    {
+      elementMatchesSelector = function( element, selector )
+      {
+        return element.matchesSelector( selector );
+      };
+    }
+    else if ( defined( element.mozMatchesSelector ) )
+    {
+      elementMatchesSelector = function( element, selector )
+      {
+        return element.mozMatchesSelector( selector );
+      };
+    }
+    else if ( defined( element.webkitMatchesSelector ) )
+    {
+      elementMatchesSelector = function( element, selector )
+      {
+        return element.webkitMatchesSelector( selector );
+      };
+    }
+    else
+    {
+      var
+      testStyleSheet = e.newStyleElement(SCREEN,'selector-matching-test',FALSE);
+      elementMatchesSelector = function( element, selector )
+      {
+        var
+        property = 'page-break-after',
+        value    = 'avoid',
+        ret;
+        e.addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + SEMICOLON + CLOSE_CURLY );
+        ret = ( e.getCSSValue( element, property ) == value );
+        emptyStyleSheet( testStyleSheet );
+        return ret;
+      };
+    }
+    return elementMatchesSelector( element, selector );
+  };
+  /**
    * eCSStender.matchMedia()
    * returns true if the media query matches the state of rendered document 
    * and false if it does not (does not take into account things like "screen",
@@ -2489,7 +2600,7 @@ License:       MIT License (see homepage)
       {
         var
         number  = parseInt(val, 10),
-        unit    = val.replace(number, '');
+        unit    = val.replace(number, EMPTY);
         switch(unit) {
           case PX:
             break;
@@ -2506,10 +2617,9 @@ License:       MIT License (see homepage)
       getHeight;
       getWidth  = function()
       {
-        var _body = getElements(BODY)[0];
-        return _body.clientWidth +
-               convertToPixels( getCSSValue( _body, 'margin-left' ) ) +
-               convertToPixels( getCSSValue( _body, 'margin-right' ) );
+        return __body.clientWidth +
+               convertToPixels( getCSSValue( __body, 'margin-left' ) ) +
+               convertToPixels( getCSSValue( __body, 'margin-right' ) );
       };
       if ( defined( WINDOW.innerHeight ) )
       {
@@ -2531,7 +2641,7 @@ License:       MIT License (see homepage)
       {
         getHeight = function()
         {
-          return getElements(BODY)[0].clientHeight;
+          return __body.clientHeight;
         };
       }
       /* Method */
@@ -2570,7 +2680,7 @@ License:       MIT License (see homepage)
           if ( mediaQueryRegex.test(q) )
           {
             q     = q.split(COLON);
-            prop  = q[0].toLowerCase();
+            prop  = low( q[0] );
             val   = q[1];
 
             prop  = prop.replace(/^\(/, EMPTY);

@@ -1,5 +1,8 @@
-*v1.2.7 (2011-07-14)
+*v1.2.7 (2011-07-23)
 * added eCSStender::matchMedia() method
+* added eCSStender::emptyStyleSheet() method
+* added eCSStender::elementMatchesSelector() method
+* added eCSStender::getPathTo() method
 
 *v1.2.6.6* (2010-08-26)
 * bugfix: don't call determinePath() on embedded stylesheets
