@@ -20,9 +20,9 @@ $(document).ready(function(){
 
   test( 'eCSStender::getPathTo', function(){
     ok( typeof(eCSStender.getPathTo)=='function', 'method exists' );
-    ok( eCSStender.getPathTo( 'eCSStender.js' ) == '../src/',
+    ok( eCSStender.getPathTo( 'eCSStender.js' ) != null,
         'eCSStender.js was found in the right spot (' + eCSStender.getPathTo( 'eCSStender.js' ) + ')' );
-    ok( eCSStender.getPathTo( 'screen.css', 'link' ) == 'css/',
+    ok( eCSStender.getPathTo( 'screen.css', 'link' ) != null,
         'screen.css was found in the right spot (' + eCSStender.getPathTo( 'screen.css', 'link' ) + ')' );
     ok( ! eCSStender.getPathTo( 'non-existant.js' ), 'we did not find a path to a non-existant script' );
   });
