@@ -18,6 +18,15 @@ $(document).ready(function(){
     ok( !eCSStender.isInheritedProperty( test, 'foo' ), 'custom property is correctly identified' );
   });
 
+  test( 'eCSStender::getPathTo', function(){
+    ok( typeof(eCSStender.getPathTo)=='function', 'method exists' );
+    ok( eCSStender.getPathTo( 'eCSStender.js' ) == '../src/',
+        'eCSStender.js was found in the right spot (' + eCSStender.getPathTo( 'eCSStender.js' ) + ')' );
+    ok( eCSStender.getPathTo( 'screen.css', 'link' ) == 'css/',
+        'screen.css was found in the right spot (' + eCSStender.getPathTo( 'screen.css', 'link' ) + ')' );
+    ok( ! eCSStender.getPathTo( 'non-existant.js' ), 'we did not find a path to a non-existant script' );
+  });
+
   test( 'eCSStender::loadScript', function(){
     ok( typeof(eCSStender.loadScript)=='function', 'method exists' );
   });

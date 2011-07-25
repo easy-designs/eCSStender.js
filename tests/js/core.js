@@ -110,6 +110,42 @@ eCSStender.onComplete(function(){
     }
     ok( result, 'style added' );
   });
+  test( 'eCSStender::emptyStyleSheet', function(){
+    ok( typeof(eCSStender.emptyStyleSheets)=='function', 'method exists' );
+    var testStyleSheet = eCSStender.newStyleElement('screen','selector-matching-test',false);
+    eCSStender.addRules( testStyleSheet, 'div{color:red;}' );
+    if ( typeof( testStyleSheet.sheet ) != 'undefined' &&
+         typeof( CSSStyleSheet ) != 'undefined' &&
+         testStyleSheet.sheet instanceof CSSStyleSheet )
+    {
+      result = testStyleSheet.sheet.cssRules.length > 0 ? 'nope' : '';
+    }
+    else if ( typeof( testStyleSheet.styleSheet ) != 'undefined' )
+    {
+      result = testStyleSheet.styleSheet.cssText;
+    }
+    else
+    {
+      result = testStyleSheet.innerHTML;
+    }
+    ok( result != '', 'style rules added' );
+    eCSStender.emptyStyleSheets( testStyleSheet );
+    if ( typeof( testStyleSheet.sheet ) != 'undefined' &&
+         typeof( CSSStyleSheet ) != 'undefined' &&
+         testStyleSheet.sheet instanceof CSSStyleSheet )
+    {
+      result = testStyleSheet.sheet.cssRules.length > 0 ? 'nope' : '';
+    }
+    else if ( typeof( testStyleSheet.styleSheet ) != 'undefined' )
+    {
+      result = testStyleSheet.styleSheet.cssText;
+    }
+    else
+    {
+      result = testStyleSheet.innerHTML;
+    }
+    ok( result == '', 'no styles now' );
+  });
   test( 'eCSStender::isSupported', function(){
     ok( typeof(eCSStender.isSupported)=='function', 'method exists' );
     var el = document.createElement('b');
@@ -138,6 +174,7 @@ eCSStender.onComplete(function(){
     ok( el.style.visibility=='visible', 'element was made visible when specificity was equal to existing one' );
     eCSStender.applyWeightedStyle( el, { 'visibility': 'hidden' }, 100 );
     ok( el.style.visibility=='hidden', 'element was hidden again when specificity was greater' );
+    el = null;
   });
   test( 'eCSStender::getCSSValue', function(){
     ok( typeof(eCSStender.getCSSValue)=='function', 'method exists' );
@@ -147,6 +184,8 @@ eCSStender.onComplete(function(){
     ok( eCSStender.getCSSValue( el, 'visibility' ) == 'visible', 'correct value returned from embedded assignment' );
     el.style.visibility = 'hidden';
     ok( eCSStender.getCSSValue( el, 'visibility' ) == 'hidden', 'correct value returned from inline assignment' );
+    document.body.removeChild(el);
+    el = null;
   });
   test( 'eCSStender::makeUniqueClass', function(){
     ok( typeof(eCSStender.makeUniqueClass)=='function', 'method exists' );
@@ -155,6 +194,22 @@ eCSStender.onComplete(function(){
     class2 = eCSStender.makeUniqueClass();
     ok( class1 != '', 'a value is returned: ' + class1 );
     ok( class1 != class2, class1 + ' != ' + class2 );
+  });
+  test( 'eCSStender::elementMatchesSelector', function(){
+    var el = document.createElement('div');
+        el.className = 'testing-123';
+        el.setAttribute('id','testing-123');
+    document.body.appendChild(el);
+    ok( typeof(eCSStender.elementMatchesSelector)=='function', 'method exists' );
+    ok( eCSStender.elementMatchesSelector(el,'div'), 'element selector matches' );
+    ok( eCSStender.elementMatchesSelector(el,'.testing-123'), 'class selector matches' );
+    ok( eCSStender.elementMatchesSelector(el,'#testing-123'), 'id selector matches' );
+    ok( eCSStender.elementMatchesSelector(el,'div[id=testing-123]'), 'attribute selector matches' );
+    ok( eCSStender.elementMatchesSelector(el,'body div'), 'decendent selector matches' );
+    ok( eCSStender.elementMatchesSelector(el,'div:last-child'), 'pseudo-class selector matches' );
+    ok( ! eCSStender.elementMatchesSelector(el,'p'), 'non-matching selector does not match' );
+    document.body.removeChild(el);
+    el = null;
   });
   test( 'eCSStender Class Juggling', function(){
     ok( typeof(eCSStender.hasClass)=='function', 'eCSStender::hasClass() exists' );

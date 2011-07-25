@@ -2066,7 +2066,7 @@ License:       MIT License (see homepage)
    */
   function emptyStyleSheets()
   {
-    if ( defined( stylesheet.styleSheet ) )
+    if ( defined( arguments[0].styleSheet ) )
     {
       emptyStyleSheets = function() 
       {
@@ -2088,7 +2088,7 @@ License:       MIT License (see homepage)
         }
       };
     }
-    emptyStyleSheets.apply( NULL, arguments );
+    return emptyStyleSheets.apply( NULL, arguments );
   }
   eCSStender.emptyStyleSheets = emptyStyleSheets;
 
@@ -2306,7 +2306,7 @@ License:       MIT License (see homepage)
    *
    * @param str resource - the filename you're looking for
    * @param str tag - the tag family you're searching in
-   * @return str - the complete resource path
+   * @return mixed - the complete resource path or null
    */
   eCSStender.getPathTo = function( resource, tag )
   {
@@ -2325,6 +2325,7 @@ License:       MIT License (see homepage)
         return value.replace( regex, EMPTY );
       }
     }
+    return NULL;
   };
 
   /**
@@ -2529,6 +2530,7 @@ License:       MIT License (see homepage)
     }
   };
   eCSStender.toggleClass = toggleClass;
+  
   /**
    * eCSStender::elementMatchesSelector()
    * checks to see if a given element matches the selector you've passed to it
@@ -2570,12 +2572,13 @@ License:       MIT License (see homepage)
         ret;
         e.addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + SEMICOLON + CLOSE_CURLY );
         ret = ( e.getCSSValue( element, property ) == value );
-        emptyStyleSheet( testStyleSheet );
+        emptyStyleSheets( testStyleSheet );
         return ret;
       };
     }
     return elementMatchesSelector( element, selector );
   };
+  
   /**
    * eCSStender.matchMedia()
    * returns true if the media query matches the state of rendered document 
