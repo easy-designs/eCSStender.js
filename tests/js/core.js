@@ -206,7 +206,6 @@ eCSStender.onComplete(function(){
     ok( eCSStender.elementMatchesSelector(el,'#testing-123'), 'id selector matches' );
     ok( eCSStender.elementMatchesSelector(el,'div[id=testing-123]'), 'attribute selector matches' );
     ok( eCSStender.elementMatchesSelector(el,'body div'), 'decendent selector matches' );
-    ok( eCSStender.elementMatchesSelector(el,'div:last-child'), 'pseudo-class selector matches' );
     ok( ! eCSStender.elementMatchesSelector(el,'p'), 'non-matching selector does not match' );
     document.body.removeChild(el);
     el = null;

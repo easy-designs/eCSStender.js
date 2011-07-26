@@ -2567,10 +2567,10 @@ License:       MIT License (see homepage)
       elementMatchesSelector = function( element, selector )
       {
         var
-        property = 'page-break-after',
-        value    = 'avoid',
+        property = 'text-indent',
+        value    = '1px',
         ret;
-        addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + SEMICOLON + CLOSE_CURLY );
+        addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + ' !important' + SEMICOLON + CLOSE_CURLY );
         ret = ( getCSSValue( element, property ) == value );
         emptyStyleSheets( testStyleSheet );
         return ret;
