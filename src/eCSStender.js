@@ -2563,15 +2563,15 @@ License:       MIT License (see homepage)
     else
     {
       var
-      testStyleSheet = e.newStyleElement(SCREEN,'selector-matching-test',FALSE);
+      testStyleSheet = newStyleElement(SCREEN,'selector-matching-test',FALSE);
       elementMatchesSelector = function( element, selector )
       {
         var
         property = 'page-break-after',
         value    = 'avoid',
         ret;
-        e.addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + SEMICOLON + CLOSE_CURLY );
-        ret = ( e.getCSSValue( element, property ) == value );
+        addRules( testStyleSheet, selector + OPEN_CURLY + property + COLON + value + SEMICOLON + CLOSE_CURLY );
+        ret = ( getCSSValue( element, property ) == value );
         emptyStyleSheets( testStyleSheet );
         return ret;
       };
