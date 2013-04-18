@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Core Properties"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../index.html"/>
+  <link rel="copyright" href="core-properties#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../../index.html" title="Return to the eCSStender.org home page"><img src="../../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../download">Download</a></li>
+      <li><a href="../../extensions">Extensions</a></li>
+      <li class="here"><a href="../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../index.html">Documentation</a></li><li><a href="index.html">API</a></li><li><em>Core Properties</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Core Properties</h1>
+  <p>Below are the properties eCSStender exposes via its API.</p>
+  
+  
+  
+  <section class="Property" id="at">
+    <header>
+      <h2><code class="js">at</code></h2>
+          <p class="return">Returns: Object</p>
+    </header>
+    <p>The <code class="js">eCSStender.at</code> property is an object containing any extended at-rules not handled by other means. Each at-rule definition encountered will be stored, keyed by its name, in <code class="js">eCSStender.at</code>, based on its form. For more, read <a href="../working-with-extended-at-rules">Working with Extended At-rules</a>.</p>
+  </section>
+  
+  
+  <section class="Property removed" id="filters">
+    <header>
+      <h2><code class="js">filters</code></h2>
+          <p class="status">Removed in 1.0</p>
+          <p class="return">Returns: Object</p>
+    </header>
+    <p>eCSStender supports the storage of custom methods using <a href="core-methods/index.html#setFilter"><code class="js">setFilter()</code></a>. These methods are the exposed as part of the <code class="js">eCSStender.filters</code>&nbsp;object.</p>
+  </section>
+  
+  
+  <section class="Property" id="fonts">
+    <header>
+      <h2><code class="js">fonts</code></h2>
+          <p class="return">Returns: Array</p>
+    </header>
+    An array of author-defined fonts referenced in the stylesheet. Each font declaration is stored as JSON, with each rule being captured as a property within that Object. For example:
+
+<pre><code class="css">@font-face {
+  font-family: 'Comfortaa';
+  font-weight: normal;
+  src: url('/fonts/Comfortaa_Regular');
+}</code></pre>
+
+is stored as
+
+<pre><code class="js">{
+  'font-family': 'Comfortaa',
+  'font-weight': 'normal',
+  'src': "url('/fonts/Comfortaa_Regular')"
+}</code></pre>
+  </section>
+  
+  
+  <section class="Property" id="methods">
+    <header>
+      <h2><code class="js">methods</code></h2>
+          <p class="return">Returns: Object</p>
+    </header>
+    <p>eCSStender supports the storage of custom methods using <a href="core-methods/index.html#setFilter"><code class="js">addMethod()</code></a>. These methods are the exposed as part of the <code class="js">eCSStender.methods</code> object.</p>
+  </section>
+  
+  
+  <section class="Property" id="name">
+    <header>
+      <h2><code class="js">name</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    Tells you it&#8217;s eCSStender (in case you want to alias the eCSStender to something shorter).
+  </section>
+  
+  
+  <section class="Property" id="pages">
+    <header>
+      <h2><code class="js">pages</code></h2>
+          <p class="return">Returns: Object</p>
+    </header>
+    Each <code class="css">@page</code> declaration is captured as a property of <code class="js">pages</code>, assigned to the appropriate key. For example, declaring
+
+<pre><code class="css">@page {
+  margin: 3cm;
+}
+@page :right {
+  margin-left: 5cm;
+}</code></pre>
+
+would result in <code class="js">eCSStender.pages</code> being equal to
+
+<pre><code class="js">{
+  'all': {
+    'margin': '3cm'
+
+  },
+  'right': {
+    'margin-left': '5cm'
+
+  }
+}</code></pre>
+  </section>
+  
+  
+  <section class="Property" id="version">
+    <header>
+      <h2><code class="js">version</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    The current version of the eCSStender object.
+  </section>
+  
+  
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.js"></script>
+  <script src="../../j/main.js"></script>
+  <script type="text/javascript" src="../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

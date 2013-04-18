@@ -1,0 +1,147 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Writing an Extension"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="writing-an-extension#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>Writing an Extension</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Writing an Extension</h1>
+  <p>eCSStender doesn&rsquo;t do much on its own, but it does make it dead-simple to write code that leverages a site&rsquo;s stylesheets to patch older browsers, implement future specs, and/or create new CSS properties and have them work in a completely cross-browser way. In order to take advantage of this feature, however, you need to create extensions and register them with eCSStender. Before doing so, however, you should be sure you understand how eCSStender works.</p>
+<h2>Hello World</h2>
+<p>eCSStender&rsquo;s extension registration mechanism takes 3 arguments: the lookup object, an indication of the properties you want back, and a callback function to run on each style block that matches your extension&rsquo;s lookup. The various options for these arguments will be discussed in greater detail below, but for now let&rsquo;s write a simple extension.</p>
+<pre><code class="js">eCSStender.register(
+  {'selector': 'p'},
+  '*',
+  function( selector, properties, media, specificity )
+  {
+    console.log('eCSStender matched the selector "' + selector +
+                       '" in the media type ' + media + '. It&rsquo;s properties follow:');
+    console.log(properties);
+    console.log('The specificity of this selector is ' + specificity);
+  }
+);</code></pre>
+<p>Now, assuming your stylesheet has a declaration block that selects a paragraph, this extension would match it and return every property it had to the callback function that would, in turn, log the details to the console (in Firebug or Safari). It&rsquo;s a fairly contrived example, but it gives you a sense of how simple it can be to write an extension.</p>
+<h2>Crafting a Lookup</h2>
+<p>eCSStender offers four primary lookup schemes by which to attach extensions, all of which may be augmented in a few different ways. As demonstrated in the previous example, a lookup is defined in JSON, with specific properties that determine what it matches. One of the following four mutually-exclusive properties will form the foundation of the lookup as a whole:</p>
+<h3><code class="js">selector</code> (mixed)</h3>
+<p>This lookup method allows you to attach an extension to a specific selector. The value of this property may be</p>
+<ul>
+<li>a simple selector string,</li>
+<li>a compound selector string (i.e. multiple selectors separated by commas),</li>
+<li>a regular expression,</li>
+<li>an array containing one or more of any of the above,</li>
+<li>or a <a href="working-with-selector-functions.html">selector function</a>.</li>
+</ul>
+<h3><code class="js">property</code> (mixed)</h3>
+<p>This lookup method allows you to attach an extension based on the use of a particular property or properties. It supports either a single property name as a string or multiple property names in an array of strings.</p>
+<h3><code class="js">fragment</code> (string)</h3>
+<p>This lookup method allows you to attach an extension based on a fragment of a property name. For example, supplying &ldquo;radius&rdquo; would match both the <code class="css">border-radius</code> and <code class="css">border-top-left-radius </code> properties.</p>
+<h3><code class="js">prefix</code> (string)</h3>
+<p>This lookup method allows you to attach an extension based on the prefix of a property name (i.e. a vendor-specific extension). For example, supplying &ldquo;foo&rdquo; as the value would match the <code class="css">-foo-extended</code> property.</p>
+<p>Once you&rsquo;ve established the basic lookup using one of these options, you can begin to refine your lookup further with additional properties:</p>
+<h3><code class="js">media</code> (string)</h3>
+<p>By including a medium (or multiple media, separated by commas), you can restrict an extension to only operating in a specific, well, medium.</p>
+<h3><code class="js">filter </code>(object)</h3>
+<p>On occasion, you&rsquo;ll find yourself working on an extension that needs to run only when certain additional criteria are met. For example, when writing an extension to implement CSS3 rotation, you need access to the <code class="css">transform</code> property, but only in the instance that its value contains the word &ldquo;rotate&rdquo; followed by a positive or negative integer in parentheses. This is when filtering becomes handy:</p>
+<pre><code class="js">{
+  'property': 'transform',
+  'filter': {
+    'value': /rotate\(-?\d+?\)/
+  }
+}</code></pre>
+<p>The filter object currently supports two means of filtering the lookup: <code class="js">property</code> and <code class="js">value</code>. Each can take either a string or a regular expression that must be matched for the extension to run.</p>
+<h2>Test Cases</h2>
+<p>In order to effectively manage resources, eCSStender provides a mechanism for determining whether or not an extension even needs to run. The test(s) needed to make that determination should be bundled into a function and added to the lookup object as the test property.</p>
+<h3><code class="js">test</code> (function)</h3>
+<p>When building a test case or test suite for an extension, you want to ensure that the function returns a boolean true if the extension can/should run and false if it can&rsquo;t/shouldn&rsquo;t run. In practice, this usually means leveraging one or more of eCSStender&rsquo;s core methods, such as <a href="api/core-methods#isSupported"><code class="js">isSupported</code></a>. For example:</p>
+<pre><code class="js">{ 'fragment': 'radius',
+  'test':     function()
+  {
+    return ( ! eCSStender.isSupported( 'property', 'border-top-left-radius: 3px' ) &amp;&amp;
+               ( eCSStender.isSupported( 'property', '-moz-border-radius-topleft: 3px' ) ||
+                 eCSStender.isSupported( 'property', '-webkit-border-bottom-left-radius: 3px' ) ||
+                 eCSStender.isSupported( 'property', '-khtml-border-bottom-left-radius: 3px' ) ) );
+  }
+}</code></pre>
+<p>This lookup object hooks into a fragment of &ldquo;radius,&rdquo; but it also tests to see if it needs to run by making sure <code class="css">border-top-left-radius</code> is not supported and one of three possible vendor implementations is supported. If the test returns false (as it would in Internet Explorer or Opera), the eCSStension will not be run at all, saving both processing time and system resources.</p>
+<h2>Property Access</h2>
+<p>The second argument taken by eCSStender&rsquo;s registration mechanism as to do with which properties you want to get back. It takes one of several values:</p>
+<ul>
+<li>a string value of &ldquo;*&rdquo; is used if you want to get back every property set on that particular matched item,</li>
+<li>a string property name (e.g. &ldquo;color&rdquo;) will return that property, or</li>
+<li>an array of string property names will return any or all of those properties.</li>
+</ul>
+<p>In each instance, if a property-based lookup (property, fragment or prefix) was made, the matched properties will always be returned to the callback function in addition to any specifically-requested properties. It is acceptable to supply a boolean value of false when using a property-based lookup and no additional properties are desired.</p>
+<h2>Doing Something with the Extension</h2>
+<p>The final argument for the registration mechanism is your callback function. This is where you get to work your magic.  As we saw earlier, the callback will be passed four arguments in the following order:</p>
+<ol>
+<li>the selector of the currently-matched declaration block,</li>
+<li>the properties you requested,</li>
+<li>the media this particular match was found in,&nbsp;and</li>
+<li>the numeric specificity of the selector.</li>
+</ol>
+<p>Armed with that knowledge, you should be able to run your extension, but if you need to dive back into the stylesheet for subsequent information, you can do that using <a href="api/core-methods#lookup"><code class="js">eCSStender.lookup</code></a>.</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

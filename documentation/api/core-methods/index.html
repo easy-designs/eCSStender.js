@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Core Methods"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../../index.html"/>
+  <link rel="copyright" href="index.html#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../../../index.html" title="Return to the eCSStender.org home page"><img src="../../../img/general/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../../download">Download</a></li>
+      <li><a href="../../../extensions">Extensions</a></li>
+      <li class="here"><a href="../../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../../index.html">Documentation</a></li><li><a href="../index.html">API</a></li><li><em>Core Methods</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Core Methods</h1>
+  <p>Below are the core methods eCSStender exposes via its API.</p>
+  
+  
+  
+  <section class="Method" id="addClass">
+    <header>
+      <h2><code class="js">addClass( element, className )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Adds the supplied <code class="css">class</code> to the element.</p>
+  </section>
+  
+  
+  <section class="Method" id="addMethod">
+    <header>
+      <h2><code class="js">addMethod( name, function )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Facilitates the setting or resetting of a named method in <a href="../core-properties#methods"><code class="js">eCSStender.methods</code></a> object so that it may be referenced by other functions or extensions.</p>
+  </section>
+  
+  
+  <section class="Method" id="addRules">
+    <header>
+      <h2><code class="js">addRules( element, styles )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    Adds the supplied CSS declaration blocks to the style element passed as the first argument.
+  </section>
+  
+  
+  <section class="Method" id="applyWeightedStyle">
+    <header>
+      <h2><code class="js">applyWeightedStyle( element, properties, specificity )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    Applies the supplied JSON-formatted properties to an element, based on the supplied specificity, allowing you to apply inline rules in a way that is consistent with how style rules are applied via external and embedded stylesheets. If a supplied property is already defined at a greater specificity, the new value is not applied; however, if the new property being applied has an equal or greater specificity, the new property will override the previously-applied one. For example:
+
+<pre><code class="js">eCSStender.applyWeightedStyle( el, { 'visibility': 'hidden' }, 10 );
+// the element referenced by el now has visibility: hidden set
+// with a specificity of 10
+eCSStender.applyWeightedStyle( el, { 'visibility': 'visible' }, 1 );
+// the visibility of el is not set to visible because 
+// the specificity is not high enough
+eCSStender.applyWeightedStyle( el, { 'visibility': 'visible' }, 10 );
+// visibility is now set to &#8220;visible&#8221; because
+// the specificity is equal to the prior specificity
+eCSStender.applyWeightedStyle( el, { 'visibility': 'hidden' }, 100 );
+// visibility is now set to &#8220;hidden&#8221; again because
+// the specificity is greater than the prior specificity</code></pre>
+  </section>
+  
+  
+  <section class="Method" id="disableCache">
+    <header>
+      <h2><code class="js">disableCache()</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>This method can be invoked in order to turn off eCSStender's caching mechanism. It is usually called outside of an extension.</p>
+  </section>
+  
+  
+  <section class="Method" id="elementMatchesSelector">
+    <header>
+      <h2><code class="js">elementMatchesSelector( element, selector )</code></h2>
+          <p class="return">Returns: Boolean</p>
+    </header>
+    <p>Checks to see if a given <var>element</var> matches the <var>selector</var> you&rsquo;ve passed to it.</p>
+  </section>
+  
+  
+  <section class="Method" id="embedCSS">
+    <header>
+      <h2><code class="js">embedCSS( styles, media, delay )</code></h2>
+          <p class="return">Returns: Element</p>
+    </header>
+    <p>Embeds supplied CSS declaration blocks into the head of the current document and returns a reference to the <code class="html">style</code> element used to do so. If the optional <var>media</var> argument is not supplied, the <code class="html">media</code> of embedded stylesheet will be set to &ldquo;all.&rdquo; If the optional <var>delay</var> attribute is set to <code class="js">false</code> (it's <code class="js">true</code> by default), the styles will be written into the document immediately (instead of being delayed until eCSStender is finished writing).</p>
+  </section>
+  
+  
+  <section class="Method" id="emptyStyleSheet">
+    <header>
+      <h2><code class="js">emptyStyleSheet( stylesheet )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Strips all rules from the embedded&nbsp;<var>stylesheet</var>&nbsp;you pass to it.</p>
+  </section>
+  
+  
+  <section class="Method" id="getCSSValue">
+    <header>
+      <h2><code class="js">getCSSValue( element, property )</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    <p>Returns the current value of the property assigned to the element, taking into account the cascade and inline style application.</p>
+  </section>
+  
+  
+  <section class="Method" id="hasClass">
+    <header>
+      <h2><code class="js">hasClass( element, className )</code></h2>
+          <p class="return">Returns: Boolean</p>
+    </header>
+    <p>Tests for the existence of the supplied <code class="css">class</code> on the element. Returns <code class="js">true</code> if it is found, <code class="js">false</code> if it isn&rsquo;t.</p>
+  </section>
+  
+  
+  <section class="Method" id="ignore">
+    <header>
+      <h2><code class="js">ignore( what )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>This method allows you to tell eCSStender to ignore one (or several) CSS files. It accepts a string or an array of strings as an argument.</p>
+  </section>
+  
+  
+  <section class="Method" id="isSupported">
+    <header>
+      <h2><code class="js">isSupported( type, arg1, arg2, arg3 )</code></h2>
+          <p class="return">Returns: Boolean</p>
+    </header>
+    <p>This method is primarily used to test for support of a given CSS property or selector in the current browser. To test a property, you only need to supply the first two arguments:</p>
+<pre><code class="js">eCSStender.isSupported( 'property', 'visibility: hidden' ); // true
+eCSStender.isSupported( 'property', 'foo: bar' ); // false</code></pre>
+<p>If you find the need for a more complicated test (e.g. certain browsers rearrange the standard shorthand internally or change color names, etc.), you can supply the property name as the second argument as the second argument and a string value (or array of string values) as the third argument.</p>
+<pre><code class="js">eCSStender.isSupported( 'property', 'visibility', 'hidden' ); // true
+eCSStender.isSupported( 'property', 'color', ['#000000','black','rgb(0,0,0)'] ); // true</code></pre>
+<p>To test for selector support, you will need to create the markup that you would expect the supplied test selector would act upon and the specific element that the selector should target is supplied as the fourth argument. For example:</p>
+<pre><code class="js">var el = document.createElement('b'),
+html = document.createElement('p');
+html.appendChild(el);
+eCSStender.isSupported( 'selector', 'p b', html, el ); // true
+eCSStender.isSupported( 'selector', 'p ?? b', html, el ); // false</code></pre>
+<p>You can also use this method to store the results of more complicated tests that cannot reasonably be handled by the method itself (e.g. <code class="css">:before</code> and <code class="css">:after</code> support). You can accomplish this by saying:</p>
+<pre><code class="js">eCSStender.isSupported( 'property', 'p:before', true );</code></pre>
+<p>Then, later on, you can request out the obtained result:</p>
+<pre><code class="js">eCSStender.isSupported( 'property', 'p:before' ); // true</code></pre>
+  </section>
+  
+  
+  <section class="Method" id="lookup">
+    <header>
+      <h2><code class="js">lookup( lookup, properties )</code></h2>
+          <p class="return">Returns: Array</p>
+    </header>
+    <p>This post-processing method can be used to reference the document&rsquo;s styles from within an extension. It returns an array of JSON-formatted matches based on the lookup criteria you provide. The properties returned in each of those objects is determined by what properties you request. This method will be discussed in detail soon under the topic Consulting the Stylesheets.</p>
+  </section>
+  
+  
+  <section class="Method" id="makeUniqueClass">
+    <header>
+      <h2><code class="js">makeUniqueClass()</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    <p>Creates and returns a unique&nbsp;<code class="css">class</code>.</p>
+  </section>
+  
+  
+  <section class="Method" id="matchMedia">
+    <header>
+      <h2><code class="js">matchMedia( query )</code></h2>
+          <p class="return">Returns: Boolean</p>
+    </header>
+    <p>Adds support for media query testing (or aliases native support). Supply a media query string; this method returns <code class="js">true</code> if the media query matches the state of rendered document and <code class="js">false</code> if it does not.</p>
+<p>Note: the polyfill method does not take into account non-native media (like&nbsp;"print" or "handheld"); the aliased native method does.</p>
+  </section>
+  
+  
+  <section class="Method" id="newStyleElement">
+    <header>
+      <h2><code class="js">newStyleElement( media, id, delay )</code></h2>
+          <p class="return">Returns: Element</p>
+    </header>
+    <p>Creates and returns a new <code class="html">style</code> element. All three arguments are optional. By default, the <code class="html">id</code> of the <code class="html">style</code> element will be a randomly-generated number, prefaced by &ldquo;temp-&rdquo; and its <code class="html">media</code> will be set to &ldquo;all.&rdquo; By default, the new <code class="html">style</code> element will not be written into the document until eCSStender is finished running, but setting the optional third param to <code class="js">false</code> will cause eCSStender to immediately write the <code class="html">style</code> element into the page.</p>
+  </section>
+  
+  
+  <section class="Method" id="onComplete">
+    <header>
+      <h2><code class="js">onComplete( function )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Adds the supplied function to the list of functions to be called when eCSStender finishes running.</p>
+  </section>
+  
+  
+  <section class="Method" id="register">
+    <header>
+      <h2><code class="js">register( lookup, properties, callback )</code></h2>
+          <p class="return">Returns: eCSStender</p>
+    </header>
+    Registers an extension with eCSStender. This method is discussed in detail under the topic <a href="../../writing-an-extension">Writing an Extension</a>.
+  </section>
+  
+  
+  <section class="Method" id="removeClass">
+    <header>
+      <h2><code class="js">removeClass( element, className )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Removes the supplied <code class="css">class</code> from the element.</p>
+  </section>
+  
+  
+  <section class="Method removed" id="setFilter">
+    <header>
+      <h2><code class="js">setFilter( name, function )</code></h2>
+          <p class="status">Removed in 1.0</p>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Facilitates the setting or resetting of a named method in <a href="../core-properties#filters"><code class="js">eCSStender.filters</code></a> object so that it may be referenced by other functions or extensions.</p>
+  </section>
+  
+  
+  <section class="Method" id="toggleClass">
+    <header>
+      <h2><code class="js">toggleClass( element, className )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>Adds the supplied <code class="css">class</code> to the element if it isn&rsquo;t there already. Removes the <code class="css">class</code> if it is already applied to the element.</p>
+  </section>
+  
+  
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../../license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../j/eCSStender.js"></script>
+  <script src="../../../j/main.js"></script>
+  <script type="text/javascript" src="../../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

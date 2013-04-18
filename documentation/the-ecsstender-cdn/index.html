@@ -1,0 +1,86 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "The eCSStender CDN"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../index.html"/>
+  <link rel="copyright" href="index.html#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../../index.html" title="Return to the eCSStender.org home page"><img src="../../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../download">Download</a></li>
+      <li><a href="../../extensions">Extensions</a></li>
+      <li class="here"><a href="../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../index.html">Documentation</a></li><li><em>The eCSStender CDN</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>The eCSStender CDN</h1>
+  <p>If you don&rsquo;t want to download eCSStender and run it from your own server, we offer hosted versions of each release of eCSStender and every extension we&rsquo;re aware of. As with other CDN services, the benefits of using eCSStender this way are myriad, but some of the top reasons to go this route are&nbsp;improved page load times and&nbsp;reduced server and network load.</p>
+<h2>eCSStender via CDN</h2>
+<p>Using the eCSStender CDN is easy, just reference the version of eCSStender you want from our server:</p>
+<pre><code class="html">&lt;script src="http://cdn.ecsstender.org/lib/latest/min/eCSStender.js"&gt;&lt;/script&gt;</code></pre>
+<p>This code would load the latest production release of eCSStender, but you can also load a specific version of the library by changing the path. For example, eCSStender 1.2.7 can be loaded by adding the following to your page:</p>
+<pre><code class="html">&lt;script src="http://cdn.ecsstender.org/lib/<strong>1.2.7</strong>/min/eCSStender.js"&gt;&lt;/script&gt;</code></pre>
+<p>Both of these examples have made use of the minified versions of eCSStender, but if you want the uncompressed version for some reason, that&rsquo;s available too. Just change &ldquo;min&rdquo; to &ldquo;src&rdquo;:</p>
+<pre><code class="html">&lt;script src="http://cdn.ecsstender.org/lib/latest/<strong>src</strong>/eCSStender.js"&gt;&lt;/script&gt;</code></pre>
+<p>The complete list of eCSStender versions available for your linking pleasure can be found at&nbsp;<a href="http://cdn.ecsstender.org/lib/">http://cdn.ecsstender.org/lib/</a>.</p>
+<h2>Extensions via CDN</h2>
+<p>As with eCSStender, we aim to offer every extension we&rsquo;re aware of via our CDN. You can find the list of extensions at&nbsp;<a href="http://cdn.ecsstender.org/ext/">http://cdn.ecsstender.org/ext/</a>. The setup for each extension is very similar to what you get with eCSStender: each extension version is archived permenantly by version number and the latest stable release of each is available in the &ldquo;latest&rdquo; folder. So, for example, if you wanted to include the latest version of eCSStender and the latest version of the CSS3 Color module, you would add the following to your document:</p>
+<pre><code class="html">&lt;script src="http://cdn.ecsstender.org/lib/latest/<span>min</span>/eCSStender.js"&gt;&lt;/script&gt;
+&lt;script src="http://cdn.ecsstender.org/ext/CSS3-color/latest/min/eCSStender.CSS3-color.js"&gt;&lt;/script&gt;</code></pre>
+<p>Easy peasy. Happy linking!</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.js"></script>
+  <script src="../../j/main.js"></script>
+  <script type="text/javascript" src="../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

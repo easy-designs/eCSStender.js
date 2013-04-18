@@ -1,0 +1,134 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Frequently Asked Questions"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="index.html"/>
+  <link rel="copyright" href="faq#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body id="faq">
+
+
+  <header>
+    <h4 id="logo"><a href="index.html" title="Return to the eCSStender.org home page"><img src="http://images.ecsstender.org/general/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="download">Download</a></li>
+      <li><a href="extensions">Extensions</a></li>
+      <li><a href="documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><em>Frequently Asked Questions</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Frequently Asked Questions</h1>
+  <p>Below are a few of the common questions we've been asked about eCSStender.</p>
+  
+
+
+  <dl class="faq">
+
+    <dt><p>Should I use eCSStender on my site?</p></dt>
+    <dd id="faq_514">
+      <p>As much as we&rsquo;d love to say everyone should be using eCSStender, it&rsquo;s just not practical in many instances. The following are a few reasons eCSStender may not be a good choice for you:</p>
+<ul>
+<li>You use CSS3 selectors and properties sparingly (e.g. you only use <code class="css">border-radius</code> in a handful of places and that&rsquo;s it)</li>
+<li>You don&rsquo;t care about backward-compatibility (e.g. IE6 is a not-so-fond, but rather distant memory)</li>
+<li>You aren't looking to use the extensions to CSS that are available.</li>
+</ul>
+<p>Reasons you may want to use eCSStender include:</p>
+<ul>
+<li>You use CSS3 all over the place and need backwards compatibility with older browsers (e.g. you want your CSS transitions to work in IE6 so you don't have to learn JavaScript).</li>
+<li>You want to take advantage of cutting edge enhancements or proposed additions to the CSS language (e.g. OOCSS, CSS variables, etc.).</li>
+</ul>
+<p>When it comes down to it, there&rsquo;s a trade-off of file size and flexibility. eCSStender currently weighs in under 20K (before GZipping), but you also need to factor in the size of the extensions as well. It's a small performance hit (especially if you munge the minified files together and serve them over a CDN), but it's probably not going to balance out minimal use of advanced properties.</p>
+<p>If you're considering using eCSStender to get away from vendor-specific prefixes, we&rsquo;d recommend taking your non-prefixed stylesheet and giving eCSStender a whirl on a dev server. You can, using a developer toolbar of some sort, copy out the content of the stylesheets it embeds in the document and add those rules to your CSS file, comment out eCSStender, and see if there's a noticeable speed improvement.</p>
+    </dd>
+
+    <dt><p>eCSStender is running really slowly for me, how can I fix that?</p></dt>
+    <dd id="faq_512">
+      <p>It may not be eCSStender that's running slowly. Take a look at the eCSStender test suite and see if that performs well. If that's the case, it's probably an extension that is causing an issue. Or you may be including a bunch of CSS files, all of which eCSStender will read. For more on optimization and how you can improve it, check out <a href="documentation/optimizing-performance.html">this article</a>. If you are seeing a speed issue with eCSStender core, please post a note to <a href="http://groups.google.com/group/ecsstender">the mailing list</a>.</p>
+    </dd>
+
+    <dt><p>Does eCSStender play well with other JavaScript libraries?</p></dt>
+    <dd id="faq_508">
+      <p>
+<div>
+<p>Yes. eCSStender was built from the ground up using native JavaScript and is namespaced so as to not conflict with any known library. Though some extensions may leverage libraries like jQuery, the eCSStender does not. And extension developers are encouraged to make their extensions library agnostic if at all possible.</p>
+</div>
+</p>
+    </dd>
+
+    <dt><p>How can I help?</p></dt>
+    <dd id="faq_509">
+      <p>
+<div>
+<p>If you want to help out with eCSStender core, drop Aaron a note on <a href="http://groups.google.com/group/ecsstender">the mailing list</a>. If you want to get involved with one of <a href="extensions">the extensions currently in development</a>, contact the lead developer. If you want to write your own extensions, read <a href="documentation">the documentation</a> and let us know when you have something stable... we&rsquo;ll happily link it up.</p>
+</div>
+</p>
+    </dd>
+
+    <dt><p>Wouldn&rsquo;t it be better to do all of this on the server side?<span style="white-space: pre;"> </span></p></dt>
+    <dd id="faq_515">
+      <p>Any time you can move complex work to the server side, you&rsquo;re going to get a speed improvement and we may add in some server-side components down the line (we&rsquo;re certainly not ruling it out), but when most people ask this question, they&rsquo;re weighing eCSStender against a CSS pre-processor like <a href="http://sass-lang.com/">Sass</a> or <a href="http://lesscss.org/">Less</a>.</p>
+<p>Putting aside the debate over whether alternate CSS syntaxes are better or easier to use, there are definite advantages to using a tool that can translate one syntax into another (as some extensions do), but when your solution is 100% back-end, it does not allow for nuance and interpretation, which is where eCSStender excels.</p>
+<p>At the core of eCSStender's power is the <code class="js">eCSStender.isSupported()</code> method. This method allows a developer to test for property and/or selector support and then act upon their findings. Using this method, an extension can see that Safari 4 (and other Webkit-based browsers of its generation) doesn&rsquo;t understand border radius shorthand with unequal radii (e.g. <code class="css">border-radius: 2px 4px;</code>). If your preprocessor only knows to translate <code class="css">border-radius</code> to <code class="css">-webkit-border-radius</code>, <code class="css">-moz-border-radius</code>, etc. and isn&rsquo;t aware that it also needs to check the values and make further augmentations for Webkit, that&rsquo;s a problem. And, if your preprocessor is pushing all of that extra markup over the wire, regardless of whether it&rsquo;s useful to the browser, that too can become a problem.</p>
+<p>Additionally, a pre-processor can&rsquo;t leverage that nuance to implement JavaScript-based animations as an alternative to CSS-based ones if they aren&rsquo;t supported because the pre-processors (as they are currently built) take a &ldquo;one size fits all&rdquo; approach to handling CSS: everyone gets the same thing. Then there&rsquo;s also the fact that eCSStender can help you implement a new property or concept you&rsquo;ve conceived and make it work in the browser in a much more robust way.</p>
+<p>There are definite advantages to using a CSS pre-processor, but nuance and conditional translation/augmentation is what makes eCSStender different.</p>
+    </dd>
+
+    <dt><p>What's the difference between Modernizr and eCSStender?</p></dt>
+    <dd id="faq_157">
+      <p>Modernizr and eCSStender are related JavaScript libraries, but they do not serve the same function. The main difference is in each's respective focus:&nbsp;eCSStender is, first and foremost, a library for working with CSS; Modernizr&nbsp;<span>detects</span>&nbsp;"the availability of native implementations for next-generation web technologies."</p>
+<p>While it is true that each library offers a mechanism for determining a browser's capabilities, eCSStender's testing is aimed squarely at CSS property and selector support. Modernizr, on the other hand, tests the browser's support for a specific set of technologies&mdash;some CSS-related others HTML-related. There is some overlap on the CSS property support area, but not much. And while Modernizr does offer some JavaScript-based callback support when tests complete, it is (at least as of October 2009) being primarily used for the behavior of adding classes to the html element, denoting support for a certain technology (or lack thereof). Using eCSStender, a developer could easily add the same functionality, but eCSStender is geared more for identifying and solving CSS implementation issues in addition to allowing for the extension of the CSS language.</p>
+    </dd>
+
+  </dl>
+  
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="documentation/license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="j/eCSStender.js"></script>
+  <script src="j/main.js"></script>
+  <script type="text/javascript" src="j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>

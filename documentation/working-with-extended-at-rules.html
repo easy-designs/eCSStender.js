@@ -1,0 +1,148 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Working with Extended At-rules"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="working-with-extended-at-rules#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>Working with Extended At-rules</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Working with Extended At-rules</h1>
+  <p>As of version 1.1, eCSStender supports extending the <a href="http://www.w3.org/TR/2008/REC-CSS2-20080411/syndata.html#at-rules" rel="external">At-rule syntax</a>. But what does that mean?</p>
+<p>As of the current version, eCSStender will support you defining extended at-rules in two ways: via a simple at-rule definition and a keyed at-rule definition.</p>
+<h2>Simple Extended At-rule Definitions</h2>
+<p>Simple at-rules follow a syntax similar to that of the <code class="css">@font-face</code> at-rule, to which you are probably familiar:</p>
+<pre><code class="css">@font-face {
+  font-family: 'Comfortaa';
+  font-weight: normal;
+  src: url('../../examples/fonts/Comfortaa_Regular');
+}</code></pre>
+<p>To define a simple extended at-rule, you write "@", followed by your extended at-rule's name, followed by a set of curly braces ("{}") that contain the properties assigned via that at-rule. For example:</p>
+<pre><code class="css">@-my-simple-at-rule {
+  property-1: value-1;
+  property-2: value-2;
+}</code></pre>
+<p>This at-rule will be exposed by eCSStender as the first member in the <code class="js">eCSStender.at['-my-simple-at-rule']</code> array. That element would have a value of</p>
+<pre><code class="js">{
+  'property-1': 'value-1',
+  'property-2': 'value-2'
+}</code></pre>
+<p>Simple at-rule definitions are always stored in an array, just as they are in the case of <code class="css">@font-face</code>. If you have multiple instances of your extended at-rule assigned, each will be stored as a separate member of the array. For example:</p>
+<pre><code class="css">@-my-simple-at-rule {
+  property-1: value-1;
+  property-2: value-2;
+}
+@-my-simple-at-rule {
+  property-1: value-3;
+  property-2: value-4;
+}</code></pre>
+<p>would result in <code class="js">eCSStender.at['-my-simple-at-rule']</code> being an array with two members:</p>
+<pre><code class="js">[{
+  'property-1': 'value-1',
+  'property-2': 'value-2'
+},
+{
+  'property-1': 'value-3',
+  'property-2': 'value-4'
+}]</code></pre>
+<h2>Keyed-definition Extended At-rules</h2>
+<p>Keyed-definition at-rules are only slightly different in that the definition is being assigned to one or more keys. In this case, the overall extended at-rule is exposed as an object, with each key having a value equal to the properties assigned to it. For example:</p>
+<pre><code class="css">@-my-complex-at-rule key-1 {
+  property-1: value-1;
+  property-2: value-2;
+}</code></pre>
+<p>In this instance, eCSStender would expose the at-rule as <code class="js">eCSStender.at['-my-complex-at-rule']['key-1']</code> which would have a value of</p>
+<pre><code class="js">{
+  'property-1': 'value-1',
+  'property-2': 'value-2'
+}</code></pre>
+<p>Following this same syntax, you can also set multiple keys to the same value:</p>
+<pre><code class="css">@-my-complex-at-rule key-1, key-2 {
+  property-1: value-1;
+  property-2: value-2;
+}</code></pre>
+<p>In this instance, <code class="js">eCSStender.at['-my-complex-at-rule']</code> would be an object with two keys, 'key-1' and 'key-2', each of which would be an identical object.</p>
+<p>With keyed-definition extended at-rules, unlike simple ones, it is also possible to add new properties and/or override them:</p>
+<pre><code class="css">@-my-complex-at-rule key-1, key-2 {
+  property-1: value-1;
+  property-2: value-2;
+}
+@-my-complex-at-rule key-2 {
+  property-3: value-3;
+  property-1: value-4;
+}</code></pre>
+<p>In this instance, <code class="js">eCSStender.at['-my-complex-at-rule']</code> would be</p>
+<pre><code class="js">{
+  'key-1': {
+    'property-1': 'value-4',
+    'property-2': 'value-2',
+    'property-3': 'value-3'
+  },
+  'key-2': {
+    'property-1': 'value-1',
+    'property-2': 'value-2'
+  }
+}</code></pre>
+<p>As you would expect, source order determines the final value for each property (as specificity is not a factor).</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

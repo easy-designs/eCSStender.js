@@ -1,0 +1,83 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "How eCSStender Works"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="how-ecsstender-works#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>How eCSStender Works</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>How eCSStender Works</h1>
+  <p>Understanding how eCSStender works can be key for developers looking to leverage its power. Below is a step-by-step outline of the process by which eCSStender interacts with the page and with registered extensions.</p>
+<h2>Step 1 - Gathering the Document's Stylesheets</h2>
+<p>As soon as the DOM is available, eCSStender loops through the document's stylesheets and begins collecting information. It weeds out inactive stylesheets and stylesheets originating from foreign domains (for security reasons) and assigns the remaining sheets to an internal variable before proceeding to step 2. Any <code class="css">@import</code> rules encountered within the stylesheet are similarly filed for parsing.</p>
+<h2>Step 2 - Parsing the Style Rules</h2>
+<p>When eCSStender begins examining the style rules in earnest, it first determines the assigned media type of the stylesheet it is in. If no media type is specified, the contained styles are assigned to "all." Internal containers are created for each media type so that the rules may be added to them in a later loop.</p>
+<p>In the next step, eCSStender reads in the stylesheet. As most browsers do not expose properties and selectors they don't understand via traditional DOM style methods and properties, eCSStender relies on <code class="js">XMLHTTPRequest</code> to read in the CSS files. It them cleans them up, removing comments and white space. eCSStender then proceeds to pluck out and "@" rules it understands (currently <code class="css">@font-face</code>, <code class="css">@page</code>) and stores their details in its <code class="js"><a href="api/core-properties.html#fonts">fonts</a></code> and <code class="js"><a href="api/core-properties.html#pages">pages</a></code> properties.</p>
+<p>eCSStender parses all of the declaration blocks within each stylesheet and pushes them to its internal catalog, paying attention to both the cascade and specificity of each. As eCSStender is media-aware, it also keeps an eye out for <code class="css">@media</code> groups and assigns the contained rules to the appropriate medium or media in the catalog.</p>
+<h2>Step 3 - Running Tests</h2>
+<p>Before looking for extensions to trigger, eCSStender loops through the list of <a href="api/core-methods/index.html#register">registered extensions</a> and runs any test cases supplied. If the test cases do not pass, the extension is dropped from the list that will be run against the document's styles.</p>
+<h2>Step 4 - Triggering Extensions</h2>
+<p>In the final step of its run, eCSStender loops through the catalog of style rules, medium by medium, and checks to see if any of the contained rules meet the criteria of the <a href="api/core-methods/index.html#register">registered extensions</a>. Each time a match is encountered, the extension's callback function is triggered and passed the appropriate arguments.</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

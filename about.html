@@ -1,0 +1,74 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "About eCSStender"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="index.html"/>
+  <link rel="copyright" href="about#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body>
+
+
+  <header>
+    <h4 id="logo"><a href="index.html" title="Return to the eCSStender.org home page"><img src="http://images.ecsstender.org/general/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="download">Download</a></li>
+      <li><a href="extensions">Extensions</a></li>
+      <li><a href="documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+
+<article>
+  <h1>About eCSStender</h1>
+  <p>As you're probably aware, progress on the development of new specs within standards bodies like the W3C moves at a glacial space. The reasons for this are numerous, but mainly boil down to some combination of internal politics, a general lack of direction (because they, the standards bodies, are having to guess not only what we, authors, want, but also how we want to go about describing what we want in code), and the need for reference implementations. With everything else on the web moving so quickly, the fact that our standards aren't keeping pace is problematic. And I don't think any of us want a return to the browser wars, when innovation was taking place solely on the implementation side.&nbsp;So where do we go?</p>
+<p>I look to the <a href="http://microformats.org" rel="external">Microformats</a> community as a great example of what to do in a situation like this. If you look back in the history of HTML, you see that a lot of what has come out of the Microformats camp is implementations of concepts originally proposed in early drafts and discussions around HTML. Two perfect examples of that are how we mark up people and figures, both of which were proposed in HTML 3, but never made it into the final HTML 3.2 spec. The first example is <a href="http://www.utoronto.ca/webdocs/HTMLdocs/HTML_Spec/HTML3/person.html" rel="external">the <code>person</code> element</a>, which surfaced much later in the far superior <a href="http://microformats.org/wiki/hcard" rel="external">hcard microformat</a>. Similarly, HTML 3 proposed <a href="http://www.w3.org/MarkUp/html3/figures.html" rel="external">a construct for figures</a> that included the image as well as caption and credit information; that was resuscitated in <a href="http://microformats.org/wiki/figure" rel="external">the figure microformat</a> and has, since, even found its way back into the standard as part of the draft HTML 5 spec.</p>
+<p>So I guess where I'm going with all of that is that I think we (with all due respect to Gandhi) need to be the change we want to see on the web. We are all vendors and we shouldn't be afraid to take the reigns and build a fully-functioning proposal for how we want to see CSS or HTML or JavaScript change. But before I go into how eCSStender fits into all of this, let me take a step back and cover how the idea for eCSStender came about.</p>
+<p>Back in 2005, after being somewhat dissatisfied with the JavaScript hoops designers had to jump through to implement <a href="http://wiki.novemberborn.net/sifr/" rel="external">sIFR</a>, I started playing with the concept of writing new CSS properties through the use of vendor-specific extensions (e.g. the <code class="CSS">-moz-</code> you see before <code class="CSS">-moz-border-radius</code>) and using JavaScript to make those extensions actually do something. In early 2007, I debuted my first decent example of this <a href="http://www.slideshare.net/AaronGustafson/transcendent-design-with-css-javascript-web-directions-north-07" rel="external">at Web Directions North</a>: a scheme for generating presentational Flash into the document from your style sheets. It floored a number of people at the conference, including the folks from Adobe, but I was never really happy with the final product, so I went back to the drawing board.</p>
+<p>Over the last few years, I built upon the knowledge I gained in my experiments and began working on a mechanism to allow extensions like this to be created with very little effort. The idea evolved into an "enabler" library that gave you hooks into a page's CSS and facilitated the creation of whatever extensions developers wanted. They could be aimed at a production environment or simply be created as reference implementations of features they wanted to see added to CSS. And so eCSStender was born.  The wonderful side-effect of building eCSStender is that the very same logic that was used to enable extensions to CSS could also be put into use patching the holes in a browser's implementation of CSS. So, for instance, say you want to use a selector such as <code class="CSS">tr:nth-child(even) td</code> in IE6; traditionally, the properties set using this selector would be ignored by IE6 as it doesn't understand the selector, but, with eCSStender, developers have fixed that issue and your style rules will Just Work&trade;.</p>
+<p>The overall goal of the project is to enable developers to generate the patch files or extensions they want and then aggregate those extensions in one place (much like the jQuery UI Library) and make them available for designers who, in turn, just include eCSStender.js and the extension sets of their choosing and can write their CSS to modern specs (or forthcoming or even proposed ones) and have the library turn their instructions into reality. I like to think eCSStender does for CSS what microformats have done for HTML. By leveraging the built-in extensibility of these languages that the W3C has given us, we can create the future we want and then let the spec writers codify the best ideas we generate into the spec.</p>
+<p>Aaron Gustafson,<br /> <em>2009-04-27</em></p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="colophon,html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="documentation/license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="j/eCSStender.js"></script>
+  <script src="j/main.js"></script>
+  <script type="text/javascript" src="j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Dynamic Extension Redefinition"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../index.html"/>
+  <link rel="copyright" href="index.html#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../../index.html" title="Return to the eCSStender.org home page"><img src="../../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../download">Download</a></li>
+      <li><a href="../../extensions">Extensions</a></li>
+      <li class="here"><a href="../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../index.html">Documentation</a></li><li><em>Dynamic Extension Redefinition</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Dynamic Extension Redefinition</h1>
+  <p>As part of eCSStender 1.2.6.1, we now have the ability to dynamically redefine an extension&rsquo;s callback function. This makes it possible to optimize extensions that require forking based on the environment or to trigger an initialization that later extensions will need in order to work.</p>
+<p>Using this technique to manage code forking is dead simple. Consider the following as a callback function:</p>
+<pre><code class="js">function ( selector, properties, medium )
+{
+  function option_1( selector, properties, medium )
+  {
+    // code for one implementation
+  }
+  function option_2( selector, properties, medium )
+  {
+    // code for another, completely different, implementation
+  }
+  var func = eCSStender.isSupported( /* test conditions */ ) ? option_1
+                                                             : option_2;
+  func( selector, properties, medium );
+  return func;
+}</code></pre>
+<p>While non-functional, this callback function takes you through a real example of how you can use callback redefinition to optimize your code execution. Here&rsquo;s what&rsquo;s happening:</p>
+<ol>
+<li>two alternate implementations are defined (<code class="js">option_1()</code> and <code class="js">option_2()</code>);</li>
+<li>a test is made (probably using <code class="js"><a href="../api/core-methods#isSupported">isSupported()</a></code>, but not necessarily) and determines which implementation should be used, assigning it to the variable <code class="js">func</code>;</li>
+<li><code class="js">func()</code> is called once (since a callback needs to be executed on the first run of this extension); and</li>
+<li>the implementation is returned, redefining the callback as either <code class="js">option_1()</code> or <code class="js">option_2()</code> for any remaining executions.</li>
+</ol>
+<p>The one <em>really</em> important thing to keep in mind is that you&rsquo;ll need to make sure your alternate implementations are set to accept any of the arguments you need from the extension (<code class="js">selector</code>, etc.). If you forget to define them within the new callbacks, they won't be available.</p>
+<p>Using this technique to manage initialization actions is pretty easy as well. Consider this snippet implementing <code class="css">:checked</code> (from the current version of the <a href="../../extensions/css3-selectors/index.html">CSS3 Selectors bundle</a>).&nbsp;Note: There are some aliases in this sample that reference variables in the extension bundle, such as&nbsp;<code class="js">DOC</code>&nbsp;which is a pointer to&nbsp;<code class="js">document</code>,&nbsp;<code class="js">e</code>&nbsp;which is an alias for&nbsp;<code class="js">eCSStender</code>, etc.</p>
+<pre><code class="js">(function(){
+  var
+  the_class = e.makeUniqueClass(),
+  the_regex = /:checked/,
+  classify  = function()
+  {
+    var
+    inputs = DOC.getElementsByTagName('input'),
+    j      = inputs.length;
+    while ( j-- )
+    {
+      if ( inputs[j].checked )
+      {
+        e.addClass( inputs[j], the_class );
+      }
+      else
+      {
+        e.removeClass( inputs[j], the_class );
+      }
+    }
+  };
+  e.register(
+    { fingerprint: EASY + 'checked',
+      selector:    the_regex,
+      test:        function(){
+        var
+        d = div.cloneNode(TRUE),
+        i;
+        d.innerHTML = '&lt;input checked="checked" type="checkbox" /&gt;';
+        i = d.getElementsByTagName('input')[0];
+        return ! supported( SELECTOR, 'div input:checked', d, i );
+      }
+    },
+    EVERYTHING,
+    function( selector, properties, medium, specificity ){
+      // initialize
+      classify();
+      // only add the event once
+      addEvent( DOC.body, CLICK, function( e ){
+        var el = e.target;
+        if ( el.nodeName.toLowerCase() == 'input' &amp;&amp;
+             ( el.getAttribute('type') == 'radio' ||
+               el.getAttribute('type') == 'checkbox' ) )
+        {
+          classify();
+        }
+      });
+      // then switch to embed a modified selector
+      function modify( selector, properties, medium, specificity )
+      {
+        selector = selector.replace( the_regex, DOT + the_class );
+        embed( selector, properties, medium );
+      }
+      modify( selector, properties, medium, specificity );
+      return modify;
+    });
+})();</code></pre>
+<p>Walking through this example, we see</p>
+<ol>
+<li>the creation of a unique <code class="html">class</code> for use by the script (one that isn&rsquo;t likely to be repeated);</li>
+<li>the definition of a regular expression for use in the script; and</li>
+<li>the definition of a function called <code class="js">classify()</code> that runs through the document's <code class="html">inputs</code> and assigns or removes the unique <code class="html">class</code> based on whether or not the <code class="html">input</code> is currently checked.</li>
+</ol>
+<p>The remainder of this snippet is devoted to the extension registration itself. Skipping down to the callback function, you can see it runs <code class="js">classify()</code> immediately (to establish a baseline setup) and then adds an event listener to the <code class="html">body</code> that picks up click events and acts upon them, by calling <code class="js">classify()</code> again, if the target element is an <code class="html">input</code> of the checkbox or radio variety. Then a function called <code class="js">modify</code> is created that converts the selector for <code class="css">:checked</code> into a <code class="html">class</code>-based selector utilizing the unique <code class="html">class</code> created at the beginning of the snippet. Finally that function is called once and then returned, making <code class="js">modify()</code> the new callback function.</p>
+<p>What this all amounts to is that we can have certain setup actions take place only once (the first time the extension is run) and then adjust how the extension behaves for all subsequent calls. It&rsquo;s a powerful technique that really helps optimize code execution because the setup actions are only run if an when the extension is needed and then, only once.</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.js"></script>
+  <script src="../../j/main.js"></script>
+  <script type="text/javascript" src="../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

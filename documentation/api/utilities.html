@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Utilities"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../index.html"/>
+  <link rel="copyright" href="utilities#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../../index.html" title="Return to the eCSStender.org home page"><img src="../../img//logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../download">Download</a></li>
+      <li><a href="../../extensions">Extensions</a></li>
+      <li class="here"><a href="../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../index.html">Documentation</a></li><li><a href="index.html">API</a></li><li><em>Utilities</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Utilities</h1>
+  <p>Below are the utility methods eCSStender exposes via its API.</p>
+  
+  
+  
+  <section class="Method" id="getPathTo">
+    <header>
+      <h2><code class="js">getPathTo( resource, tag )</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    <p>Attempts to return the folder path to a given <var>resource</var> (a filename). By default, the method assumes a <var>tag</var> value of &ldquo;script,&rdquo; but &ldquo;link&rdquo; and &ldquo;img&rdquo; are also acceptable. If no match is found, the method returns <code class="js">NULL</code>.</p>
+  </section>
+  
+  
+  <section class="Method" id="isInheritedProperty">
+    <header>
+      <h2><code class="js">isInheritedProperty( object, property )</code></h2>
+          <p class="return">Returns: Boolean</p>
+    </header>
+    Determines whether or not a given property belongs to an object or whether it was inherited from its parent object. This method is most frequently used within <code class="js">for...in</code> loops to avoid issues caused by a developer or library&#8217;s augmentation of <code class="js">Object</code> (e.g. the Prototype JavaScript library).
+  </section>
+  
+  
+  <section class="Method" id="loadScript">
+    <header>
+      <h2><code class="js">loadScript( path, callback )</code></h2>
+          <p class="return">Returns: NULL</p>
+    </header>
+    <p>To dynamically add a script to your page, you can call <code class="js">eCSStender.loadScript()</code>, passing the path to the script as the first argument. If you&rsquo;d like to add a callback function (to be run once the file is loaded), it can be supplied as the optional second argument.</p>
+  </section>
+  
+  
+  <section class="Method" id="trim">
+    <header>
+      <h2><code class="js">trim( string )</code></h2>
+          <p class="return">Returns: String</p>
+    </header>
+    Trims leading and trailing whitespace from a string and returns it.
+  </section>
+  
+  
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.js"></script>
+  <script src="../../j/main.js"></script>
+  <script type="text/javascript" src="../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

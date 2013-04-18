@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Working with Selector Functions"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="working-with-selector-functions#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>Working with Selector Functions</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Working with Selector Functions</h1>
+  <p>As of version 0.10, eCSStender began supporting <a href="api/core-methods#register">extension registration</a> and <a href="api/core-methods#lookup">lookups</a> using functions. This subtle addition allows for much more precision when requesting style information.</p>
+<p>Within a selector function, the keyword <code class="js">this</code> represents the selector string itself, allowing you to manipulate it or run one or more Regular Expression matches against it. For example:</p>
+<pre><code class="js">eCSStender.register(
+  {
+    'selector': function(){
+      // register on all selectors containing h1
+      return this.match(/\s*?h1\s*?/) !== null;
+    }
+  },
+  '*',
+  function( selector, properties, media, specificity ){
+    // do something here
+  });</code></pre>
+<p>or</p>
+<pre><code class="js">var matches = eCSStender.lookup(
+  {
+    'selector': function(){
+      // return all blocks with selectors containing both h1 and strong
+      return ( this.match(/\s*?h1\s*?/) !== null &amp;&amp;
+               this.match(/\s*?strong\s*?/) !== null );
+    }
+  },
+  '*'
+);</code></pre>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

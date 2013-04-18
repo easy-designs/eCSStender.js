@@ -1,0 +1,92 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Optimizing Performance"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="optimizing-performance#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>Optimizing Performance</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Optimizing Performance</h1>
+  <p>It's pretty much a given that website performance is critical, which is why eCSStender does everything it can to minimize its memory footprint and maximize its code efficiency. And it's getting better all the time.</p>
+<p>Unfortunately, eCSStender is currently forced to rely on <a href="http://en.wikipedia.org/wiki/XMLHttpRequest">XHR</a> in order to retrieve accurate CSS information (most browsers don't expose properties and selectors they don't understand via traditional DOM methods), so that's a performance hit we have to deal with (at least for now). Thankfully, however, there are a myriad other ways in which eCSStender optimizes its own performance and allows you to further optimize the performance of it on your site. The following is a brief run-down. If you have ideas for other ways we can optimize eCSStender, please drop a note on <a href="http://groups.google.com/group/ecsstender">the mailing list</a>.</p>
+<h2>Smart Caching</h2>
+<p>In an effort to speed things up, eCSStender makes use of whatever browser-based caching mechanisms available to it. In most modern browsers, this means <a href="https://developer.mozilla.org/en/DOM/Storage#localStorage"><code class="js">window.localStorage</code></a>, but eCSStender also supports IE's proprietary <a href="http://msdn.microsoft.com/en-us/library/ms531424(VS.85).aspx"><code class="js">UserData</code></a> cache. eCSStender caches information about the stylesheets it encountered, which extensions ran against those stylesheets, and what results it received from calls to <a href="api/core-methods/index.html#isSupported"><code class="js">eCSStender.isSupported()</code></a> in order to to hit the ground running when the page loads.</p>
+<p>Currently, the cache is private to eCSStender, but if developers express an interest in being able to read and write to the cache from within extensions, we may expose that functionality as well.</p>
+<p>Notes:</p>
+<ol>
+<li>You can disable browser caching using <a href="api/core-methods/index.html#disableCache"><code class="js">eCSStender.disableCache()</code></a>.</li>
+<li>When operating on a local file, eCSStender's caching is turned off.</li>
+</ol>
+<h2>Ignorance is Bliss</h2>
+<p>eCSStender offers a mechanism for ignoring specific CSS files: <a href="api/core-methods/index.html#ignore"><code class="js">eCSStender.ignore()</code></a>. You simply supply a string with the file name (or an array of strings) and eCSStender does the rest. You don't even need to give it a full path, the filename itself is enough. eCSStender also follows the <a href="http://en.wikipedia.org/wiki/Same_origin_policy">same origin policy</a> and does not read in CSS linked to on a different domain, meaning you don't need to include those CSS files in your ignore list.</p>
+<h2><code class="js">isSupported()</code> is Optimized</h2>
+<p>As a critical piece of the extension-authors toolbox, <a href="api/core-methods/index.html#isSupported"><code class="js">eCSStender.isSupported()</code></a> gets called frequently, and often with the same arguments. To speed things up, eCSStender keeps a log of the results of these queries and returns the stored result if its available instead of running the test again. As mentioned previously, this information is also cached in the browser, meaning tests will only be run once per session (or longer, depending on the implementation) if the browser supports caching.</p>
+<h2>Delayed Writing</h2>
+<p>Often, extensions will want to inject CSS into the head of the document using <a href="api/core-methods/index.html#embedCSS"><code class="js">eCSStender.embedCSS()</code></a>. In order to <a href="http://www.stubbornella.org/content/2009/03/27/reflows-repaints-css-performance-making-your-javascript-slow/">minimize reflows and repaints</a>, eCSStender will write all CSS to the head of the document at once (rather than piecemeal). Individual extension authors have the ability to override the default behavior when calling this method, but are discouraged from doing so.</p>
+<h2>&ldquo;Lazy&rdquo; Functions</h2>
+<p>In a further effort to optimize the core of eCSStender, any functions that branch based on browser capabilities make use of <a href="http://michaux.ca/articles/lazy-function-definition-pattern">the lazy function definition pattern</a>. That means the branching only happens on the first call, at which point the function is re-defined so that it is optimized for the environment.</p>
+<h2>Optimization Ends at Extensions</h2>
+<p>We work very diligently to optimize the eCSStender core, but even with an optimized core, a slow extension can bog everything down. If you are seeing a performance issue, try turning off individual extensions, you may find the culprit there.</p>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

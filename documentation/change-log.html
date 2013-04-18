@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Change Log"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../index.html"/>
+  <link rel="copyright" href="change-log#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="documentation">
+
+
+  <header>
+    <h4 id="logo"><a href="../index.html" title="Return to the eCSStender.org home page"><img src="../img/general/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../download">Download</a></li>
+      <li><a href="../extensions">Extensions</a></li>
+      <li class="here"><a href="../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="index.html">Documentation</a></li><li><em>Change Log</em></li>
+  </ol>
+</nav>
+
+<article>
+  <h1>Change Log</h1>
+  <h2>v1.2.7 (2011-07-23)</h2>
+<ul>
+<li>added <a href="api/core-methods#matchMedia"><code class="js">eCSStender::matchMedia()</code></a> method</li>
+<li>added <a href="api/core-methods#emptyStyleSheet"><code class="js">eCSStender::emptyStyleSheet()</code></a> method</li>
+<li>added <a href="api/core-methods#elementMatchesSelector"><code class="js">eCSStender::elementMatchesSelector()</code></a> method</li>
+<li>added <a href="api/utilities#getPathTo"><code class="js">eCSStender::getPathTo()</code></a> method</li>
+</ul>
+<h2>v1.2.6.6 (2010-08-26)</h2>
+<ul>
+<li>bugfix: don't call determinePath() on embedded stylesheets</li>
+</ul>
+<h2>v1.2.6.5 (2010-08-12)</h2>
+<ul>
+<li>reorganized XHR stuff</li>
+<li>adjusted <a href="api/core-methods#isSupported"><code class="js">eCSStender::isSupported()</code></a> (property version) to avoid using <code class="js">expando</code>-related checks (in preparation for IE9)</li>
+<li>beefed-up internal <code class="js">zero_out()</code> function</li>
+<li>stripped out addition of <code class="js">Array.push()</code> for browsers that didn't support it (it was unnecessary)</li>
+</ul>
+<h2>v1.2.6.4 (2010-08-04)</h2>
+<ul>
+<li>swapped decrement side in <code class="js">clearBrowserCache()</code></li>
+</ul>
+<h2>v1.2.6.3 (2010-08-04)</h2>
+<ul>
+<li>minor bug fix for <code class="js">determinePath()</code> on imported stylesheets</li>
+<li>fix to miskey in <code class="js">clearBrowserCache()</code></li>
+</ul>
+<h2>v1.2.6.2 (2010-07-30)</h2>
+<ul>
+<li>bug fix for IE error: "'ownerNode' is null or not an object"</li>
+<li>tweaks to the caching setup:       
+<ul>
+<li>revised <code class="js">clearBrowserCache()</code> for IE <code class="js">userData</code> and <code class="js">localStorage</code></li>
+<li>prefixed all cached items in <code class="js">localStorage</code> with "eCSStender-" so we can remove them individually</li>
+<li>caching the eCSStender version number</li>
+<li>adjusted the cache-reading mechanism to check against current eCSStender version number before reading. If version numbers don't match, it doesn't read the cache, it only wipes it.</li>
+<li>clearing local storage once it's read (this should help with memory-related issues).</li>
+</ul>
+</li>
+</ul>
+<h2>v1.2.6.1 (2010-07-20)</h2>
+<ul>
+<li>Added ability for extensions to dynamically redefine themselves</li>
+<li>Cleaned up some leaky variables (thanks to EmissionsTest.js)</li>
+</ul>
+<h2>v1.2.6 (2010-07-13)</h2>
+<ul>
+<li>overhauled <code class="js"><a href="api/core-methods#isSupported">eCSStender::isSupported()</a></code> so it can accept           
+<ul>
+<li>assignment of support info into the cache and</li>
+<li>accept a property as the second argument and a string value (or array of strings) as the third argument for property tests (so that you can offer alternatives like ['#000000','black'] or re-ordering for browsers that have alternate internal value storage schemes) </li>
+</ul>
+</li>
+<li>added some new methods:           
+<ul>
+<li><code class="js"><a href="api/core-methods#getCSSValue">eCSStender::getCSSValue()</a></code></li>
+<li><code class="js"><a href="api/core-methods#addClass">eCSStender::addClass()</a></code></li>
+<li><code class="js"><a href="api/core-methods#removeClass">eCSStender::removeClass()</a></code></li>
+<li><code class="js"><a href="api/core-methods#hasClass">eCSStender::hasClass()</a></code></li>
+<li><code class="js"><a href="api/core-methods#toggleClass">eCSStender::toggleClass()</a></code></li>
+<li><code class="js"><a href="api/core-methods#makeUniqueClass">eCSStender::makeUniqueClass()</a></code></li>
+</ul>
+</li>
+<li>adjusted <code class="js"><a href="api/core-methods#isSupported">eCSStender::isSupported()</a></code> to make use of <code class="js">getCSSValue()</code></li>
+<li>fixed <code class="js">window.status</code> issue</li>
+<li>minor typo fixes</li>
+<li>tests for some the new/revised functionality</li>
+</ul>
+<h2>v1.2.5.4 (2010-07-07)</h2>
+<ul>
+<li>Fixed bug in <code class="js">gatherProperties()</code> that caused it not to ignore colons in property values</li>
+</ul>
+<h2>v1.2.5.3 (2010-07-05)</h2>
+<ul>
+<li>Fixed bug in <code class="js">clean()</code> that removed whitespace before uncombined pseudo selectors.</li>
+</ul>
+<h2>v1.2.5.2 (2010-07-02)</h2>
+<ul>
+<li>Added ability to not supply html to <code class="js"><a href="api/core-methods#isSupported">eCSStender::isSupported()</a></code> when testing selectors (in case you want to test against existing markup)</li>
+</ul>
+<h2>v1.2.5.1 (2010-06-30)</h2>
+<ul>
+<li>Forgot to remove the lowercasing part of clean (which was being used to compensate for IE's buggy <code class="js">cssText</code> property)</li>
+</ul>
+<h2>v1.2.5 (2010-06-27)</h2>
+<ul>
+<li>IE's <code class="js">cssText</code> property is too buggy to be relied on, so we're returning to pure XHR</li>
+</ul>
+<h2>v1.2.4 (2010-06-24)</h2>
+<ul>
+<li>removing the examples folder from the build (as there are more extensions out there now).</li>
+<li>fixed a bug discovered in Mozilla browsers, which treat <code class="js">RegExp</code> as objects rather than functions.</li>
+<li>fixing some bugs in Chrome for Mac</li>
+<li>made some tweaks to the margin-boxes implementation in&nbsp;<a href="api/core-properties#pages"><code class="js">eCSStender.pages</code></a></li>
+<li>Added TODOs for allowing <code class="css">@media</code> to contain <code class="css">@page</code> and making&nbsp;<a href="api/core-properties#pages"><code class="js">eCSStender.pages</code></a>&nbsp;media-aware</li>
+<li>adjusted internals to keep a stack of delayed styles to write, to reduce the amount written to the document (and to maintain cascade, etc.)</li>
+<li>small fixes to <code class="js">validateCache()</code> and <code class="js">findImportedStylesheets()</code></li>
+<li>more optimizations</li>
+<li>added tests for the <code class="js"><a href="api/utilities#loadScript">eCSStender::loadScript()</a></code> method</li>
+<li>cleaned up some other tests</li>
+<li>minor bug fix for instances where CSS is purely embedded (no external files).</li>
+</ul>
+<h2>v1.2.3 (2010-05-27)</h2>
+<ul>
+<li><code class="js"><a href="api/core-methods#isSupported">eCSStender::isSupported()</a></code>&nbsp;caching bug resolved</li>
+<li>added public <code class="js"><a href="api/utilities#loadScript">eCSStender::loadScript()</a></code> method</li>
+<li>cleaned up JSLint warnings (regex stuff and semicolons)</li>
+<li>sped up <code class="js"><a href="api/utilities#isInheritedProperty">eCSStender::isInheritedProperty()</a></code> by switching to native <code class="js">hasOwnProperty()</code> if available</li>
+</ul>
+<h2>v1.2.2 (2010-04-28)</h2>
+<ul>
+<li>Minor bug fix in caching mechanism</li>
+</ul>
+<h2>v1.2.1 (2010-04-07)</h2>
+<ul>
+<li>Bug fixes for Firefox and IE</li>
+</ul>
+<h2>v1.2 (2010-04-07)</h2>
+<ul>
+<li>Adjusted the innards of eCSStender in hopes of reducing how often it blocks in the browser</li>
+</ul>
+<h2>v1.1.3 (2010-04-04)</h2>
+<ul>
+<li>Fixing a bug in IE's caching mechanism</li>
+</ul>
+<h2>v1.1.2 (2009-11-30)</h2>
+<ul>
+<li>Fixing the bug in IE8 introduced a bug in IE6 (different means of handling paths apparently)</li>
+<li>added check for <code class="js">__no_cache</code> to stop <code class="js">verifyCache()</code></li>
+<li>added <code class="js"><a href="api/core-methods#disableCache">eCSStender::disableCache()</a></code> call to the test page and examples (to keep the cache from interfering with results)</li>
+<li>This build and examples have been tested in IE6-8, Firefox 1.5-3.5, Safari 3+ (and Webkit nightly), Chrome, Opera, and Shiira.</li>
+</ul>
+<h2>v1.1.1 (2009-11-29)</h2>
+<ul>
+<li>Updating the examples to explicitly state what browsers should be supported in each</li>
+<li>Fixed an issue with <code class="js">determinePath()</code> in IE8 (IE seems to assume imported CSS files should have an <code class="js">href</code> = the path to the page + the filename, even if the file doing the importing is in a different folder)</li>
+</ul>
+<h2>v1.1 (2009-11-24)</h2>
+<ul>
+<li>Added support for delayed writing (to reduce DOM manipulation time) - optional boolean third param on <code class="js"><a href="api/core-methods#embedCSS">eCSStender::embedCSS()</a></code> and <code class="js"><a href="api/core-methods#newStyleElement">eCSStender::newStyleElement()</a></code> now allow delayed writing to the document (<code class="js">true</code> by default, use <code class="js">false</code> to disable)</li>
+<li>Added support for custom @-rules</li>
+<li>Added the tests for extended @-rules</li>
+<li>Adjusted extract to work with old IE versions and their horribly disfiguring of embedded CSS (fixes Greg Lucas' bug)</li>
+<li>Double-checked the examples for functionality under delayed-write</li>
+<li>More optimization for file size and performance                  
+<ul>
+<li>Externalized more strings and object references</li>
+<li>Streamlined the <code class="js"><a href="api/core-methods#addRules">eCSStender::addRules()</a></code> method to allow for bulk writing</li>
+<li>Aliased recurring checks</li>
+</ul>
+</li>
+<li>adjusted the pages test to check that overloading is working properly</li>
+<li>Updated title of combined example</li>
+<li>Fixed some bugs in the tests</li>
+<li>Updated the cache test to bail if being run locally (to avoid throwing a Security Error in Firefox)</li>
+</ul>
+<h2>v1.0 (2009-09-08)</h2>
+<ul>
+<li>added support for local cache when server (not file) based</li>
+<li>added public method <a href="api/core-methods#disableCache"><code class="js">eCSStender::disableCache()</code></a> to disable caching</li>
+<li>overhauled the caching mechanisms to be faster and more broad</li>
+<li>added new public method <a href="api/core-methods#ignore"><code class="js">eCSStender::ignore()</code></a> which accepts a string filename or array of string filenames to ignore when parsing stylesheets (allows speeding up by excluding simple stylesheets)</li>
+<li>added public method <a href="api/core-methods#onComplete"><code class="js">eCSStender::onComplete()</code></a> which accepts functions to be run when eCSStender finishes its work (for extensions that require access to everything after the fact)</li>
+<li><a href="api/core-methods#setFilter"><code class="js">eCSStender::setFilter()</code></a> renamed <a href="api/core-methods#addMethod"><code class="js">eCSStender::addMethod()</code></a> to avoid confusion with "filters" as a means of weeding out results of a search</li>
+<li><a href="api/core-properties#filters"><code class="js">eCSStender.filters</code></a> renamed <a href="api/core-properties#methods"><code class="js">eCSStender.methods</code></a> to avoid confusion with "filters" as a means of weeding out results of a search</li>
+<li>updated &amp; added to unit tests &amp; examples</li>
+<li>added JS code for QUnit to the package</li>
+<li>moved project from private repository to Github</li>
+</ul>
+<h2>v0.10 (2009-06-08)</h2>
+<ul>
+<li>overhaul of numerous internals to speed things up</li>
+<li>opened up selector-based lookups to finding by Function, either as a single or in an array</li>
+<li>added a new method (<code class="js"><a href="api/core-methods#lookup">eCSStender::lookup()</a></code>) to enable extension to re-query the CSS to extract additional information form the stylesheet. It takes arguments similar to those of <a href="api/core-methods#register"><code class="js">eCSStender::register</code></a> and returns an array of matches with a full complement of details. See the source for more information</li>
+<li>continued implementing the CSS3 selectors module, including a fix for IE6's issues with compound class selectors and a re-factoring of the <code class="css">:nth-child</code> extension to allow for some browsers' failure to comprehend whitespace not to require inline style additions.</li>
+<li>added/updated test cases</li>
+</ul>
+<h2>v0.9 (2009-06-05)</h2>
+<ul>
+<li>overhaul of internal <code class="js">eCSStend</code> method to speed it up</li>
+<li>opened up selector-based lookups to finding by RegExp</li>
+<li>adjusted <a href="api/core-methods#register"><code class="js">eCSStender::register()</code></a> to accept an array of selector lookups, each item of which can be a selector string (including compound selector strings) or RegExp.</li>
+<li>began work on implementing CSS3 modular extensions (./extensions/css3-modules), starting with selectors (./extensions/css3-modules/selectors) which leverage <a href="http://sizzlejs.com" rel="external">Sizzle</a></li>
+</ul>
+<h2>v0.8.1 (2009-06-04)</h2>
+<ul>
+<li>implemented <code class="js">__support_cache</code> for speeding up repeated calls to <a href="api/core-methods#isSupported"><code class="js">isSupported()</code></a></li>
+</ul>
+<h2>v0.8 (2009-05-24)</h2>
+<ul>
+<li>fixed typos and such on the examples</li>
+<li>added new public method: <a href="api/core-methods#applyWeightedStyle"><code class="js">eCSStender::applyWeightedStyle()</code></a></li>
+<li>updated <code class="css">:nth-child</code> example to use <a href="api/core-methods#applyWeightedStyle"><code class="js">eCSStender::applyWeightedStyle()</code></a></li>
+<li>added specificity to the list of arguments returned to an extension</li>
+<li>updated unit tests</li>
+<li>cleaned up unused files in ./examples</li>
+</ul>
+<h2>v0.7.2 (2009-05-22)</h2>
+<ul>
+<li>fix to <a href="api/core-methods#isSupported"><code class="js">eCSStender::isSupported()</code></a></li>
+</ul>
+<h2>v0.7.1 (2009-05-20)</h2>
+<ul>
+<li>moved contents of ./tests to ./examples to make room for actual unit testing code</li>
+<li>added unit tests in ./tests</li>
+<li>moved to referencing external <a href="http://jquery.com" rel="external">jQuery</a> in examples</li>
+</ul>
+<h2>v0.7 (2009-05-15)</h2>
+<ul>
+<li>added support for eCSStender to maintain CSS filter functions in <a href="api/core-properties#filters"><code class="js">eCSStender.filters</code></a> (for Microsoft filter support); public method <a href="api/core-methods#setFilter"><code class="js">eCSStender::setFilter()</code></a> will set or override eCSStender's maintained list of filters</li>
+<li>adjusted the <code class="js">findImportedStyleSheets()</code> method to better support IE6</li>
+<li>extracted the code to add a new stylesheet to the stack into a new private method: <code class="js">addStyleSheet()</code></li>
+<li>added a private path determination method to cut down on issues with regard to capturing nested stylesheets: <code class="js">determinePath()</code></li>
+<li>added support for lookups by an array of properties</li>
+<li>added support for filtering the results of a lookup by property or property value; new private method <code class="js">filtersMatched()</code> and an example implemented in the transform test (see below)</li>
+<li>adjusted the handling of the <code class="js">__xhr</code> property to better deal with IE6</li>
+<li>added a private method called <code class="js">zero_out()</code> to assist in auto-converting all instances of "0px" to "0" in properties (to ensure consistency when comparing native storage or properties)</li>
+<li>adjusted <a href="api/core-methods#addRules"><code class="js">eCSStender::addRules()</code></a> for better cross-browser compatibility</li>
+<li>fixed a bug in <a href="api/core-methods#isSupported"><code class="js">eCSStender::isSupported()</code></a> where IE was reporting that it knew what to do with advanced properties like <code class="css">transform</code> (it didn't)</li>
+<li>added a new test: ./tests/transform.html that implements CSS rotation in IE5.5+, Mozilla 3.5, and Safari 4</li>
+</ul>
+<h2>v0.6.2 (2009-05-08)</h2>
+<ul>
+<li>minor tweak to <code class="css">@page</code> to get IE6 to support "all" pages</li>
+<li>added <a href="http://www.fontsquirrel.com/fonts/Comfortaa">Comfortaa</a> font family in ./tests/fonts</li>
+<li>updated ./tests/css/screen.css to make use of Comfortaa</li>
+<li>tweaked ./tests/font-face.html and ./tests/page.html to use <code class="js">setTimeout()</code> instead of using <a href="http://jquery.com" rel="external">jQuery</a>'s <code class="js">fadeTo()</code> for the delay to keep IE6 from mangling the fonts</li>
+</ul>
+<h2>v0.6.1 (2009-04-19)</h2>
+<ul>
+<li>minor bug fix to <code class="css">@media</code> support</li>
+<li>updated object and docs to appropriate version (still had it as 0.5)</li>
+</ul>
+<h2>v0.6 (2009-04-19)</h2>
+<ul>
+<li>added support for <code class="css">@media</code> groups</li>
+<li>added support for and exposure of <code class="css">@font-face</code> (as <a href="api/core-properties#fonts"><code class="js">eCSStender.fonts</code></a>)</li>
+<li>added <code class="css">@font-face</code> test</li>
+<li>added support for and exposure of <code class="css">@page</code> (as <a href="api/core-properties#pages"><code class="js">eCSStender.pages</code></a>)</li>
+<li>added <code class="css">@page</code> test</li>
+<li>isolated and improved the property-extraction method</li>
+<li>fixed a minor oversight in the <code class="css">border-radius</code> example (did not insert <code class="css">-khtml-</code> properties)</li>
+</ul>
+<h2>v0.5 (2009-04-17)</h2>
+<ul>
+<li>Adjusted how eCSStender is created to avoid contaminating the <code class="js">window</code> object</li>
+<li>Tweaked the XHR construction</li>
+<li>Added <a href="api/core-methods#isInheritedProperty"><code class="js">isInheritedProperty</code></a> method to test for tainted <code class="js">Object</code></li>
+<li>Fixed a memory leak in IE</li>
+<li>Exposed <a href="api/utilities#isInheritedProperty"><code class="js">eCSStender::trim()</code></a> and <a href="api/utilities#isInheritedProperty"><code class="js">eCSStender::isInheritedProperty()</code></a></li>
+<li>added support for lookup by property fragment</li>
+<li>improved <code class="css">border-radius</code> sample extension</li>
+</ul>
+<h2>v0.4 (2009-03-29)</h2>
+<ul>
+<li>Added fixes to <code class="js">for...in</code> loops so we can play nice when someone extends Object (e.g. the <a href="http://prototypejs.org" rel="external">Prototype</a> library)</li>
+</ul>
+<h2>v0.3 (2009-03-28)</h2>
+<ul>
+<li>Added support for testing selectors</li>
+<li>Added documentation to exposed methods</li>
+</ul>
+<h2>v0.2 (2009-03-03)</h2>
+<ul>
+<li>Added support for test cases on a per-extension basis</li>
+<li>Initial check-in of script</li>
+</ul>
+<h2>v0.1 (Nov 2005 - Jan 2009)</h2>
+<ul>
+<li>First pass at general configuration and extensibility</li>
+<li>Non-version experiments and concept development stemming from gFSS (first demoed in Feb 2007 at <a href="http://north.webdirections.org" rel="external">Web Directions North</a>)</li>
+</ul>
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.js"></script>
+  <script src="../j/main.js"></script>
+  <script type="text/javascript" src="../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+

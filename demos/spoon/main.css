@@ -1,0 +1,14 @@
+body { background: rgb(54, 60, 59); color: rgb(235, 235, 235); font-size: 100%; position: absolute; top: 0; right: 0; left: 0; bottom: 0; }
+section, article, footer { display: block; }
+section, article, blockquote { border-radius: 10px; box-shadow: 0 0 15px 1px #000; color: rgb(255, 255, 255); transform-origin: 50% 50%; transition: all 0.5s linear; }
+section { background: rgba(255, 0, 0, .5); position: absolute; top: 50%; left: 50%; margin: -13.5em 0 0 -17em; }
+article { background: rgba(0, 255, 0, .5); }
+blockquote { background: rgba(0, 0, 255, .5); margin: 0; padding: 10em 2em; width: 30em; }
+section:hover, body:focus section, section:hover blockquote, body:focus blockquote { transform: rotate(-15deg); }
+section:hover article, body:focus article { transform: rotate(30deg); }
+blockquote p { font: 4em 'Lucida Grande', 'Lucida Sans Unicode', sans-serif; margin: 0; }
+blockquote p:before { content: '“'; float: left; font-size: 2em; line-height: .75; }
+blockquote p:last-child:before { content: ''; }
+p cite { font-size: .5em; display: block; text-align: right; }
+p cite:before { content: '—'; }
+footer { font-size: .8em; padding: 1em; text-align: center; position: absolute; bottom: 0; left: 0; right: 0; }

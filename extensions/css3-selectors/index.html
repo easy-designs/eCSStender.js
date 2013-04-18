@@ -1,0 +1,136 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en" id="ecsstender-org">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Language" content="en"/>
+
+  <title>#eCSStender.org { content: "Extension: CSS3 Selectors"; }</title>
+
+  
+  <meta name="MSSmartTagsPreventParsing" content="true"/>
+  <meta name="Copyright" content="(c) 2005&#8211;2010 Aaron Gustafson. All rights reserved."/>
+  <meta http-equiv="imagetoolbar" content="no"/>
+  <meta name="Rating" content="General"/>
+  
+  <link rel="home" href="../../index.html"/>
+  <link rel="copyright" href="index.html#copyright"/>
+  <link rel="shortcut icon" type="image/ico" href="../../favicon.ico"/>
+
+  <!--[if lte IE 8]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  <link rel="stylesheet" type="text/css" href="../../c/main.css"/>
+  
+  <!--[if lte IE 7]><link rel="stylesheet" type="text/css" media="all" href="/c/ie7.css"/><![endif]-->
+  <!--[if lte IE 6]><link rel="stylesheet" type="text/css" media="all" href="/c/ie6.css"/><![endif]-->  
+  <link rel="stylesheet" type="text/css" media="all" href="http://gist.github.com/stylesheets/gist/embed.css" />
+  
+</head>
+<body class="extensions" id="extension">
+
+
+  <header>
+    <h4 id="logo"><a href="../../index.html" title="Return to the eCSStender.org home page"><img src="../../img/logo.png" alt="eCSStender.org" /></a></h4>
+  </header>
+  <nav role="navigation">
+    <ul id="nav-main">
+      <li><a href="../../download">Download</a></li>
+      <li class="here"><a href="../../extensions">Extensions</a></li>
+      <li><a href="../../documentation">Documentation</a></li>
+    </ul>
+  </nav>
+  <section id="content">
+
+<nav id="crumbs">
+  <ol>
+    <li><a href="../index.html">Extensions</a></li><li><em>CSS3 Selectors</em></li>
+  </ol>
+</nav>
+
+<article>
+  <header>
+    <h1>CSS3 Selectors</h1>
+    <p class="author">Author: Aaron Gustafson</p>
+    <p class="version">Current Version: 0.3</p>
+      <p class="demo">Demo: <a rel="external" href="http://test.ecsstender.org/extensions/eCSStender.CSS3-selectors.js/test/">http://test.ecsstender.org/extensions/eCSStender.CSS3-selectors.js/test/</a></p>
+    </header>
+  <p>This extension&nbsp;seeks to implement&nbsp;the CSS3 Selectors module back to IE6. Support is currently incomplete, but the following are known to work:</p>
+<ul>
+<li>compound classes (e.g. <code class="css">.foo.bar</code>) - this is a fix for IE6 and under</li>
+<li><code class="css">:empty</code></li>
+<li>language (e.g. <code class="css">p:lang(fr)</code>)</li>
+<li><code class="css">:not</code></li>
+<li>adjacent siblings (e.g. <code class="css">p + p</code>)</li>
+<li>general siblings (e.g.&nbsp;<code class="css">p ~ p</code>)</li>
+<li>attributes              
+<ul>
+<li>existence (e.g. <code class="css">p[class]</code>)</li>
+<li>substring (e.g. <code class="css">p[class*=test]</code>)</li>
+<li>contains (e.g. <code class="css">p[class~=test]</code>)</li>
+<li>starts with (e.g. <code class="css">p[class^=test]</code>)</li>
+<li>ends with (e.g. <code class="css">p[class$=test]</code>)</li>
+<li>One in hyphen-separated list (e.g. <code class="css">p[class|=test]</code>)</li>
+</ul>
+</li>
+<li>calculated child selection (support varies by selector engine)     
+<ul>
+<li><code class="css">:first-child</code></li>
+<li><code class="css">:last-child</code></li>
+<li><code class="css">:only-child</code></li>
+<li><code class="css">:nth-child(*)</code></li>
+<li><code class="css">:nth-last-child(*)</code></li>
+</ul>
+</li>
+<li>calculated type selection&nbsp;(support varies by selector engine)     
+<ul>
+<li><code class="css">:nth-of-type(*)</code></li>
+<li><code class="css">:nth-last-of-type(*)</code></li>
+<li><code class="css">:first-of-type</code></li>
+<li><code class="css">:last-of-type</code></li>
+</ul>
+</li>
+<li>form pseudo-classes              
+<ul>
+<li><code class="css">:enabled</code></li>
+<li><code class="css">:disabled</code></li>
+<li><code class="css">:checked</code></li>
+</ul>
+</li>
+</ul>
+<p>Note: In order to use this extension, you will need to provide the extension with a selector engine to use as the eCSStender method <code class="js">findBySelector</code>. For example, to use Sizzle:</p>
+<p><div id="gist-386378" class="gist">                                      <div class="gist-file">          <div class="gist-data gist-syntax">                                                  <div class="gist-highlight"><pre><div class='line' id='LC1'><span class="nx">eCSStender</span><span class="p">.</span><span class="nx">addMethod</span><span class="p">(</span><span class="s1">&#39;findBySelector&#39;</span><span class="p">,</span><span class="nx">Sizzle</span><span class="p">);</span></div></pre></div>                      </div>          <div class="gist-meta">            <a href="https://gist.github.com/raw/386378/39ed1bc9128ab29390af2b8b635d06bbdbe7705d/eCSStender.CSS3-selectors-setup.js" style="float:right;">view raw</a>            <a href="https://gist.github.com/386378#file_e_cs_stender.css3_selectors_setup.js" style="float:right;margin-right:10px;color:#666">eCSStender.CSS3-selectors-setup.js</a>            <a href="https://gist.github.com/386378">This Gist</a> brought to you by <a href="http://github.com">GitHub</a>.          </div>        </div>            </div></p>
+  
+  <footer>
+    <ul>
+      <li class="license">License: MIT</li>
+      <li class="homepage"><a rel="external" href="http://github.com/easy-designs/eCSStender.CSS3-selectors.js">Homepage</a></li>
+      <li class="download no-md5"><a href="http://github.com/easy-designs/eCSStender.CSS3-selectors.js/zipball/latest">Download</a> (.zip)</li>
+            <li class="repo">Repository: git://github.com/easy-designs/eCSStender.CSS3-selectors.js.git</li>
+    </ul>
+  </footer>
+  
+
+
+
+</article>
+
+  </section><!-- /#content -->
+  
+  <footer>
+    <p id="copyright">Copyright 2005&ndash;2013 Aaron Gustafson. All Rights Reserved. <a href="../../colophon.html">Colophon</a></p>
+    <p id="license">eCSStender is licensed under the liberal <a href="../../documentation/license.html" rel="license">MIT License</a>.</p>
+  </footer>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.js"></script>
+  <script src="../../j/main.js"></script>
+  <script type="text/javascript" src="../../j/ecsstender.css3-selectors.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.CSS3-color.js"></script>
+  <script type="text/javascript" src="../../j/eCSStender.css3-backgrounds-and-borders.js"></script>
+
+</body>
+</html>
+
