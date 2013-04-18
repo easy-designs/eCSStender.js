@@ -266,7 +266,7 @@ ul#nav-main li a {
 }
 
 a#download {
-  background: url(http://images.ecsstender.org/css/download-button.png) center center no-repeat;
+  background: url(../img/download-button.png) center center no-repeat;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, .19);
   border-radius: 10px;
   display: block;
